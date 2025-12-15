@@ -49,38 +49,73 @@ const { HelmetProvider } = require('react-helmet-async');
 // When running from server/index.js, __dirname is server
 // We need to find the project root (where package.json is located)
 function getProjectRoot() {
-    let currentDir = __dirname;
+    let currentDir = path.resolve(__dirname);
+    const normalizedCurrentDir = currentDir.replace(/\\/g, '/'); // Normalize path separators
 
     // If we're in dist/server, go up two levels
-    if (currentDir.endsWith('dist/server')) {
-        return path.join(currentDir, '../..');
+    if (normalizedCurrentDir.endsWith('/dist/server') || normalizedCurrentDir.endsWith('\\dist\\server')) {
+        const root = path.resolve(currentDir, '../..');
+        console.log('Detected dist/server, going up two levels to:', root);
+        return root;
     }
 
     // If we're in server, go up one level
-    if (currentDir.endsWith('server')) {
-        return path.join(currentDir, '..');
+    if (normalizedCurrentDir.endsWith('/server') || normalizedCurrentDir.endsWith('\\server')) {
+        // Check if parent has package.json (we're in source server directory)
+        const parent = path.resolve(currentDir, '..');
+        if (fs.existsSync(path.join(parent, 'package.json'))) {
+            console.log('Detected server directory, going up one level to:', parent);
+            return parent;
+        }
     }
 
-    // Otherwise, try to find package.json by going up directories
+    // Try to find package.json by going up directories
     let dir = currentDir;
-    while (dir !== path.dirname(dir)) {
-        if (fs.existsSync(path.join(dir, 'package.json'))) {
+    let lastDir = '';
+    while (dir !== lastDir) {
+        const packageJsonPath = path.join(dir, 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+            console.log('Found package.json at:', dir);
             return dir;
         }
+        lastDir = dir;
         dir = path.dirname(dir);
     }
 
-    // Fallback to parent directory
-    return path.join(currentDir, '..');
+    // Fallback: use process.cwd() if available (working directory)
+    if (process.cwd && fs.existsSync(path.join(process.cwd(), 'package.json'))) {
+        console.log('Using process.cwd() as project root:', process.cwd());
+        return process.cwd();
+    }
+
+    // Last fallback to parent directory
+    const fallback = path.resolve(currentDir, '..');
+    console.log('Using fallback parent directory:', fallback);
+    return fallback;
 }
 
 const PROJECT_ROOT = getProjectRoot();
 
 // Log project root for debugging
-console.log('Project root:', PROJECT_ROOT);
+const distClientPath = path.join(PROJECT_ROOT, 'dist/client');
+const distClientExists = fs.existsSync(distClientPath);
+
+console.log('=== Server Startup Debug Info ===');
 console.log('__dirname:', __dirname);
-console.log('dist/client path:', path.join(PROJECT_ROOT, 'dist/client'));
-console.log('dist/client exists:', fs.existsSync(path.join(PROJECT_ROOT, 'dist/client')));
+console.log('process.cwd():', process.cwd());
+console.log('PROJECT_ROOT:', PROJECT_ROOT);
+console.log('dist/client path:', distClientPath);
+console.log('dist/client exists:', distClientExists);
+
+if (!distClientExists) {
+    console.error('ERROR: dist/client directory not found!');
+    console.error('Please run: npm run build');
+    // List what's in PROJECT_ROOT to help debug
+    if (fs.existsSync(PROJECT_ROOT)) {
+        console.log('Contents of PROJECT_ROOT:', fs.readdirSync(PROJECT_ROOT).join(', '));
+    }
+}
+console.log('================================');
 
 // Import App component and ServerDataProvider - webpack will bundle it when building server bundle
 // This must be a static require (not in try-catch) so webpack can include it in the bundle
@@ -101,7 +136,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from dist/client (built files) - MUST be before catch-all route
 // This includes bundle files, images copied by webpack, etc.
-const distClientPath = path.join(PROJECT_ROOT, 'dist/client');
 app.use(express.static(distClientPath, {
     maxAge: '1y', // Cache static assets for 1 year
     etag: true,
