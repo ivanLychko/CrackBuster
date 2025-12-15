@@ -8,6 +8,12 @@ module.exports = (env, argv) => {
 
   return {
     entry: './client/src/index.js',
+    cache: {
+      type: 'filesystem',
+      buildDependencies: {
+        config: [__filename],
+      },
+    },
     output: {
       path: path.resolve(__dirname, 'dist/client'),
       filename: isProduction ? 'bundle.[contenthash].js' : 'bundle.js',
@@ -41,16 +47,16 @@ module.exports = (env, argv) => {
             }
           ],
         },
-      {
-        test: /\.(png|jpg|jpeg|gif|svg|mp4)$/,
-        type: 'asset/resource',
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
-        type: 'asset/resource',
-      },
-    ],
-  },
+        {
+          test: /\.(png|jpg|jpeg|gif|svg|mp4)$/,
+          type: 'asset/resource',
+        },
+        {
+          test: /\.(woff|woff2|eot|ttf|otf)$/,
+          type: 'asset/resource',
+        },
+      ],
+    },
     plugins: [
       new HtmlWebpackPlugin({
         template: './client/public/index.html',
@@ -65,7 +71,7 @@ module.exports = (env, argv) => {
           },
         ],
       }),
-      ...(isProduction 
+      ...(isProduction
         ? [new MiniCssExtractPlugin({ filename: 'bundle.[contenthash].css' })]
         : []
       ),

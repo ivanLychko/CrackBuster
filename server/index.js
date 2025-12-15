@@ -62,11 +62,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from dist/client (built files) - MUST be before catch-all route
-app.use(express.static(path.join(__dirname, '../dist/client')));
+// This includes bundle files, images copied by webpack, etc.
+app.use(express.static(path.join(__dirname, '../dist/client'), {
+    maxAge: '1y', // Cache static assets for 1 year
+    etag: true,
+    lastModified: true
+}));
 
-// Serve static files from public folder (images, etc.)
-app.use('/images', express.static(path.join(__dirname, '../client/public/images')));
-app.use(express.static(path.join(__dirname, '../client/public')));
+// Serve static files from public folder (images, etc.) as fallback
+// This ensures images are available even if not copied to dist
+app.use('/images', express.static(path.join(__dirname, '../client/public/images'), {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true
+}));
+app.use(express.static(path.join(__dirname, '../client/public'), {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true
+}));
 
 // API routes
 app.use('/api', require('./routes/api'));
@@ -311,9 +325,25 @@ const renderApp = async (req) => {
 };
 
 // SSR route handler - catch all routes except static files
-app.get('*', async (req, res) => {
-    // Skip static file requests (they should be handled by express.static above)
+// Note: express.static middleware above should handle all static file requests
+// This route only handles HTML page requests
+app.get('*', async (req, res, next) => {
+    // Skip static file requests - they should be handled by express.static above
+    // If we reach here for a static file, it means express.static didn't find it
     if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|eot|ttf|otf|mp4)$/)) {
+        // Try to find the file in dist/client first
+        const distPath = path.join(__dirname, '../dist/client', req.path);
+        if (fs.existsSync(distPath)) {
+            return res.sendFile(distPath);
+        }
+        // Try to find in public/images for image requests
+        if (req.path.startsWith('/images/')) {
+            const publicPath = path.join(__dirname, '../client/public', req.path);
+            if (fs.existsSync(publicPath)) {
+                return res.sendFile(publicPath);
+            }
+        }
+        // File not found
         return res.status(404).send('File not found');
     }
 
