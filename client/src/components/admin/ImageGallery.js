@@ -40,7 +40,7 @@ const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images
   const fetchImages = async (cat, subfolder = '') => {
     setLoading(true);
     try {
-      const url = subfolder 
+      const url = subfolder
         ? `/api/admin/images/${cat}?subfolder=${encodeURIComponent(subfolder)}`
         : `/api/admin/images/${cat}`;
       const response = await fetch(url, {
@@ -186,7 +186,15 @@ const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images
       </div>
 
       {showPicker && (
-        <div className="image-picker-modal" onClick={() => setShowPicker(false)}>
+        <div
+          className="image-picker-modal"
+          onClick={(e) => {
+            // Close if click is directly on modal overlay (not on content)
+            if (e.target === e.currentTarget) {
+              setShowPicker(false);
+            }
+          }}
+        >
           <div className="picker-content" onClick={(e) => e.stopPropagation()}>
             <div className="picker-header">
               <h3>Select Images</h3>
@@ -235,7 +243,7 @@ const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images
                     {/* Breadcrumb navigation */}
                     {(currentSubfolder || folders.length > 0 || images.length > 0) && (
                       <div className="folder-breadcrumb">
-                        <button 
+                        <button
                           onClick={() => {
                             setCurrentSubfolder('');
                           }}
@@ -248,7 +256,7 @@ const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images
                           return (
                             <React.Fragment key={path}>
                               <span className="breadcrumb-separator">/</span>
-                              <button 
+                              <button
                                 onClick={() => handleFolderClick(path)}
                                 className="breadcrumb-item"
                               >

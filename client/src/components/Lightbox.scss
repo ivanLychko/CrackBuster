@@ -12,6 +12,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .lightbox-content {
@@ -19,6 +20,7 @@
   max-width: 90vw;
   max-height: 90vh;
   cursor: default;
+  pointer-events: auto;
 }
 
 .lightbox-close {
@@ -130,7 +132,3 @@
     bottom: 10px;
   }
 }
-
-
-
-

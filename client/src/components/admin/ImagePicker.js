@@ -133,7 +133,15 @@ const ImagePicker = ({ value, onChange, category = 'general', label = 'Image' })
       </div>
 
       {showPicker && (
-        <div className="image-picker-modal" onClick={() => setShowPicker(false)}>
+        <div
+          className="image-picker-modal"
+          onClick={(e) => {
+            // Close if click is directly on modal overlay (not on content)
+            if (e.target === e.currentTarget) {
+              setShowPicker(false);
+            }
+          }}
+        >
           <div className="picker-content" onClick={(e) => e.stopPropagation()}>
             <div className="picker-header">
               <h3>Select Image</h3>

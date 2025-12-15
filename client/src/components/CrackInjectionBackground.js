@@ -32,64 +32,53 @@ class CrackInjectionBackgroundClass {
     this.resize();
     window.addEventListener('resize', () => this.resize());
     window.addEventListener('scroll', () => this.handleScroll());
-    
+
     // Add event listeners to canvas
     this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
     this.canvas.addEventListener('click', (e) => this.handleClick(e));
     this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
     this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
-    
+
     // Also listen to document clicks to catch clicks on empty areas
     this.documentClickHandler = (e) => {
-      // Check if click is on an interactive element or element with background
       const target = e.target;
-      const isInteractive = target.tagName === 'A' || 
-                           target.tagName === 'BUTTON' || 
-                           target.tagName === 'INPUT' || 
-                           target.tagName === 'TEXTAREA' ||
-                           target.tagName === 'SELECT' ||
-                           target.closest('a, button, input, textarea, select, [role="button"], .btn, form');
-      
-      // Check if element has a background (cards, sections, etc.)
-      const hasBackground = target.closest('.service-card, .feature, .work-card, .blog-card, .page-header, .hero, .cta-section, header, footer, [class*="card"], [class*="section"]');
-      
-      // If not interactive and no background, pass click to canvas
-      if (!isInteractive && !hasBackground && target.closest('.app')) {
+
+      // Check if click is on a modal/overlay (should not trigger background effect)
+      const isModal = target.closest('.lightbox-overlay, .image-modal, .image-picker-modal, [class*="modal"], [class*="overlay"]');
+
+      // Always trigger background effect unless it's a modal
+      if (!isModal && target.closest('.app')) {
         this.handleClick({ clientX: e.clientX, clientY: e.clientY });
       }
     };
-    
+
     this.documentMouseDownHandler = (e) => {
       const target = e.target;
-      const isInteractive = target.tagName === 'A' || 
-                           target.tagName === 'BUTTON' || 
-                           target.tagName === 'INPUT' || 
-                           target.tagName === 'TEXTAREA' ||
-                           target.tagName === 'SELECT' ||
-                           target.closest('a, button, input, textarea, select, [role="button"], .btn, form');
-      
-      const hasBackground = target.closest('.service-card, .feature, .work-card, .blog-card, .page-header, .hero, .cta-section, header, footer, [class*="card"], [class*="section"]');
-      
-      if (!isInteractive && !hasBackground && target.closest('.app')) {
+
+      // Check if click is on a modal/overlay (should not trigger background effect)
+      const isModal = target.closest('.lightbox-overlay, .image-modal, .image-picker-modal, [class*="modal"], [class*="overlay"]');
+
+      // Always trigger background effect unless it's a modal
+      if (!isModal && target.closest('.app')) {
         this.isInjecting = true;
         this.handleMouseDown({ clientX: e.clientX, clientY: e.clientY });
       }
     };
-    
+
     this.documentMouseUpHandler = (e) => {
       this.isInjecting = false;
       this.handleMouseUp(e);
     };
-    
+
     this.documentMouseMoveHandler = (e) => {
       this.mouse.x = e.clientX;
       this.mouse.y = e.clientY;
-      
+
       if (this.isInjecting) {
         this.handleMouseMove({ clientX: e.clientX, clientY: e.clientY });
       }
     };
-    
+
     document.addEventListener('click', this.documentClickHandler);
     document.addEventListener('mousedown', this.documentMouseDownHandler);
     document.addEventListener('mouseup', this.documentMouseUpHandler);

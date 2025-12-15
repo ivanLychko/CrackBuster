@@ -28,24 +28,36 @@ const Lightbox = ({ images, currentIndex, onClose, onNext, onPrev }) => {
 
   const currentImage = images[currentIndex];
 
+  const handleOverlayClick = (e) => {
+    // Close if click is directly on overlay (not on content)
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleContentClick = (e) => {
+    // Prevent clicks on content from closing the lightbox
+    e.stopPropagation();
+  };
+
   return (
-    <div className="lightbox-overlay" onClick={onClose}>
-      <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+    <div className="lightbox-overlay" onClick={handleOverlayClick}>
+      <div className="lightbox-content" onClick={handleContentClick}>
         <button className="lightbox-close" onClick={onClose} aria-label="Close">
           ×
         </button>
-        
+
         {images.length > 1 && (
           <>
-            <button 
-              className="lightbox-nav lightbox-prev" 
+            <button
+              className="lightbox-nav lightbox-prev"
               onClick={onPrev}
               aria-label="Previous image"
             >
               ‹
             </button>
-            <button 
-              className="lightbox-nav lightbox-next" 
+            <button
+              className="lightbox-nav lightbox-next"
               onClick={onNext}
               aria-label="Next image"
             >
@@ -55,8 +67,8 @@ const Lightbox = ({ images, currentIndex, onClose, onNext, onPrev }) => {
         )}
 
         <div className="lightbox-image-container">
-          <img 
-            src={currentImage} 
+          <img
+            src={currentImage}
             alt={`Image ${currentIndex + 1} of ${images.length}`}
             className="lightbox-image"
             onError={(e) => {
