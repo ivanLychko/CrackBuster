@@ -102,7 +102,7 @@ const servicesData = [
 
         <section class="why-needed">
             <h2>Why Foundation Crack Repair is Essential</h2>
-            <p>Ignoring foundation cracks can lead to serious consequences that cost thousands of dollars to fix. Here's why timely repair is crucial:</p>
+            <p>Ignoring foundation cracks can lead to serious consequences that result in expensive repairs. Here's why timely repair is crucial:</p>
             
             <div class="benefits-grid">
                 <div class="benefit-item">
@@ -1716,7 +1716,7 @@ const blogPostsData = [
         title: 'Cost-Effective Foundation Maintenance',
         excerpt: 'Tips for maintaining your foundation and preventing expensive repairs through regular maintenance.',
         content: `<div class="blog-intro">
-            <p>Regular foundation maintenance can save you thousands of dollars in repairs. Many homeowners wait until problems become serious before addressing foundation issues, but proactive maintenance is far more cost-effective. This comprehensive guide provides practical, cost-effective strategies for maintaining your foundation and preventing expensive repairs.</p>
+            <p>Regular foundation maintenance can save you significant money on repairs. Many homeowners wait until problems become serious before addressing foundation issues, but proactive maintenance is far more cost-effective. This comprehensive guide provides practical, cost-effective strategies for maintaining your foundation and preventing expensive repairs.</p>
             <img src="/images/stock/Identifying-Different-Types-of-Foundation-Cracks - Copy.jpg" alt="Foundation Maintenance" class="blog-featured-image" loading="lazy" />
         </div>
 
@@ -1756,7 +1756,7 @@ const blogPostsData = [
                     <li>Cracks allowing water infiltration</li>
                 </ul>
                 
-                <p><strong>Cost Savings:</strong> Monitoring cracks yourself costs nothing but time. Early detection can save thousands compared to waiting until problems become severe.</p>
+                <p><strong>Cost Savings:</strong> Monitoring cracks yourself costs nothing but time. Early detection can save significant money compared to waiting until problems become severe.</p>
             </div>
         </section>
 
@@ -1789,7 +1789,7 @@ const blogPostsData = [
                     <li><strong>Regrade as needed:</strong> Address grading issues before they cause foundation problems</li>
                 </ul>
                 
-                <p><strong>Cost:</strong> Basic drainage maintenance costs little—mostly your time. Professional grading or drainage improvements typically cost $500-$2,000, but prevent much more expensive foundation repairs.</p>
+                <p><strong>Cost:</strong> Basic drainage maintenance costs little—mostly your time. Professional grading or drainage improvements are an investment that prevents much more expensive foundation repairs. Contact us for a free estimate on drainage improvements.</p>
             </div>
         </section>
 
@@ -1842,7 +1842,7 @@ const blogPostsData = [
                     <div class="cost-item">
                         <h4>Prompt Repair (Small Crack)</h4>
                         <ul>
-                            <li>Crack injection: $300-$800</li>
+                            <li>Affordable crack injection repair</li>
                             <li>Prevents water damage</li>
                             <li>Stops further deterioration</li>
                             <li>Minimal disruption</li>
@@ -1851,9 +1851,9 @@ const blogPostsData = [
                     <div class="cost-item">
                         <h4>Delayed Repair (Major Problem)</h4>
                         <ul>
-                            <li>Water damage restoration: $2,000-$10,000+</li>
-                            <li>Mold remediation: $1,500-$5,000+</li>
-                            <li>Foundation repairs: $5,000-$20,000+</li>
+                            <li>Expensive water damage restoration</li>
+                            <li>Costly mold remediation</li>
+                            <li>Major foundation repairs</li>
                             <li>Replacement of damaged belongings</li>
                         </ul>
                     </div>
@@ -1884,7 +1884,7 @@ const blogPostsData = [
                 </ul>
                 
                 <h3>Cost vs. Benefit:</h3>
-                <p>Professional inspections typically cost $300-$600, but they can identify problems early that would cost thousands to repair if left unaddressed. The peace of mind alone is often worth the investment.</p>
+                <p>Professional inspections are an affordable investment that can identify problems early, preventing expensive repairs if left unaddressed. The peace of mind alone is often worth the investment. Contact us for a free consultation about inspection services.</p>
             </div>
         </section>
 
@@ -1930,25 +1930,25 @@ const blogPostsData = [
             <p>Investing in regular foundation maintenance is one of the most cost-effective home maintenance strategies. Here's why:</p>
             
             <div class="cost-analysis">
-                <h3>Annual Maintenance Costs:</h3>
+                <h3>Annual Maintenance Investment:</h3>
                 <ul>
-                    <li>DIY inspections: $0 (your time)</li>
-                    <li>Gutter cleaning: $100-$300 (or DIY)</li>
-                    <li>Minor repairs: $0-$500 (as needed)</li>
-                    <li>Professional inspection: $300-$600</li>
-                    <li><strong>Total: $400-$1,400 per year</strong></li>
+                    <li>DIY inspections: Free (your time)</li>
+                    <li>Gutter cleaning: Affordable service or DIY</li>
+                    <li>Minor repairs: Varies based on needs</li>
+                    <li>Professional inspection: Affordable preventive investment</li>
+                    <li><strong>Total: Minimal annual investment</strong></li>
                 </ul>
                 
                 <h3>Cost of Neglect:</h3>
                 <ul>
-                    <li>Water damage restoration: $2,000-$10,000+</li>
-                    <li>Mold remediation: $1,500-$5,000+</li>
-                    <li>Foundation repairs: $5,000-$20,000+</li>
-                    <li>Structural repairs: $10,000-$50,000+</li>
-                    <li>Property value loss: Thousands of dollars</li>
+                    <li>Expensive water damage restoration</li>
+                    <li>Costly mold remediation</li>
+                    <li>Major foundation repairs</li>
+                    <li>Extensive structural repairs</li>
+                    <li>Significant property value loss</li>
                 </ul>
                 
-                <p><strong>The math is clear:</strong> Regular maintenance costs a fraction of what major repairs cost. Investing in maintenance prevents problems and saves money long-term.</p>
+                <p><strong>The comparison is clear:</strong> Regular maintenance costs a fraction of what major repairs cost. Investing in maintenance prevents problems and saves money long-term.</p>
             </div>
         </section>
 
@@ -2782,7 +2782,7 @@ const blogPostsData = [
             <div class="value-impact">
                 <h3>Impact on Home Value:</h3>
                 <ul>
-                    <li><strong>Reduced Market Value:</strong> Foundation issues can reduce your home's value by thousands of dollars</li>
+                    <li><strong>Reduced Market Value:</strong> Foundation issues can significantly reduce your home's value</li>
                     <li><strong>Difficult to Sell:</strong> Buyers are often hesitant to purchase homes with foundation problems</li>
                     <li><strong>Failed Inspections:</strong> Foundation cracks often appear in home inspections, causing sales to fall through</li>
                     <li><strong>Negotiation Leverage:</strong> Buyers may demand price reductions or repairs before closing</li>
@@ -2804,9 +2804,9 @@ const blogPostsData = [
             
             <div class="cost-comparison">
                 <div class="cost-item">
-                    <h3>Early Repair Costs</h3>
+                    <h3>Early Repair Investment</h3>
                     <ul>
-                        <li>Simple crack injection: $300-$800 per crack</li>
+                        <li>Affordable crack injection repair</li>
                         <li>Prevents water damage</li>
                         <li>Stops further deterioration</li>
                         <li>Minimal disruption</li>
@@ -2816,16 +2816,16 @@ const blogPostsData = [
                 <div class="cost-item">
                     <h3>Delayed Repair Costs</h3>
                     <ul>
-                        <li>Water damage restoration: $2,000-$10,000+</li>
-                        <li>Mold remediation: $1,500-$5,000+</li>
-                        <li>Foundation repairs: $5,000-$20,000+</li>
+                        <li>Expensive water damage restoration</li>
+                        <li>Costly mold remediation</li>
+                        <li>Major foundation repairs</li>
                         <li>Replacement of damaged belongings</li>
                         <li>Potential structural repairs</li>
                     </ul>
                 </div>
             </div>
             
-            <p><strong>The math is clear:</strong> Repairing cracks early is far more cost-effective than dealing with the consequences of neglect.</p>
+            <p><strong>The comparison is clear:</strong> Repairing cracks early is far more cost-effective than dealing with the consequences of neglect. Contact us for a free estimate to see how affordable early repair can be.</p>
         </section>
 
         <section class="peace-of-mind">
@@ -2852,7 +2852,7 @@ const blogPostsData = [
                 
                 <div class="consequence-item">
                     <h3>⚠️ Increased Repair Costs</h3>
-                    <p>As problems worsen, repair costs increase exponentially. A simple crack injection today can prevent thousands of dollars in damage and repairs tomorrow.</p>
+                    <p>As problems worsen, repair costs increase significantly. A simple crack injection today can prevent extensive damage and expensive repairs tomorrow.</p>
                 </div>
                 
                 <div class="consequence-item">
@@ -3461,9 +3461,9 @@ const blogPostsData = [
                 <article class="cost-item">
                     <h3>Drainage Improvements</h3>
                     <ul>
-                        <li>Grading improvements: $500-$2,000</li>
-                        <li>Gutter maintenance: $100-$300/year</li>
-                        <li>Drainage systems: $2,000-$10,000</li>
+                        <li>Affordable grading improvements</li>
+                        <li>Reasonable gutter maintenance costs</li>
+                        <li>Professional drainage systems</li>
                         <li>Prevents expensive foundation repairs</li>
                     </ul>
                 </article>
@@ -3471,14 +3471,14 @@ const blogPostsData = [
                 <article class="cost-item">
                     <h3>Cost of Poor Drainage</h3>
                     <ul>
-                        <li>Foundation repairs: $5,000-$20,000+</li>
-                        <li>Water damage restoration: $2,000-$10,000+</li>
-                        <li>Mold remediation: $1,500-$5,000+</li>
-                        <li>Structural repairs: $10,000-$50,000+</li>
+                        <li>Major foundation repairs</li>
+                        <li>Expensive water damage restoration</li>
+                        <li>Costly mold remediation</li>
+                        <li>Extensive structural repairs</li>
                     </ul>
                 </article>
             </div>
-            <p><strong>The investment in proper drainage pays for itself many times over by preventing foundation damage.</strong></p>
+            <p><strong>The investment in proper drainage pays for itself many times over by preventing foundation damage. Contact us for a free estimate on drainage improvements.</strong></p>
         </section>
 
         <section class="conclusion">
