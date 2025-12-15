@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './Services.scss';
 
 const Services = () => {
@@ -64,11 +65,25 @@ const Services = () => {
     <>
       <Helmet>
         <title>Foundation Repair Services in Edmonton | CrackBuster</title>
-        <meta 
-          name="description" 
-          content="Comprehensive foundation repair services in Edmonton. Foundation crack repair, basement waterproofing, crack injection, and more. Expert solutions for your foundation needs." 
+        <meta
+          name="description"
+          content="Comprehensive foundation repair services in Edmonton. Foundation crack repair, basement waterproofing, crack injection, and more. Expert solutions for your foundation needs."
         />
-        <link rel="canonical" href="https://crackbuster.ca/services" />
+        <link rel="canonical" href={getCanonicalUrl('/services')} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Foundation Repair Services in Edmonton | CrackBuster" />
+        <meta property="og:description" content="Comprehensive foundation repair services in Edmonton. Foundation crack repair, basement waterproofing, crack injection, and more." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={getCanonicalUrl('/services')} />
+        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:locale" content="en_CA" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Foundation Repair Services in Edmonton | CrackBuster" />
+        <meta name="twitter:description" content="Comprehensive foundation repair services in Edmonton." />
+        <meta name="twitter:image" content={getDefaultOgImage()} />
       </Helmet>
 
       <div className="services">
@@ -89,8 +104,8 @@ const Services = () => {
                   <div key={service._id || service.id} className="service-card">
                     {service.image && (
                       <div className="service-image">
-                        <img 
-                          src={service.image} 
+                        <img
+                          src={service.image}
                           alt={service.title}
                           loading="lazy"
                         />

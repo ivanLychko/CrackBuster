@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './BlogPost.scss';
 
 const BlogPost = () => {
@@ -29,7 +30,7 @@ const BlogPost = () => {
     fetchPost();
   }, [slug]);
 
-  // Add lazy loading to all images in post content
+  // Add lazy loading and styling to all images in post content
   useEffect(() => {
     if (post) {
       const postBody = document.querySelector('.post-body');
@@ -39,39 +40,196 @@ const BlogPost = () => {
           if (!img.hasAttribute('loading')) {
             img.setAttribute('loading', 'lazy');
           }
+          // Add styling to images if they don't have classes
+          if (!img.className) {
+            img.className = 'post-image-content';
+          }
+        });
+
+        // Style headings
+        const headings = postBody.querySelectorAll('h2, h3, h4');
+        headings.forEach(heading => {
+          if (!heading.className) {
+            heading.className = `post-heading-${heading.tagName.toLowerCase()}`;
+          }
+        });
+
+        // Style paragraphs
+        const paragraphs = postBody.querySelectorAll('p');
+        paragraphs.forEach(p => {
+          if (!p.className && p.textContent.trim()) {
+            p.className = 'post-paragraph';
+          }
+        });
+
+        // Style lists
+        const lists = postBody.querySelectorAll('ul, ol');
+        lists.forEach(list => {
+          if (!list.className) {
+            list.className = 'post-list';
+          }
+        });
+
+        // Style blockquotes
+        const blockquotes = postBody.querySelectorAll('blockquote');
+        blockquotes.forEach(blockquote => {
+          if (!blockquote.className) {
+            blockquote.className = 'post-blockquote';
+          }
+        });
+
+        // Style links
+        const links = postBody.querySelectorAll('a');
+        links.forEach(link => {
+          if (!link.className) {
+            link.className = 'post-link';
+          }
         });
       }
     }
   }, [post]);
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="blog-post">
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <p>Loading article...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!post) {
-    return <div className="error">Post not found</div>;
+    return (
+      <div className="blog-post">
+        <div className="error">
+          <div className="error-icon">❌</div>
+          <h2>Post not found</h2>
+          <p>The article you're looking for doesn't exist.</p>
+          <Link to="/blog" className="back-link">← Back to Blog</Link>
+        </div>
+      </div>
+    );
   }
+
+  // Prepare structured data
+  const postImage = post.featuredImage || post.image ? getCanonicalUrl(post.featuredImage || post.image) : getDefaultOgImage();
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.metaDescription || post.excerpt,
+    "image": postImage,
+    "datePublished": post.publishedAt ? new Date(post.publishedAt).toISOString() : "",
+    "author": {
+      "@type": "Organization",
+      "name": "CrackBuster"
+    },
+    "publisher": {
+      "@type": "LocalBusiness",
+      "name": "CrackBuster",
+      "logo": {
+        "@type": "ImageObject",
+        "url": getCanonicalUrl('/images/logo.png')
+      }
+    }
+  };
 
   return (
     <>
       <Helmet>
-        <title>{post.metaTitle || post.title}</title>
-        <meta name="description" content={post.metaDescription} />
-        <link rel="canonical" href={`https://crackbuster.ca/blog/${slug}`} />
+        <title>{post.metaTitle || post.title} | CrackBuster Blog</title>
+        <meta name="description" content={post.metaDescription || post.excerpt} />
+        <link rel="canonical" href={getCanonicalUrl(`/blog/${slug}`)} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={post.metaTitle || post.title} />
+        <meta property="og:description" content={post.metaDescription || post.excerpt} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={getCanonicalUrl(`/blog/${slug}`)} />
+        <meta property="og:image" content={postImage} />
+        {post.publishedAt && <meta property="article:published_time" content={new Date(post.publishedAt).toISOString()} />}
+        <meta property="og:locale" content="en_CA" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.metaTitle || post.title} />
+        <meta name="twitter:description" content={post.metaDescription || post.excerpt} />
+        <meta name="twitter:image" content={postImage} />
+
+        {/* JSON-LD Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
       </Helmet>
 
       <div className="blog-post">
         <article className="post-content-wrapper">
           <div className="container">
-            <Link to="/blog" className="back-link">← Back to Blog</Link>
+            <Link to="/blog" className="back-link">
+              <span className="back-icon">←</span>
+              <span>Back to Blog</span>
+            </Link>
             <header className="post-header">
-              <time>{new Date(post.publishedAt).toLocaleDateString()}</time>
+              <div className="post-meta-info">
+                <time className="post-date">
+                  <span className="date-icon">📅</span>
+                  <span>{formatDate(post.publishedAt)}</span>
+                </time>
+                {post.keywords && post.keywords.length > 0 && (
+                  <div className="post-tags">
+                    {post.keywords.map((keyword, index) => (
+                      <span key={index} className="tag">
+                        <span className="tag-icon">🏷️</span>
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <h1>{post.title}</h1>
+              {post.excerpt && (
+                <p className="post-excerpt-header">{post.excerpt}</p>
+              )}
             </header>
-            <div 
-              className="post-body" 
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+
+            <div className="post-body-wrapper">
+              <div
+                className="post-body"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            </div>
+
+            <footer className="post-footer">
+              <div className="post-footer-content">
+                <div className="footer-section">
+                  <h3>Need Help?</h3>
+                  <p>If you have questions about foundation repair or need professional assistance, don't hesitate to contact us.</p>
+                  <Link to="/contact-us" className="footer-cta">
+                    <span className="cta-icon">📞</span>
+                    <span>Contact Us</span>
+                  </Link>
+                </div>
+                <div className="footer-section">
+                  <h3>Get a Free Estimate</h3>
+                  <p>Ready to fix your foundation? Get a free, no-obligation estimate from our experts.</p>
+                  <Link to="/get-estimate" className="footer-cta">
+                    <span className="cta-icon">💰</span>
+                    <span>Get Estimate</span>
+                  </Link>
+                </div>
+              </div>
+            </footer>
           </div>
         </article>
       </div>

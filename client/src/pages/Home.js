@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import useSiteSettings from '../hooks/useSiteSettings';
+import { getCanonicalUrl, getDefaultOgImage, SITE_NAME } from '../utils/seo';
 import './Home.scss';
 
 const Home = () => {
@@ -31,6 +32,43 @@ const Home = () => {
     fetchServices();
   }, []);
 
+  // Prepare structured data
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "CrackBuster",
+    "description": "Professional foundation crack repair services in Edmonton, Canada",
+    "url": getCanonicalUrl('/'),
+    "logo": getCanonicalUrl('/images/logo.png'),
+    "image": getDefaultOgImage(),
+    "telephone": settings?.phone || "",
+    "email": settings?.email || "",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Edmonton",
+      "addressRegion": "AB",
+      "addressCountry": "CA",
+      "streetAddress": settings?.address || ""
+    },
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "Edmonton"
+      },
+      {
+        "@type": "City",
+        "name": "Sherwood Park"
+      },
+      {
+        "@type": "City",
+        "name": "St. Albert"
+      }
+    ],
+    "serviceType": "Foundation Crack Repair",
+    "priceRange": "$$",
+    "openingHours": settings?.businessHours || "Mo-Fr 08:00-17:00"
+  };
+
   return (
     <>
       <Helmet>
@@ -43,33 +81,27 @@ const Home = () => {
           name="keywords"
           content="foundation crack repair, edmonton, canada, basement waterproofing, foundation repair, crack injection, concrete repair"
         />
-        <link rel="canonical" href="https://crackbuster.ca/" />
+        <link rel="canonical" href={getCanonicalUrl('/')} />
 
         {/* Open Graph */}
         <meta property="og:title" content="Foundation Crack Repair in Edmonton | CrackBuster" />
-        <meta property="og:description" content="Professional foundation crack repair services in Edmonton, Canada." />
+        <meta property="og:description" content="Professional foundation crack repair services in Edmonton, Canada. Expert solutions for basement waterproofing, foundation repair, and crack injection." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://crackbuster.ca/" />
+        <meta property="og:url" content={getCanonicalUrl('/')} />
+        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="en_CA" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Foundation Crack Repair in Edmonton | CrackBuster" />
+        <meta name="twitter:description" content="Professional foundation crack repair services in Edmonton, Canada." />
+        <meta name="twitter:image" content={getDefaultOgImage()} />
 
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            "name": "CrackBuster",
-            "description": "Professional foundation crack repair services in Edmonton, Canada",
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": "Edmonton",
-              "addressRegion": "AB",
-              "addressCountry": "CA"
-            },
-            "areaServed": {
-              "@type": "City",
-              "name": "Edmonton"
-            },
-            "serviceType": "Foundation Crack Repair"
-          })}
+          {JSON.stringify(structuredData)}
         </script>
       </Helmet>
 

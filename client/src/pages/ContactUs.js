@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import useSiteSettings from '../hooks/useSiteSettings';
+import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './ContactUs.scss';
 
 const ContactUs = () => {
@@ -51,15 +52,43 @@ const ContactUs = () => {
     }
   };
 
+  // Prepare structured data
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact CrackBuster",
+    "description": "Contact CrackBuster for foundation repair services in Edmonton",
+    "url": getCanonicalUrl('/contact-us')
+  };
+
   return (
     <>
       <Helmet>
         <title>Contact Us - Foundation Repair Experts | CrackBuster Edmonton</title>
-        <meta 
-          name="description" 
-          content="Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries." 
+        <meta
+          name="description"
+          content="Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries."
         />
-        <link rel="canonical" href="https://crackbuster.ca/contact-us" />
+        <link rel="canonical" href={getCanonicalUrl('/contact-us')} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Contact Us - Foundation Repair Experts | CrackBuster Edmonton" />
+        <meta property="og:description" content="Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={getCanonicalUrl('/contact-us')} />
+        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:locale" content="en_CA" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Contact Us - Foundation Repair Experts | CrackBuster Edmonton" />
+        <meta name="twitter:description" content="Contact CrackBuster for foundation repair services in Edmonton." />
+        <meta name="twitter:image" content={getDefaultOgImage()} />
+
+        {/* JSON-LD Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
       </Helmet>
 
       <div className="contact-us">

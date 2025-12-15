@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './GetEstimate.scss';
 
 const GetEstimate = () => {
@@ -163,7 +164,21 @@ const GetEstimate = () => {
           name="description"
           content="Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we'll get back to you with a detailed quote."
         />
-        <link rel="canonical" href="https://crackbuster.ca/get-estimate" />
+        <link rel="canonical" href={getCanonicalUrl('/get-estimate')} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Get Free Estimate - Foundation Repair | CrackBuster Edmonton" />
+        <meta property="og:description" content="Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we'll get back to you with a detailed quote." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={getCanonicalUrl('/get-estimate')} />
+        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:locale" content="en_CA" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Get Free Estimate - Foundation Repair | CrackBuster Edmonton" />
+        <meta name="twitter:description" content="Get a free estimate for your foundation repair project in Edmonton." />
+        <meta name="twitter:image" content={getDefaultOgImage()} />
       </Helmet>
 
       <div className="get-estimate">

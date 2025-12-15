@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CrackInjectionBackground from './components/CrackInjectionBackground';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import ServiceDetail from './pages/ServiceDetail';
@@ -24,6 +25,7 @@ const App = ({ location: ssrLocation }) => {
 
   return (
     <>
+      <ScrollToTop />
       <Helmet>
         <html lang="en" />
         <meta charSet="utf-8" />

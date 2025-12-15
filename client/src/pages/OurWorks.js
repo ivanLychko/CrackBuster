@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Lightbox from '../components/Lightbox';
+import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './OurWorks.scss';
 
 const OurWorks = () => {
@@ -136,11 +137,25 @@ const OurWorks = () => {
     <>
       <Helmet>
         <title>Our Works - Foundation Repair Projects | CrackBuster Edmonton</title>
-        <meta 
-          name="description" 
-          content="View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions." 
+        <meta
+          name="description"
+          content="View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions."
         />
-        <link rel="canonical" href="https://crackbuster.ca/our-works" />
+        <link rel="canonical" href={getCanonicalUrl('/our-works')} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Our Works - Foundation Repair Projects | CrackBuster Edmonton" />
+        <meta property="og:description" content="View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={getCanonicalUrl('/our-works')} />
+        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:locale" content="en_CA" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Our Works - Foundation Repair Projects | CrackBuster Edmonton" />
+        <meta name="twitter:description" content="View our completed foundation repair projects in Edmonton." />
+        <meta name="twitter:image" content={getDefaultOgImage()} />
       </Helmet>
 
       <div className="our-works">
@@ -165,12 +180,12 @@ const OurWorks = () => {
                   <div key={work._id || work.id} className="work-card">
                     {work.images && work.images.length > 0 && (
                       <div className="work-image-gallery">
-                        <div 
+                        <div
                           className="work-main-image"
                           onClick={() => openLightbox(work.images, 0)}
                         >
-                          <img 
-                            src={work.images[0]} 
+                          <img
+                            src={work.images[0]}
                             alt={work.title}
                             loading="lazy"
                             onError={(e) => {
@@ -195,13 +210,13 @@ const OurWorks = () => {
                         {work.images.length > 1 && (
                           <div className="work-thumbnails">
                             {work.images.slice(1, 4).map((img, idx) => (
-                              <div 
+                              <div
                                 key={idx}
                                 className="thumbnail"
                                 onClick={() => openLightbox(work.images, idx + 1)}
                               >
-                                <img 
-                                  src={img} 
+                                <img
+                                  src={img}
                                   alt={`${work.title} - Image ${idx + 2}`}
                                   loading="lazy"
                                   onError={(e) => {
@@ -220,7 +235,7 @@ const OurWorks = () => {
                               </div>
                             ))}
                             {work.images.length > 4 && (
-                              <div 
+                              <div
                                 className="thumbnail more-photos"
                                 onClick={() => openLightbox(work.images, 0)}
                               >
@@ -236,8 +251,8 @@ const OurWorks = () => {
                       <p className="work-location">
                         <span className="location-icon">📍</span> {work.location}
                       </p>
-                      <div 
-                        className="work-description" 
+                      <div
+                        className="work-description"
                         dangerouslySetInnerHTML={{ __html: work.description }}
                       />
                       <time className="work-date">

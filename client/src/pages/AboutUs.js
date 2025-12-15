@@ -2,20 +2,58 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import useSiteSettings from '../hooks/useSiteSettings';
+import { getCanonicalUrl, getDefaultOgImage, SITE_NAME } from '../utils/seo';
 import './AboutUs.scss';
 
 const AboutUs = () => {
   const { settings } = useSiteSettings();
 
+  // Prepare structured data
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About CrackBuster",
+    "description": "Learn about CrackBuster - over 12 years of experience in foundation crack repair",
+    "url": getCanonicalUrl('/about-us'),
+    "mainEntity": {
+      "@type": "LocalBusiness",
+      "name": "CrackBuster",
+      "foundingDate": "2012",
+      "numberOfEmployees": {
+        "@type": "QuantitativeValue",
+        "value": "10+"
+      }
+    }
+  };
+
   return (
     <>
       <Helmet>
         <title>About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster</title>
-        <meta 
-          name="description" 
-          content="Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee." 
+        <meta
+          name="description"
+          content="Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee."
         />
-        <link rel="canonical" href="https://crackbuster.ca/about-us" />
+        <link rel="canonical" href={getCanonicalUrl('/about-us')} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster" />
+        <meta property="og:description" content="Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={getCanonicalUrl('/about-us')} />
+        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:locale" content="en_CA" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster" />
+        <meta name="twitter:description" content="Learn about CrackBuster - over 12 years of experience in foundation crack repair." />
+        <meta name="twitter:image" content={getDefaultOgImage()} />
+
+        {/* JSON-LD Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
       </Helmet>
 
       <div className="about-us">
@@ -32,19 +70,19 @@ const AboutUs = () => {
             <div className="content-section">
               <h2>Who We Are</h2>
               <p>
-                For over <strong>12 years</strong>, CrackBuster has been the trusted leader in foundation crack repair, 
-                serving Edmonton, Sherwood Park, and St. Albert areas with quality <strong>NO DIGGING</strong> crack repair solutions. 
+                For over <strong>12 years</strong>, CrackBuster has been the trusted leader in foundation crack repair,
+                serving Edmonton, Sherwood Park, and St. Albert areas with quality <strong>NO DIGGING</strong> crack repair solutions.
                 We specialize in providing permanent, reliable foundation repair that protects your property for years to come.
               </p>
               <p>
-                Our team of certified technicians is dedicated to helping homeowners and businesses protect their properties 
-                from foundation damage without the mess and disruption of traditional digging methods. We understand that foundation 
-                issues can be stressful and costly, which is why we're committed to providing transparent communication, 
+                Our team of certified technicians is dedicated to helping homeowners and businesses protect their properties
+                from foundation damage without the mess and disruption of traditional digging methods. We understand that foundation
+                issues can be stressful and costly, which is why we're committed to providing transparent communication,
                 quality workmanship, and exceptional customer service.
               </p>
               <p>
-                What sets us apart is our specialized <strong>Crack Injection System</strong> - a revolutionary approach that 
-                repairs foundation cracks from the inside, eliminating the need for expensive and disruptive exterior excavation. 
+                What sets us apart is our specialized <strong>Crack Injection System</strong> - a revolutionary approach that
+                repairs foundation cracks from the inside, eliminating the need for expensive and disruptive exterior excavation.
                 This method is not only more efficient but also provides a permanent solution that stands the test of time.
               </p>
             </div>
@@ -78,12 +116,12 @@ const AboutUs = () => {
             <div className="content-section">
               <h2>Our Mission</h2>
               <p>
-                Our mission is to provide the highest quality foundation repair services while maintaining the highest standards 
-                of professionalism and customer satisfaction. We believe in building lasting relationships with our clients through 
+                Our mission is to provide the highest quality foundation repair services while maintaining the highest standards
+                of professionalism and customer satisfaction. We believe in building lasting relationships with our clients through
                 trust, integrity, and superior workmanship.
               </p>
               <p>
-                We are committed to protecting your most valuable investment - your home or business. Every repair we perform 
+                We are committed to protecting your most valuable investment - your home or business. Every repair we perform
                 is backed by our lifetime guarantee, ensuring that you can have complete confidence in our work.
               </p>
             </div>
@@ -94,23 +132,23 @@ const AboutUs = () => {
                 <div className="expertise-item">
                   <h3>Polyurethane Injection</h3>
                   <p>
-                    Our polyurethane injection system is especially formulated for concrete repair. The material expands upon 
-                    contact to fill the entire crack, creating a flexible seal that moves with your foundation. This permanent 
-                    repair method prevents water leaks and structural damage, and because it's done from the inside, no exterior 
+                    Our polyurethane injection system is especially formulated for concrete repair. The material expands upon
+                    contact to fill the entire crack, creating a flexible seal that moves with your foundation. This permanent
+                    repair method prevents water leaks and structural damage, and because it's done from the inside, no exterior
                     digging is required.
                   </p>
                 </div>
                 <div className="expertise-item">
                   <h3>Epoxy Injection</h3>
                   <p>
-                    For structural repairs where the concrete is dry, we offer epoxy injection services. This method provides 
+                    For structural repairs where the concrete is dry, we offer epoxy injection services. This method provides
                     exceptional strength and is recommended for structural reinforcement purposes.
                   </p>
                 </div>
                 <div className="expertise-item">
                   <h3>Foundation Inspections</h3>
                   <p>
-                    We also provide comprehensive foundation inspections to identify potential issues before they become major 
+                    We also provide comprehensive foundation inspections to identify potential issues before they become major
                     problems. Early detection can save you thousands of dollars in repair costs.
                   </p>
                 </div>
@@ -167,8 +205,8 @@ const AboutUs = () => {
                 </div>
               </div>
               <p>
-                Our local presence allows us to respond quickly to your needs and provide personalized service to our community. 
-                We understand the unique challenges that Alberta's climate and soil conditions present, and we have the expertise 
+                Our local presence allows us to respond quickly to your needs and provide personalized service to our community.
+                We understand the unique challenges that Alberta's climate and soil conditions present, and we have the expertise
                 to address them effectively.
               </p>
             </div>
@@ -176,8 +214,8 @@ const AboutUs = () => {
             <div className="content-section cta-section">
               <h2>Ready to Protect Your Foundation?</h2>
               <p>
-                Don't wait until a small crack becomes a major problem. Contact us today for a <strong>FREE ESTIMATE</strong> 
-                and let our experts assess your foundation. We'll provide you with a detailed evaluation and a transparent quote 
+                Don't wait until a small crack becomes a major problem. Contact us today for a <strong>FREE ESTIMATE</strong>
+                and let our experts assess your foundation. We'll provide you with a detailed evaluation and a transparent quote
                 for any necessary repairs.
               </p>
               <div className="cta-buttons">

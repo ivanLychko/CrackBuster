@@ -100,11 +100,20 @@ npm start
 ## SEO Features
 
 - Server-side rendering for search engine crawlers
-- Dynamic sitemap generation (`/sitemap.xml`)
+- Dynamic sitemap generation (`/sitemap.xml`) with lastmod dates
 - Robots.txt (`/robots.txt`)
-- Meta tags on all pages
-- Structured data (JSON-LD)
-- Canonical URLs
+- Comprehensive meta tags on all pages:
+  - Title and description tags
+  - Open Graph tags (Facebook, LinkedIn)
+  - Twitter Card tags
+  - Canonical URLs (dynamic based on current domain)
+- Structured data (JSON-LD):
+  - LocalBusiness schema on homepage
+  - Service schema on service pages
+  - BlogPosting schema on blog posts
+  - AboutPage, ContactPage schemas
+- SEO-optimized images with proper alt attributes
+- Proper robots meta tags (noindex for 404 pages)
 
 ## MongoDB Models
 
