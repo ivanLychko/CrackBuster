@@ -2,15 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import useSiteSettings from '../hooks/useSiteSettings';
+import { useServerData } from '../contexts/ServerDataContext';
 import { getCanonicalUrl, getDefaultOgImage, SITE_NAME } from '../utils/seo';
 import './Home.scss';
 
 const Home = () => {
   const { settings } = useSiteSettings();
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const serverData = useServerData();
+
+  // Initialize with SSR data if available
+  const initialServices = serverData?.services || [];
+  const [services, setServices] = useState(initialServices);
+  const [loading, setLoading] = useState(!initialServices.length);
 
   useEffect(() => {
+    // If we already have services from SSR, skip fetching
+    if (initialServices.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     const fetchServices = async () => {
       try {
         const response = await fetch('/api/services');
@@ -30,7 +41,7 @@ const Home = () => {
     };
 
     fetchServices();
-  }, []);
+  }, [initialServices.length]);
 
   // Prepare structured data
   const structuredData = {

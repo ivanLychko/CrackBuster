@@ -23,38 +23,38 @@ const Admin = () => {
             <h2>CrackBuster Admin</h2>
           </div>
           <nav className="admin-nav">
-            <Link 
-              to="/admin/services" 
+            <Link
+              to="/admin/services"
               className={location.pathname.includes('/services') ? 'active' : ''}
             >
               Services
             </Link>
-            <Link 
-              to="/admin/blog" 
+            <Link
+              to="/admin/blog"
               className={location.pathname.includes('/blog') ? 'active' : ''}
             >
               Blog Posts
             </Link>
-            <Link 
-              to="/admin/works" 
+            <Link
+              to="/admin/works"
               className={location.pathname.includes('/works') ? 'active' : ''}
             >
               Works Gallery
             </Link>
-            <Link 
-              to="/admin/images" 
+            <Link
+              to="/admin/images"
               className={location.pathname.includes('/images') ? 'active' : ''}
             >
               Images
             </Link>
-            <Link 
-              to="/admin/estimate-requests" 
+            <Link
+              to="/admin/estimate-requests"
               className={location.pathname.includes('/estimate-requests') ? 'active' : ''}
             >
               Estimate Requests
             </Link>
-            <Link 
-              to="/admin/settings" 
+            <Link
+              to="/admin/settings"
               className={location.pathname.includes('/settings') ? 'active' : ''}
             >
               Settings

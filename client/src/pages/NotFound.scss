@@ -38,11 +38,11 @@
       color: $blue-primary;
       text-shadow: 3px 3px 0 rgba(3, 17, 103, 0.2);
       animation: bounce 2s infinite;
-      
+
       &:first-child {
         animation-delay: 0s;
       }
-      
+
       &:last-child {
         animation-delay: 0.2s;
       }
@@ -172,21 +172,28 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-20px);
   }
 }
 
 @keyframes rotate {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: rotate(0deg);
   }
+
   25% {
     transform: rotate(-10deg);
   }
+
   75% {
     transform: rotate(10deg);
   }
@@ -228,7 +235,3 @@
     }
   }
 }
-
-
-
-

@@ -1,10 +1,53 @@
 require('dotenv').config();
+
+// Register Babel for JSX/ES6 transpilation in development
+// In production, webpack handles this during build
+if (process.env.NODE_ENV !== 'production') {
+    // Add handlers for static files before babel-register
+    // This allows require() to work with images and other static assets
+    const Module = require('module');
+    const path = require('path');
+    const fs = require('fs');
+
+    // List of static file extensions to handle
+    const staticExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.eot', '.ttf', '.otf', '.mp4', '.css', '.scss', '.sass'];
+
+    // Register handlers for static file extensions
+    staticExtensions.forEach(ext => {
+        if (!Module._extensions[ext]) {
+            Module._extensions[ext] = function (module, filename) {
+                // Return the resolved path to the file as a string
+                // This mimics what webpack does - returns the path as a string
+                const resolvedPath = path.resolve(filename);
+                module.exports = resolvedPath;
+            };
+        }
+    });
+
+    require('@babel/register')({
+        extensions: ['.js', '.jsx'],
+        ignore: [
+            /node_modules/,
+            // Ignore image and other static files
+            /\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|eot|ttf|otf|mp4|css|scss|sass)$/,
+        ],
+        // .babelrc will be used automatically
+    });
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const fs = require('fs');
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
+const { StaticRouter } = require('react-router-dom/server');
 const { HelmetProvider } = require('react-helmet-async');
+
+// Import App component and ServerDataProvider - webpack will bundle it when building server bundle
+// This must be a static require (not in try-catch) so webpack can include it in the bundle
+const App = require('../client/src/App').default;
+const { ServerDataProvider } = require('../client/src/contexts/ServerDataContext');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,32 +79,232 @@ app.use('/api/admin/images', require('./routes/images'));
 app.use('/', require('./routes/sitemap'));
 app.use('/', require('./routes/robots'));
 
-// SSR function
-const renderApp = (req, res, AppComponent) => {
-    const helmetContext = {};
-    const html = ReactDOMServer.renderToString(
-        React.createElement(
-            HelmetProvider,
-            { context: helmetContext },
-            React.createElement(AppComponent, { location: req.url })
-        )
+// Helper function to find bundle files
+const findBundleFiles = () => {
+    const distPath = path.join(__dirname, '../dist/client');
+
+    // Check if dist directory exists
+    if (!fs.existsSync(distPath)) {
+        console.warn('Warning: dist/client directory not found');
+        return { jsBundle: 'bundle.js', cssBundle: null };
+    }
+
+    const files = fs.readdirSync(distPath);
+
+    let jsBundle = 'bundle.js';
+    let cssBundle = null;
+
+    // Find JS bundle - must end with .js and not be a LICENSE file
+    const jsFiles = files.filter(f =>
+        f.startsWith('bundle.') &&
+        f.endsWith('.js') &&
+        !f.includes('.LICENSE') &&
+        !f.endsWith('.js.LICENSE.txt')
     );
+    if (jsFiles.length > 0) {
+        jsBundle = jsFiles[0];
+    }
+
+    // Find CSS bundle - must end with .css
+    const cssFiles = files.filter(f =>
+        f.startsWith('bundle.') &&
+        f.endsWith('.css') &&
+        !f.endsWith('.js') // Extra check to ensure it's not a JS file
+    );
+    if (cssFiles.length > 0) {
+        cssBundle = cssFiles[0];
+    }
+
+    return { jsBundle, cssBundle };
+};
+
+// SSR function
+const renderApp = async (req) => {
+    const helmetContext = {};
+
+    // Load data on server before rendering
+    const SiteSettings = require('./models/SiteSettings');
+    const Service = require('./models/Service');
+
+    let siteSettings = null;
+    try {
+        siteSettings = await SiteSettings.getSettings();
+        // Convert mongoose document to plain object
+        siteSettings = siteSettings.toObject ? siteSettings.toObject() : siteSettings;
+    } catch (error) {
+        console.error('Error loading site settings for SSR:', error);
+        // Use default settings
+        siteSettings = {
+            phone: '(780) XXX-XXXX',
+            email: 'info@crackbuster.ca',
+            address: 'Edmonton, Alberta, Canada',
+            serviceArea: 'Edmonton and surrounding areas',
+            secondaryPhone: '',
+            secondaryEmail: '',
+            businessHours: '',
+            facebook: '',
+            instagram: '',
+            twitter: '',
+            linkedin: '',
+            youtube: '',
+            allowIndexing: true
+        };
+    }
+
+    // Load services for home page
+    let services = [];
+    if (req.url === '/' || req.url === '') {
+        try {
+            const servicesData = await Service.find({}).lean();
+            // Get featured services or first 3
+            const featuredServices = servicesData.filter(s => s.featured).slice(0, 3);
+            services = featuredServices.length >= 3 ? featuredServices : servicesData.slice(0, 3);
+        } catch (error) {
+            console.error('Error loading services for SSR:', error);
+            services = [];
+        }
+    }
+
+    // StaticRouter expects the URL string
+    const location = req.url;
+
+    // Prepare server data for components
+    const serverData = {
+        siteSettings: siteSettings,
+        services: services
+    };
+
+    let html = '';
+    try {
+        html = ReactDOMServer.renderToString(
+            React.createElement(
+                HelmetProvider,
+                { context: helmetContext },
+                React.createElement(
+                    StaticRouter,
+                    { location },
+                    React.createElement(
+                        ServerDataProvider,
+                        { data: serverData },
+                        React.createElement(App)
+                    )
+                )
+            )
+        );
+
+        // Log if HTML is empty (for debugging)
+        if (!html || html.trim().length === 0) {
+            console.warn('Warning: SSR rendered empty HTML for URL:', location);
+        }
+    } catch (error) {
+        console.error('Error during SSR render:', error);
+        console.error('Stack:', error.stack);
+        // Return empty HTML on error - client will hydrate
+        html = '';
+    }
 
     const { helmet } = helmetContext;
-    const helmetHtml = helmet ? helmet.toString() : '';
+
+    // Extract HTML from helmet - react-helmet-async provides toComponent() methods
+    let helmetHtml = '';
+    if (helmet) {
+        // Use ReactDOMServer to render helmet components to HTML strings
+        const parts = [];
+
+        try {
+            if (helmet.title && typeof helmet.title.toComponent === 'function') {
+                const titleComponent = helmet.title.toComponent();
+                parts.push(ReactDOMServer.renderToStaticMarkup(titleComponent));
+            }
+            if (helmet.meta && typeof helmet.meta.toComponent === 'function') {
+                const metaComponent = helmet.meta.toComponent();
+                parts.push(ReactDOMServer.renderToStaticMarkup(metaComponent));
+            }
+            if (helmet.link && typeof helmet.link.toComponent === 'function') {
+                const linkComponent = helmet.link.toComponent();
+                parts.push(ReactDOMServer.renderToStaticMarkup(linkComponent));
+            }
+            if (helmet.script && typeof helmet.script.toComponent === 'function') {
+                const scriptComponent = helmet.script.toComponent();
+                parts.push(ReactDOMServer.renderToStaticMarkup(scriptComponent));
+            }
+            if (helmet.style && typeof helmet.style.toComponent === 'function') {
+                const styleComponent = helmet.style.toComponent();
+                parts.push(ReactDOMServer.renderToStaticMarkup(styleComponent));
+            }
+            if (helmet.noscript && typeof helmet.noscript.toComponent === 'function') {
+                const noscriptComponent = helmet.noscript.toComponent();
+                parts.push(ReactDOMServer.renderToStaticMarkup(noscriptComponent));
+            }
+            if (helmet.base && typeof helmet.base.toComponent === 'function') {
+                const baseComponent = helmet.base.toComponent();
+                parts.push(ReactDOMServer.renderToStaticMarkup(baseComponent));
+            }
+        } catch (error) {
+            console.error('Error rendering helmet components:', error);
+        }
+
+        helmetHtml = parts.join('\n        ');
+    }
+
+    // Find bundle files
+    const { jsBundle, cssBundle } = findBundleFiles();
+
+    // Get HTML attributes from helmet
+    let htmlAttrs = {};
+    if (helmet && helmet.htmlAttributes) {
+        const htmlAttrsComponent = helmet.htmlAttributes.toComponent();
+        htmlAttrs = htmlAttrsComponent || {};
+    }
+    const htmlAttrsString = Object.keys(htmlAttrs)
+        .filter(key => htmlAttrs[key] !== undefined && htmlAttrs[key] !== null)
+        .map(key => {
+            const value = htmlAttrs[key];
+            // Handle boolean attributes
+            if (value === true) return key;
+            return `${key}="${String(value).replace(/"/g, '&quot;')}"`;
+        })
+        .join(' ');
+    const htmlTag = htmlAttrsString ? `<html ${htmlAttrsString}>` : '<html lang="en">';
+
+    // Get body attributes from helmet
+    let bodyAttrs = {};
+    if (helmet && helmet.bodyAttributes) {
+        const bodyAttrsComponent = helmet.bodyAttributes.toComponent();
+        bodyAttrs = bodyAttrsComponent || {};
+    }
+    const bodyAttrsString = Object.keys(bodyAttrs)
+        .filter(key => bodyAttrs[key] !== undefined && bodyAttrs[key] !== null)
+        .map(key => {
+            const value = bodyAttrs[key];
+            // Handle boolean attributes
+            if (value === true) return key;
+            return `${key}="${String(value).replace(/"/g, '&quot;')}"`;
+        })
+        .join(' ');
+    const bodyTag = bodyAttrsString ? `<body ${bodyAttrsString}>` : '<body>';
+
+    // Embed initial data in HTML for client-side hydration
+    const initialData = {
+        siteSettings: siteSettings,
+        services: services
+    };
 
     return `
     <!DOCTYPE html>
-    <html lang="en">
+    ${htmlTag}
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         ${helmetHtml}
-        <link rel="stylesheet" href="/bundle.[contenthash].css">
+        ${cssBundle ? `<link rel="stylesheet" href="/${cssBundle}">` : ''}
+        <script>
+          window.__INITIAL_STATE__ = ${JSON.stringify(initialData)};
+        </script>
       </head>
-      <body>
+      ${bodyTag}
         <div id="root">${html}</div>
-        <script src="/bundle.[contenthash].js"></script>
+        <script src="/${jsBundle}"></script>
       </body>
     </html>
   `;
@@ -74,35 +317,47 @@ app.get('*', async (req, res) => {
         return res.status(404).send('File not found');
     }
 
-    // Check if request is from a bot/crawler
+    // Check if request is from a bot/crawler or curl
     const userAgent = req.headers['user-agent'] || '';
-    const isBot = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|sogou|exabot|facebot|ia_archiver/i.test(userAgent);
+    const isBot = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|sogou|exabot|facebot|ia_archiver|curl|wget|postman|insomnia/i.test(userAgent);
 
-    // In production, always serve static HTML (pre-rendered or client-side)
-    // For bots, we rely on proper meta tags and structured data in the static HTML
-    // The React app will hydrate on the client side
-    const indexPath = path.join(__dirname, '../dist/client/index.html');
+    // Check if Accept header suggests HTML is expected (not API request)
+    const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
 
-    if (isBot && process.env.NODE_ENV === 'production') {
-        // For bots in production, try SSR if available, otherwise serve static
+    // Always use SSR for bots/crawlers/curl, and optionally for all requests
+    // This ensures SEO markup is always present for search engines
+    // For regular browsers, we can serve static HTML and let React hydrate
+    const shouldUseSSR = isBot || process.env.ENABLE_SSR === 'true' || (process.env.NODE_ENV === 'production' && acceptsHtml);
+
+    if (shouldUseSSR) {
         try {
-            // Try to load compiled server bundle for SSR
-            const serverBundle = path.join(__dirname, 'server.js');
-            if (require('fs').existsSync(serverBundle)) {
-                // SSR would be handled by compiled server bundle
-                // For now, serve static HTML with proper meta tags
-                res.sendFile(indexPath);
-            } else {
-                res.sendFile(indexPath);
-            }
+            const html = await renderApp(req);
+            res.send(html);
         } catch (error) {
             console.error('SSR Error:', error);
-            res.sendFile(indexPath);
+            // Fallback to static HTML if SSR fails
+            const indexPath = path.join(__dirname, '../dist/client/index.html');
+            if (fs.existsSync(indexPath)) {
+                res.sendFile(indexPath);
+            } else {
+                res.status(500).send('Server error: SSR failed and no static HTML found');
+            }
         }
     } else {
-        // Serve static HTML for all users
-        // React will hydrate on the client side
-        res.sendFile(indexPath);
+        // For regular users, serve static HTML (React will hydrate on client)
+        const indexPath = path.join(__dirname, '../dist/client/index.html');
+        if (fs.existsSync(indexPath)) {
+            res.sendFile(indexPath);
+        } else {
+            // If no static HTML, try SSR as fallback
+            try {
+                const html = await renderApp(req);
+                res.send(html);
+            } catch (error) {
+                console.error('SSR Error:', error);
+                res.status(500).send('Server error: Unable to serve page');
+            }
+        }
     }
 });
 

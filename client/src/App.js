@@ -17,9 +17,9 @@ import ContactUs from './pages/ContactUs';
 import NotFound from './pages/NotFound';
 import Admin from './pages/Admin';
 
-const App = ({ location: ssrLocation }) => {
-  const clientLocation = useLocation();
-  const location = ssrLocation || clientLocation;
+const App = () => {
+  // useLocation() works in browser (BrowserRouter) and server (StaticRouter)
+  const location = useLocation();
   const { settings } = useSiteSettings();
 
   // Check if we're on admin route

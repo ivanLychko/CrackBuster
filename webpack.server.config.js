@@ -27,6 +27,10 @@ module.exports = (env, argv) => {
           test: /\.(scss|sass|css)$/,
           use: 'ignore-loader',
         },
+        {
+          test: /\.(png|jpg|jpeg|gif|svg|mp4|woff|woff2|eot|ttf|otf)$/,
+          use: 'ignore-loader',
+        },
       ],
     },
     resolve: {
