@@ -26,7 +26,8 @@ const useSiteSettings = () => {
             instagram: '',
             twitter: '',
             linkedin: '',
-            youtube: ''
+            youtube: '',
+            allowIndexing: true
           });
         }
       } catch (err) {
@@ -45,7 +46,8 @@ const useSiteSettings = () => {
           instagram: '',
           twitter: '',
           linkedin: '',
-          youtube: ''
+          youtube: '',
+          allowIndexing: true
         });
       } finally {
         setLoading(false);

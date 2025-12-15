@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import CrackInjectionBackground from './components/CrackInjectionBackground';
 import ScrollToTop from './components/ScrollToTop';
+import useSiteSettings from './hooks/useSiteSettings';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import ServiceDetail from './pages/ServiceDetail';
@@ -19,9 +20,15 @@ import Admin from './pages/Admin';
 const App = ({ location: ssrLocation }) => {
   const clientLocation = useLocation();
   const location = ssrLocation || clientLocation;
+  const { settings } = useSiteSettings();
 
   // Check if we're on admin route
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // Determine robots meta tag based on settings
+  const robotsContent = settings?.allowIndexing === false
+    ? 'noindex, nofollow'
+    : 'index, follow';
 
   return (
     <>
@@ -30,6 +37,7 @@ const App = ({ location: ssrLocation }) => {
         <html lang="en" />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content={robotsContent} />
       </Helmet>
       {!isAdminRoute && <CrackInjectionBackground />}
       <div className="app">

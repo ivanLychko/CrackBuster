@@ -18,7 +18,7 @@ const siteSettingsSchema = new mongoose.Schema({
     type: String,
     default: 'Edmonton and surrounding areas'
   },
-  
+
   // Social Media Links
   facebook: {
     type: String,
@@ -40,13 +40,13 @@ const siteSettingsSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  
+
   // Business Hours (optional)
   businessHours: {
     type: String,
     default: ''
   },
-  
+
   // Additional contact info
   secondaryPhone: {
     type: String,
@@ -55,13 +55,19 @@ const siteSettingsSchema = new mongoose.Schema({
   secondaryEmail: {
     type: String,
     default: ''
+  },
+
+  // SEO Settings
+  allowIndexing: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true
 });
 
 // Ensure only one settings document exists
-siteSettingsSchema.statics.getSettings = async function() {
+siteSettingsSchema.statics.getSettings = async function () {
   let settings = await this.findOne();
   if (!settings) {
     settings = await this.create({});

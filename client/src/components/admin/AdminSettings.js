@@ -16,7 +16,8 @@ const AdminSettings = () => {
     instagram: '',
     twitter: '',
     linkedin: '',
-    youtube: ''
+    youtube: '',
+    allowIndexing: true
   });
 
   useEffect(() => {
@@ -42,7 +43,8 @@ const AdminSettings = () => {
           instagram: data.settings.instagram || '',
           twitter: data.settings.twitter || '',
           linkedin: data.settings.linkedin || '',
-          youtube: data.settings.youtube || ''
+          youtube: data.settings.youtube || '',
+          allowIndexing: data.settings.allowIndexing !== undefined ? data.settings.allowIndexing : true
         });
       }
     } catch (error) {
@@ -54,9 +56,10 @@ const AdminSettings = () => {
   };
 
   const handleChange = (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: value
     });
   };
 
@@ -99,7 +102,7 @@ const AdminSettings = () => {
       <form onSubmit={handleSubmit} className="admin-form">
         <div className="form-section">
           <h2>Contact Information</h2>
-          
+
           <div className="form-group">
             <label>Primary Phone *</label>
             <input
@@ -183,7 +186,7 @@ const AdminSettings = () => {
 
         <div className="form-section">
           <h2>Social Media Links</h2>
-          
+
           <div className="form-group">
             <label>Facebook URL</label>
             <input
@@ -237,6 +240,26 @@ const AdminSettings = () => {
               onChange={handleChange}
               placeholder="https://youtube.com/@crackbuster"
             />
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h2>SEO Settings</h2>
+
+          <div className="form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="allowIndexing"
+                checked={formData.allowIndexing}
+                onChange={handleChange}
+              />
+              <span>Allow search engine indexing</span>
+            </label>
+            <p className="form-hint">
+              When enabled, search engines (Google, Bing, etc.) can index your website.
+              When disabled, search engines will be instructed not to index your site.
+            </p>
           </div>
         </div>
 
