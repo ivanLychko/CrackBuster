@@ -44,6 +44,44 @@ const ReactDOMServer = require('react-dom/server');
 const { StaticRouter } = require('react-router-dom/server');
 const { HelmetProvider } = require('react-helmet-async');
 
+// Determine project root directory
+// When running from dist/server/server.js, __dirname is dist/server
+// When running from server/index.js, __dirname is server
+// We need to find the project root (where package.json is located)
+function getProjectRoot() {
+    let currentDir = __dirname;
+
+    // If we're in dist/server, go up two levels
+    if (currentDir.endsWith('dist/server')) {
+        return path.join(currentDir, '../..');
+    }
+
+    // If we're in server, go up one level
+    if (currentDir.endsWith('server')) {
+        return path.join(currentDir, '..');
+    }
+
+    // Otherwise, try to find package.json by going up directories
+    let dir = currentDir;
+    while (dir !== path.dirname(dir)) {
+        if (fs.existsSync(path.join(dir, 'package.json'))) {
+            return dir;
+        }
+        dir = path.dirname(dir);
+    }
+
+    // Fallback to parent directory
+    return path.join(currentDir, '..');
+}
+
+const PROJECT_ROOT = getProjectRoot();
+
+// Log project root for debugging
+console.log('Project root:', PROJECT_ROOT);
+console.log('__dirname:', __dirname);
+console.log('dist/client path:', path.join(PROJECT_ROOT, 'dist/client'));
+console.log('dist/client exists:', fs.existsSync(path.join(PROJECT_ROOT, 'dist/client')));
+
 // Import App component and ServerDataProvider - webpack will bundle it when building server bundle
 // This must be a static require (not in try-catch) so webpack can include it in the bundle
 const App = require('../client/src/App').default;
@@ -63,7 +101,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from dist/client (built files) - MUST be before catch-all route
 // This includes bundle files, images copied by webpack, etc.
-app.use(express.static(path.join(__dirname, '../dist/client'), {
+const distClientPath = path.join(PROJECT_ROOT, 'dist/client');
+app.use(express.static(distClientPath, {
     maxAge: '1y', // Cache static assets for 1 year
     etag: true,
     lastModified: true
@@ -71,12 +110,14 @@ app.use(express.static(path.join(__dirname, '../dist/client'), {
 
 // Serve static files from public folder (images, etc.) as fallback
 // This ensures images are available even if not copied to dist
-app.use('/images', express.static(path.join(__dirname, '../client/public/images'), {
+const publicImagesPath = path.join(PROJECT_ROOT, 'client/public/images');
+app.use('/images', express.static(publicImagesPath, {
     maxAge: '1y',
     etag: true,
     lastModified: true
 }));
-app.use(express.static(path.join(__dirname, '../client/public'), {
+const publicPath = path.join(PROJECT_ROOT, 'client/public');
+app.use(express.static(publicPath, {
     maxAge: '1y',
     etag: true,
     lastModified: true
@@ -95,7 +136,7 @@ app.use('/', require('./routes/robots'));
 
 // Helper function to find bundle files
 const findBundleFiles = () => {
-    const distPath = path.join(__dirname, '../dist/client');
+    const distPath = path.join(PROJECT_ROOT, 'dist/client');
 
     // Check if dist directory exists
     if (!fs.existsSync(distPath)) {
@@ -332,13 +373,13 @@ app.get('*', async (req, res, next) => {
     // If we reach here for a static file, it means express.static didn't find it
     if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|eot|ttf|otf|mp4)$/)) {
         // Try to find the file in dist/client first
-        const distPath = path.join(__dirname, '../dist/client', req.path);
+        const distPath = path.join(PROJECT_ROOT, 'dist/client', req.path);
         if (fs.existsSync(distPath)) {
             return res.sendFile(distPath);
         }
         // Try to find in public/images for image requests
         if (req.path.startsWith('/images/')) {
-            const publicPath = path.join(__dirname, '../client/public', req.path);
+            const publicPath = path.join(PROJECT_ROOT, 'client/public', req.path);
             if (fs.existsSync(publicPath)) {
                 return res.sendFile(publicPath);
             }
@@ -366,7 +407,7 @@ app.get('*', async (req, res, next) => {
         } catch (error) {
             console.error('SSR Error:', error);
             // Fallback to static HTML if SSR fails
-            const indexPath = path.join(__dirname, '../dist/client/index.html');
+            const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
             if (fs.existsSync(indexPath)) {
                 res.sendFile(indexPath);
             } else {
@@ -375,7 +416,7 @@ app.get('*', async (req, res, next) => {
         }
     } else {
         // For regular users, serve static HTML (React will hydrate on client)
-        const indexPath = path.join(__dirname, '../dist/client/index.html');
+        const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
         if (fs.existsSync(indexPath)) {
             res.sendFile(indexPath);
         } else {
