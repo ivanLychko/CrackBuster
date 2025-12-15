@@ -1,0 +1,288 @@
+@import '../styles/variables';
+
+.our-works {
+  .page-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%); position: relative; z-index: 1;
+    color: $text-primary;
+    padding: 6rem 0 4rem;
+    text-align: center;
+    position: relative;
+
+    .container {
+      max-width: 90vw;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      color: $blue-primary;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 1.35rem;
+      color: $text-secondary;
+      line-height: 1.6;
+    }
+  }
+
+  .works-content {
+    padding: 5rem 0;
+    background: rgba(248, 249, 250, 0.7); position: relative; z-index: 1;
+
+    .container {
+      max-width: 90vw;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .loading,
+    .no-works {
+      text-align: center;
+      padding: 3rem;
+      font-size: 1.25rem;
+      color: $text-muted;
+    }
+
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .work-card {
+      background: $bg-card;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid $border-light;
+      box-shadow: $shadow-card;
+      transition: all 0.3s;
+
+      &:hover {
+        transform: translateY(-8px);
+        box-shadow: $shadow-hover;
+        border-color: rgba(3, 17, 103, 0.2);
+      }
+
+      .work-image-gallery {
+        width: 100%;
+        position: relative;
+
+        .work-main-image {
+          width: 100%;
+          height: 300px;
+          overflow: hidden;
+          background: rgba(3, 17, 103, 0.05);
+          position: relative;
+          cursor: pointer;
+          transition: all 0.3s;
+
+          &:hover {
+            .image-overlay {
+              opacity: 1;
+            }
+
+            img {
+              transform: scale(1.05);
+            }
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+          }
+
+          .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+
+            .view-gallery {
+              color: white;
+              font-weight: 600;
+              font-size: 1.1rem;
+              padding: 0.75rem 1.5rem;
+              background: rgba(3, 17, 103, 0.8);
+              border-radius: 8px;
+            }
+          }
+        }
+
+        .work-thumbnails {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.5rem;
+          padding: 0.5rem;
+          background: rgba(248, 249, 250, 0.5);
+
+          .thumbnail {
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+
+            &:hover {
+              transform: scale(1.05);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+
+            &.more-photos {
+              background: rgba(3, 17, 103, 0.1);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: $blue-primary;
+              font-weight: 700;
+              font-size: 1.2rem;
+
+              &:hover {
+                background: rgba(3, 17, 103, 0.2);
+              }
+            }
+          }
+        }
+      }
+
+      .work-content {
+        padding: 2rem;
+
+        h3 {
+          color: $blue-primary;
+          font-size: 1.5rem;
+          margin-bottom: 0.5rem;
+          font-weight: 700;
+        }
+
+        .work-location {
+          color: $blue-primary;
+          font-weight: 600;
+          margin-bottom: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .location-icon {
+            font-size: 1.2rem;
+          }
+        }
+
+        .work-description {
+          color: $text-secondary;
+          line-height: 1.6;
+          margin-bottom: 1rem;
+
+          h3 {
+            color: $blue-primary;
+            font-size: 1.3rem;
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 700;
+          }
+
+          p {
+            margin-bottom: 0.75rem;
+            color: $text-secondary;
+          }
+
+          ul {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+            list-style-type: disc;
+
+            li {
+              margin-bottom: 0.5rem;
+              color: $text-secondary;
+            }
+          }
+
+          strong {
+            font-weight: 700;
+            color: $blue-primary;
+          }
+        }
+
+        .work-date {
+          color: $text-muted;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      padding: 4rem 0 2rem;
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+    }
+
+    .works-content {
+      padding: 3rem 0;
+
+      .container {
+        padding: 0 1rem;
+      }
+
+      .works-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .work-card {
+        .work-image-gallery {
+          .work-main-image {
+            height: 250px;
+          }
+
+          .work-thumbnails {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+          }
+        }
+
+        .work-content {
+          padding: 1.5rem;
+
+          h3 {
+            font-size: 1.3rem;
+          }
+
+          .work-description {
+            font-size: 0.95rem;
+
+            h3 {
+              font-size: 1.2rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+@import '../styles/variables';
+
+.admin {
+  display: flex;
+  min-height: 100vh;
+  background: $bg-primary;
+  position: relative;
+  z-index: 1;
+
+  .admin-sidebar {
+    width: 250px;
+    background: $bg-secondary;
+    border-right: 1px solid $border-light;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+
+    .admin-header {
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid $border-light;
+
+      h2 {
+        color: $blue-primary;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+      }
+    }
+
+    .admin-nav {
+      padding: 1rem 0;
+
+      a {
+        display: block;
+        padding: 1rem 1.5rem;
+        color: $text-secondary;
+        text-decoration: none;
+        transition: all 0.3s;
+        border-left: 3px solid transparent;
+
+        &:hover {
+          background: rgba(3, 17, 103, 0.05);
+          color: $blue-primary;
+        }
+
+        &.active {
+          background: rgba(3, 17, 103, 0.1);
+          color: $blue-primary;
+          border-left-color: $blue-primary;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .admin-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 2rem;
+    background: $bg-primary;
+  }
+
+  .admin-dashboard {
+    background: $bg-card;
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: $shadow-card;
+
+    h1 {
+      color: $blue-primary;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: $text-secondary;
+    }
+  }
+}
+
+
+
+

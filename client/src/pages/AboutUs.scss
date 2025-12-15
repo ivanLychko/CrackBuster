@@ -1,0 +1,405 @@
+@import '../styles/variables';
+
+.about-us {
+    .page-header {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+        color: $text-primary;
+        padding: 6rem 0 4rem;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+
+        .container {
+            max-width: 90vw;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: $blue-primary;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.35rem;
+            color: $text-secondary;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .header-highlight {
+            font-size: 1.1rem;
+            color: $accent-red;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+    }
+
+    .about-content {
+        padding: 5rem 0;
+        background: rgba(248, 249, 250, 0.7);
+        position: relative;
+        z-index: 1;
+
+        .container {
+            max-width: 90vw;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .content-section {
+            margin-bottom: 4rem;
+
+            h2 {
+                color: $blue-primary;
+                font-size: 2.5rem;
+                margin-bottom: 1.5rem;
+                font-weight: 700;
+            }
+
+            p {
+                color: $text-primary;
+                line-height: 1.8;
+                margin-bottom: 1.5rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            padding: 2.5rem;
+            background: $bg-card;
+            border-radius: 16px;
+            border: 1px solid $border-light;
+            transition: all 0.3s;
+            box-shadow: $shadow-card;
+
+            &:hover {
+                transform: translateY(-5px);
+                border-color: rgba(3, 17, 103, 0.2);
+                box-shadow: $shadow-hover;
+            }
+
+            h3 {
+                color: $blue-primary;
+                margin-bottom: 1rem;
+                font-size: 1.25rem;
+                font-weight: 700;
+            }
+
+            p {
+                color: $text-secondary;
+                line-height: 1.6;
+                margin: 0;
+            }
+        }
+
+        .highlight-section {
+            background: linear-gradient(135deg, rgba(3, 17, 103, 0.05) 0%, rgba(3, 17, 103, 0.02) 100%);
+            padding: 3rem;
+            border-radius: 16px;
+            margin: 3rem 0;
+        }
+
+        .commitment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .commitment-item {
+            text-align: center;
+            padding: 2rem;
+            background: $bg-card;
+            border-radius: 12px;
+            border: 2px solid $border-light;
+            transition: all 0.3s;
+
+            &:hover {
+                transform: translateY(-5px);
+                border-color: $blue-primary;
+                box-shadow: $shadow-hover;
+            }
+
+            .commitment-icon {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+            }
+
+            h3 {
+                color: $blue-primary;
+                margin-bottom: 1rem;
+                font-size: 1.3rem;
+                font-weight: 700;
+            }
+
+            p {
+                color: $text-secondary;
+                line-height: 1.7;
+                margin: 0;
+                font-size: 1rem;
+            }
+        }
+
+        .expertise-content {
+            margin-top: 2rem;
+        }
+
+        .expertise-item {
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: $bg-card;
+            border-radius: 12px;
+            border-left: 4px solid $blue-primary;
+            box-shadow: $shadow-card;
+
+            h3 {
+                color: $blue-primary;
+                margin-bottom: 1rem;
+                font-size: 1.5rem;
+                font-weight: 700;
+            }
+
+            p {
+                color: $text-primary;
+                line-height: 1.8;
+                margin: 0;
+                font-size: 1.05rem;
+            }
+        }
+
+        .service-areas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .area-item {
+            padding: 1.5rem;
+            background: $bg-card;
+            border-radius: 8px;
+            border: 1px solid $border-light;
+            color: $text-primary;
+            font-size: 1.05rem;
+            line-height: 1.6;
+
+            strong {
+                color: $blue-primary;
+                font-weight: 700;
+                display: block;
+                margin-bottom: 0.5rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, rgba(3, 17, 103, 0.08) 0%, rgba(3, 17, 103, 0.03) 100%);
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            margin: 4rem 0;
+
+            h2 {
+                margin-bottom: 1.5rem;
+            }
+
+            p {
+                font-size: 1.15rem;
+                margin-bottom: 2rem;
+                max-width: 700px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .contact-info-section {
+            background: $bg-card;
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid $border-light;
+            margin-top: 3rem;
+        }
+
+        .contact-details {
+            margin-top: 1.5rem;
+        }
+
+        .contact-detail {
+            padding: 1rem 0;
+            font-size: 1.1rem;
+            color: $text-primary;
+            border-bottom: 1px solid $border-light;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            strong {
+                color: $blue-primary;
+                margin-right: 0.5rem;
+            }
+
+            a {
+                color: $blue-primary;
+                text-decoration: none;
+                transition: color 0.3s;
+
+                &:hover {
+                    color: $accent-red;
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .about-us {
+        .page-header {
+            padding: 3rem 0 2rem;
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .header-highlight {
+                font-size: 0.95rem;
+            }
+        }
+
+        .about-content {
+            padding: 3rem 0;
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .content-section {
+                margin-bottom: 2.5rem;
+
+                h2 {
+                    font-size: 1.75rem;
+                    margin-bottom: 1rem;
+                }
+
+                p {
+                    font-size: 1rem;
+                    line-height: 1.7;
+                }
+            }
+
+            .highlight-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .commitment-grid,
+            .service-areas {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .commitment-item {
+                padding: 1.5rem;
+
+                .commitment-icon {
+                    font-size: 2.5rem;
+                }
+
+                h3 {
+                    font-size: 1.1rem;
+                }
+
+                p {
+                    font-size: 0.95rem;
+                }
+            }
+
+            .expertise-item {
+                padding: 1.5rem;
+
+                h3 {
+                    font-size: 1.3rem;
+                }
+
+                p {
+                    font-size: 1rem;
+                }
+            }
+
+            .features-list {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .feature-item {
+                padding: 1.5rem;
+
+                h3 {
+                    font-size: 1.1rem;
+                }
+
+                p {
+                    font-size: 0.95rem;
+                }
+            }
+
+            .cta-section {
+                padding: 2rem 1.5rem;
+
+                h2 {
+                    font-size: 1.75rem;
+                }
+
+                p {
+                    font-size: 1rem;
+                }
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+
+                .btn {
+                    width: 100%;
+                }
+            }
+
+            .contact-info-section {
+                padding: 1.5rem;
+
+                h2 {
+                    font-size: 1.5rem;
+                }
+            }
+
+            .contact-detail {
+                font-size: 1rem;
+            }
+        }
+    }
+}

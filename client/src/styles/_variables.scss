@@ -1,0 +1,68 @@
+// Color Palette based on Logo
+// Extracted from Logo.png analysis
+
+// Primary Colors from Logo
+$logo-primary-blue: #031167;      // Main dark blue from logo
+$logo-dark: #171419;              // Dark accent from logo
+$logo-red-accent: #bd1504;        // Red accent from logo
+$logo-dark-blue: #1c254c;         // Secondary dark blue
+
+// Derived Color Palette
+// Primary colors
+$primary-color: $logo-primary-blue;
+$primary-dark: $logo-dark-blue;
+$primary-darker: $logo-dark;
+
+@use "sass:color";
+
+// Accent colors
+$accent-red: $logo-red-accent;
+$accent-red-light: color.adjust($accent-red, $lightness: 10%);
+$accent-red-dark: color.adjust($accent-red, $lightness: -10%);
+
+// Blue variations for UI elements
+$blue-primary: #031167;
+$blue-light: color.adjust($blue-primary, $lightness: 15%);  // #0d2a8a
+$blue-lighter: color.adjust($blue-primary, $lightness: 25%); // #1a3dad
+$blue-dark: color.adjust($blue-primary, $lightness: -5%);     // #020d4d
+
+// Background colors - Professional bright design
+$bg-primary: #f8f9fa;            // Light gray-white background
+$bg-secondary: #ffffff;          // Pure white for cards
+$bg-tertiary: rgba(3, 17, 103, 0.05); // Very subtle blue overlay
+$bg-concrete: #e9ecef;           // Light concrete background
+$bg-section: #ffffff;            // White section backgrounds
+$bg-card: #ffffff;               // White card backgrounds
+
+// Text colors - Professional dark text on light background
+$text-primary: #1a1a1a;          // Dark text for light background
+$text-secondary: #4a4a4a;        // Medium gray text
+$text-muted: #6c757d;            // Muted gray text
+$text-on-accent: #ffffff;        // White text on colored backgrounds
+$text-on-dark: #ffffff;          // White text on dark overlays
+
+// Border and divider colors - Professional light design
+$border-color: rgba(3, 17, 103, 0.2);
+$border-light: rgba(3, 17, 103, 0.1);
+$border-concrete: rgba(0, 0, 0, 0.08);
+$divider-color: rgba(189, 21, 4, 0.2);
+
+// Shadow colors - Professional subtle shadows
+$shadow-primary: rgba(3, 17, 103, 0.15);
+$shadow-red: rgba(189, 21, 4, 0.2);
+$shadow-dark: rgba(0, 0, 0, 0.1);
+$shadow-concrete: rgba(0, 0, 0, 0.08);
+$shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+$shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+
+// Gradient definitions
+$gradient-primary: linear-gradient(135deg, $blue-primary 0%, $blue-dark 100%);
+$gradient-accent: linear-gradient(135deg, $accent-red 0%, $accent-red-dark 100%);
+$gradient-blue-light: linear-gradient(135deg, $blue-light 0%, $blue-primary 100%);
+$gradient-overlay: linear-gradient(135deg, rgba(3, 17, 103, 0.2) 0%, rgba(28, 37, 76, 0.1) 100%);
+
+// Interactive states
+$hover-blue: color.adjust($blue-primary, $lightness: 10%);
+$active-blue: color.adjust($blue-primary, $lightness: -5%);
+$hover-red: color.adjust($accent-red, $lightness: 5%);
+

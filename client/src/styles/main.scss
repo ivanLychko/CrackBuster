@@ -1,0 +1,166 @@
+// Import color variables
+@import 'variables';
+
+img {
+    max-width: 100%;
+}
+
+// Global Styles
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none; // Disable text selection
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+// Allow text selection for input fields and textareas
+input,
+textarea,
+[contenteditable="true"] {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: $text-primary;
+    line-height: 1.6;
+    background: transparent; // Transparent to show canvas background
+    overflow-x: hidden;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+        monospace;
+}
+
+.app {
+    position: relative;
+    z-index: 1; // Content layer - above background
+    min-height: 100vh;
+}
+
+// Professional typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: $text-primary;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+// Utility Classes
+.container {
+    max-width: 90vw;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+
+    &.btn-primary {
+        background: $gradient-accent;
+        color: $text-on-accent;
+        border: none;
+        box-shadow: $shadow-card;
+
+        &:hover {
+            background: linear-gradient(135deg, $accent-red-light 0%, $accent-red 100%);
+            transform: translateY(-2px);
+            box-shadow: $shadow-hover;
+        }
+
+        &:disabled {
+            background: rgba(200, 200, 200, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    }
+
+    &.btn-secondary {
+        background: $bg-card;
+        color: $blue-primary;
+        border: 2px solid $blue-primary;
+        box-shadow: $shadow-card;
+
+        &:hover {
+            background: rgba(3, 17, 103, 0.05);
+            border-color: $blue-light;
+            transform: translateY(-2px);
+            box-shadow: $shadow-hover;
+        }
+    }
+
+    &.btn-outline {
+        background: transparent;
+        color: $blue-primary;
+        border: 2px solid $blue-primary;
+        box-shadow: none;
+
+        &:hover {
+            background: rgba(3, 17, 103, 0.05);
+            transform: translateY(-2px);
+            box-shadow: $shadow-card;
+        }
+    }
+
+    &.btn-large {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+}
+
+.main-content {
+    position: relative;
+    z-index: 1; // Content layer - above background
+    min-height: calc(100vh - 200px);
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+}

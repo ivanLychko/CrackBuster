@@ -1,0 +1,174 @@
+@import '../styles/variables';
+
+.service-detail {
+  .page-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+    position: relative;
+    z-index: 1;
+    color: $text-primary;
+    padding: 6rem 0 4rem;
+    position: relative;
+
+    .container {
+      max-width: 90vw;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin: 0;
+      color: $blue-primary;
+      font-weight: 700;
+    }
+  }
+
+  .service-content {
+    padding: 5rem 0;
+    background: rgba(248, 249, 250, 0.7);
+    position: relative;
+    z-index: 1;
+
+    .container {
+      max-width: 90vw;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 3rem;
+
+      @media (max-width: 968px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .main-content {
+      background: $bg-card;
+      padding: 3rem;
+      border-radius: 16px;
+      box-shadow: $shadow-card;
+
+      .description {
+        font-size: 1.25rem;
+        color: $text-primary;
+        margin-bottom: 2rem;
+        line-height: 1.8;
+      }
+
+      .content-text {
+        color: $text-primary;
+        line-height: 1.8;
+        font-size: 1.1rem;
+
+        h2,
+        h3 {
+          color: $blue-primary;
+          margin-top: 2rem;
+          margin-bottom: 1rem;
+          font-weight: 700;
+        }
+      }
+    }
+
+    .sidebar {
+      .cta-box {
+        background: $bg-card;
+        padding: 2rem;
+        border-radius: 16px;
+        border: 1px solid $border-light;
+        box-shadow: $shadow-card;
+        text-align: center;
+        position: sticky;
+        top: 100px;
+
+        h3 {
+          color: $blue-primary;
+          margin-bottom: 1rem;
+          font-weight: 700;
+        }
+
+        p {
+          color: $text-secondary;
+          margin-bottom: 1.5rem;
+        }
+      }
+    }
+  }
+
+  .loading,
+  .error {
+    text-align: center;
+    padding: 5rem 2rem;
+    font-size: 1.25rem;
+    color: $text-muted;
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      padding: 3rem 0 2rem;
+
+      .container {
+        padding: 0 1rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .service-content {
+      padding: 3rem 0;
+
+      .container {
+        padding: 0 1rem;
+      }
+
+      .main-content {
+        padding: 1.5rem;
+
+        .description {
+          font-size: 1.1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .content-text {
+          font-size: 1rem;
+          line-height: 1.7;
+
+          h2 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+          }
+
+          h3 {
+            font-size: 1.25rem;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+          }
+        }
+      }
+
+      .sidebar {
+        .cta-box {
+          padding: 1.5rem;
+          position: static;
+          margin-top: 2rem;
+
+          h3 {
+            font-size: 1.2rem;
+          }
+
+          p {
+            font-size: 0.95rem;
+          }
+        }
+      }
+    }
+  }
+}

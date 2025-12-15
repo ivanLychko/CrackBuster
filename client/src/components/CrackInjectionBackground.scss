@@ -1,0 +1,23 @@
+.crack-injection-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0; // Background layer - visible but behind content
+  pointer-events: none; // Container doesn't intercept clicks
+  background: #e9ecef; // Light gray foundation background
+  overflow: hidden;
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto; // Canvas can receive clicks
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
+}
+
