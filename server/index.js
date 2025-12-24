@@ -167,13 +167,32 @@ app.use((req, res, next) => {
 // Admin routes (protected with HTTP Basic Auth)
 // IMPORTANT: These must be registered BEFORE the main API router
 // because Express matches routes in order and /api/admin would be caught by /api
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/admin/images', require('./routes/images'));
+// Register admin routes with explicit path matching
+const adminRouter = require('./routes/admin');
+const imagesRouter = require('./routes/images');
+
+app.use('/api/admin', (req, res, next) => {
+    // Ensure admin routes are handled correctly
+    next();
+}, adminRouter);
+
+app.use('/api/admin/images', imagesRouter);
 
 // API routes - must be before static files
 // IMPORTANT: These must be registered after admin routes but before any catch-all routes
+// Skip admin routes - they should be handled by admin router above
 const apiRouter = require('./routes/api');
-app.use('/api', apiRouter);
+app.use('/api', (req, res, next) => {
+    // Skip admin routes - they should be handled by admin router above
+    // If path starts with /admin/, don't process it in main API router
+    if (req.path && req.path.startsWith('/admin/')) {
+        // This should have been handled by admin router, but if we reach here,
+        // it means admin router didn't handle it - return 404
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(404).json({ error: 'Admin endpoint not found', path: req.path });
+    }
+    next();
+}, apiRouter);
 
 // Middleware to catch any API requests that weren't handled by API routes
 // This ensures API requests always return JSON, never HTML
