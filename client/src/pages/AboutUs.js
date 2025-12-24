@@ -2,11 +2,13 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import useSiteSettings from '../hooks/useSiteSettings';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl, getDefaultOgImage, SITE_NAME } from '../utils/seo';
 import './AboutUs.scss';
 
 const AboutUs = () => {
   const { settings } = useSiteSettings();
+  const { seo } = useSEO();
 
   // Prepare structured data
   const structuredData = {
@@ -26,29 +28,39 @@ const AboutUs = () => {
     }
   };
 
+  // Get SEO data with fallbacks
+  const title = seo?.title || 'About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster';
+  const description = seo?.description || 'Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee.';
+  const keywords = seo?.keywords || '';
+  const ogTitle = seo?.ogTitle || title;
+  const ogDescription = seo?.ogDescription || description;
+  const ogImage = seo?.ogImage ? (seo.ogImage.startsWith('http') ? seo.ogImage : getCanonicalUrl(seo.ogImage)) : getDefaultOgImage();
+  const twitterTitle = seo?.twitterTitle || ogTitle;
+  const twitterDescription = seo?.twitterDescription || ogDescription;
+  const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/about-us');
+
   return (
     <>
       <Helmet>
-        <title>About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster</title>
-        <meta
-          name="description"
-          content="Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee."
-        />
-        <link rel="canonical" href={getCanonicalUrl('/about-us')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        {keywords && <meta name="keywords" content={keywords} />}
+        <link rel="canonical" href={canonical} />
 
         {/* Open Graph */}
-        <meta property="og:title" content="About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster" />
-        <meta property="og:description" content="Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee." />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getCanonicalUrl('/about-us')} />
-        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster" />
-        <meta name="twitter:description" content="Learn about CrackBuster - over 12 years of experience in foundation crack repair." />
-        <meta name="twitter:image" content={getDefaultOgImage()} />
+        <meta name="twitter:title" content={twitterTitle} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={twitterImage} />
 
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">
@@ -250,6 +262,11 @@ const AboutUs = () => {
                   {settings.address && (
                     <div className="contact-detail">
                       <strong>Address:</strong> {settings.address}
+                    </div>
+                  )}
+                  {settings.businessHours && (
+                    <div className="contact-detail">
+                      <strong>Business Hours:</strong> {settings.businessHours}
                     </div>
                   )}
                 </div>

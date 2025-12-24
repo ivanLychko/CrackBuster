@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { ServerDataProvider } from './contexts/ServerDataContext';
+import { ToastProvider } from './contexts/ToastContext';
 import App from './App';
 import './styles/main.scss';
 
@@ -18,7 +19,9 @@ root.render(
     <HelmetProvider>
       <BrowserRouter>
         <ServerDataProvider data={initialData}>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </ServerDataProvider>
       </BrowserRouter>
     </HelmetProvider>

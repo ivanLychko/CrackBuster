@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { authenticatedFetch } from '../../utils/auth';
 import './ImagePicker.scss';
 
 const ImagePicker = ({ value, onChange, category = 'general', label = 'Image' }) => {
@@ -22,9 +23,7 @@ const ImagePicker = ({ value, onChange, category = 'general', label = 'Image' })
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/images/categories/list', {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch('/api/admin/images/categories/list');
       const data = await response.json();
       setCategories(data.categories || []);
     } catch (error) {
@@ -35,9 +34,7 @@ const ImagePicker = ({ value, onChange, category = 'general', label = 'Image' })
   const fetchImages = async (cat) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/images/${cat}`, {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch(`/api/admin/images/${cat}`);
       const data = await response.json();
       setImages(data.images || []);
     } catch (error) {
@@ -61,9 +58,8 @@ const ImagePicker = ({ value, onChange, category = 'general', label = 'Image' })
       formData.append('images', file);
       formData.append('category', currentCategory);
 
-      const response = await fetch('/api/admin/images/upload', {
+      const response = await authenticatedFetch('/api/admin/images/upload', {
         method: 'POST',
-        credentials: 'include',
         body: formData
       });
 

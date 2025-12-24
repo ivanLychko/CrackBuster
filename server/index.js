@@ -30,6 +30,9 @@ if (process.env.NODE_ENV !== 'production') {
             /node_modules/,
             // Ignore image and other static files
             /\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|eot|ttf|otf|mp4|css|scss|sass)$/,
+            // Ignore react-quill and quill (browser-only libraries)
+            /node_modules\/react-quill/,
+            /node_modules\/quill/,
         ],
         // .babelrc will be used automatically
     });

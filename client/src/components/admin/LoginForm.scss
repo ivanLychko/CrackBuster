@@ -1,0 +1,110 @@
+@use 'sass:color';
+@import '../../styles/variables';
+
+.login-form-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: $bg-primary;
+  padding: 2rem;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 400px;
+  background: $bg-card;
+  padding: 3rem;
+  border-radius: 16px;
+  box-shadow: $shadow-card;
+
+  .login-form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      color: $blue-primary;
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+    }
+
+    p {
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      color: $text-primary;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid $border-light;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s;
+      background: $bg-primary;
+      color: $text-primary;
+
+      &:focus {
+        outline: none;
+        border-color: $blue-primary;
+        box-shadow: 0 0 0 3px rgba(3, 17, 103, 0.1);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .error-message {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+  }
+
+  .login-button {
+    width: 100%;
+    padding: 0.875rem;
+    background: $blue-primary;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover:not(:disabled) {
+      background: color.adjust($blue-primary, $lightness: -10%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(3, 17, 103, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+

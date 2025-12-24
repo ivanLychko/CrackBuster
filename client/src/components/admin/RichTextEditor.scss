@@ -1,0 +1,214 @@
+@import '../../styles/variables';
+
+.rich-text-editor-wrapper {
+  .ql-container {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border: 1px solid $border-light;
+    font-family: inherit;
+    font-size: 1rem;
+    min-height: 200px;
+  }
+
+  .ql-toolbar {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border: 1px solid $border-light;
+    border-bottom: none;
+    background: $bg-secondary;
+  }
+
+  .ql-editor {
+    min-height: 200px;
+    padding: 0.75rem;
+
+    &.ql-blank::before {
+      color: $text-secondary;
+      font-style: normal;
+      left: 0.75rem;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .ql-container.ql-snow {
+    border: 1px solid $border-light;
+  }
+
+  .ql-toolbar.ql-snow {
+    border: 1px solid $border-light;
+    border-bottom: none;
+  }
+
+  .ql-container.ql-snow:focus-within,
+  .ql-container.ql-snow:hover {
+    border-color: $blue-primary;
+  }
+
+  .ql-toolbar.ql-snow .ql-picker-label:hover,
+  .ql-toolbar.ql-snow .ql-picker-label.ql-active,
+  .ql-toolbar.ql-snow .ql-picker-item:hover,
+  .ql-toolbar.ql-snow .ql-picker-item.ql-selected,
+  .ql-toolbar.ql-snow button:hover,
+  .ql-toolbar.ql-snow button.ql-active {
+    color: $blue-primary;
+  }
+
+  .ql-toolbar.ql-snow .ql-picker-label:hover .ql-stroke,
+  .ql-toolbar.ql-snow .ql-picker-label.ql-active .ql-stroke,
+  .ql-toolbar.ql-snow .ql-picker-item:hover .ql-stroke,
+  .ql-toolbar.ql-snow .ql-picker-item.ql-selected .ql-stroke,
+  .ql-toolbar.ql-snow button:hover .ql-stroke,
+  .ql-toolbar.ql-snow button.ql-active .ql-stroke {
+    stroke: $blue-primary;
+  }
+
+  .ql-toolbar.ql-snow .ql-picker-label:hover .ql-fill,
+  .ql-toolbar.ql-snow .ql-picker-label.ql-active .ql-fill,
+  .ql-toolbar.ql-snow .ql-picker-item:hover .ql-fill,
+  .ql-toolbar.ql-snow .ql-picker-item.ql-selected .ql-fill,
+  .ql-toolbar.ql-snow button:hover .ql-fill,
+  .ql-toolbar.ql-snow button.ql-active .ql-fill {
+    fill: $blue-primary;
+  }
+
+  .ql-snow .ql-stroke {
+    stroke: $text-primary;
+  }
+
+  .ql-snow .ql-fill {
+    fill: $text-primary;
+  }
+
+  .ql-snow .ql-picker {
+    color: $text-primary;
+  }
+
+  // Custom HTML button styling
+  .ql-toolbar .ql-html {
+    width: auto;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $text-primary;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover,
+    &:focus {
+      color: $blue-primary;
+      background: rgba(3, 17, 103, 0.1);
+    }
+
+    &::before {
+      content: 'HTML';
+    }
+  }
+}
+
+// HTML Modal Styles
+.html-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 2rem;
+}
+
+.html-modal-content {
+  background: $bg-card;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.html-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid $border-light;
+  background: $bg-secondary;
+
+  h3 {
+    margin: 0;
+    color: $blue-primary;
+    font-size: 1.25rem;
+  }
+}
+
+.html-modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: $text-secondary;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: $text-primary;
+  }
+}
+
+.html-modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem;
+}
+
+.html-modal-textarea {
+  width: 100%;
+  min-height: 400px;
+  padding: 1rem;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  tab-size: 2;
+
+  &:focus {
+    outline: none;
+    border-color: $blue-primary;
+    box-shadow: 0 0 0 3px rgba(3, 17, 103, 0.1);
+  }
+}
+
+.html-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid $border-light;
+  background: $bg-secondary;
+}
+

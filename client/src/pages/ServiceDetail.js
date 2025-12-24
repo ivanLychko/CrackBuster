@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import FAQ from '../components/FAQ';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './ServiceDetail.scss';
 
 const ServiceDetail = () => {
     const { slug } = useParams();
+    const { seo: seoTemplate } = useSEO(); // Get template SEO for service-detail
     const [service, setService] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -72,26 +74,49 @@ const ServiceDetail = () => {
         "serviceType": service.title
     };
 
+    // Priority: Individual SEO > Basic Meta > Template SEO > Fallbacks
+    const title = service.seoTitle || service.metaTitle || service.title || seoTemplate?.title || `${service.title} | CrackBuster`;
+    const description = service.seoDescription || service.metaDescription || service.description || seoTemplate?.description || '';
+    const keywords = service.seoKeywords || (service.keywords ? (Array.isArray(service.keywords) ? service.keywords.join(', ') : service.keywords) : '') || seoTemplate?.keywords || '';
+    const ogTitle = service.ogTitle || service.seoTitle || service.metaTitle || service.title || seoTemplate?.ogTitle || title;
+    const ogDescription = service.ogDescription || service.seoDescription || service.metaDescription || service.description || seoTemplate?.ogDescription || description;
+    const ogImage = service.ogImage ? (
+      service.ogImage.startsWith('http') ? service.ogImage : getCanonicalUrl(service.ogImage)
+    ) : (
+      serviceImage || (seoTemplate?.ogImage ? (seoTemplate.ogImage.startsWith('http') ? seoTemplate.ogImage : getCanonicalUrl(seoTemplate.ogImage)) : getDefaultOgImage())
+    );
+    const twitterTitle = service.twitterTitle || service.ogTitle || service.seoTitle || service.metaTitle || service.title || seoTemplate?.twitterTitle || ogTitle;
+    const twitterDescription = service.twitterDescription || service.ogDescription || service.seoDescription || service.metaDescription || service.description || seoTemplate?.twitterDescription || ogDescription;
+    const twitterImage = service.twitterImage ? (
+      service.twitterImage.startsWith('http') ? service.twitterImage : getCanonicalUrl(service.twitterImage)
+    ) : (
+      seoTemplate?.twitterImage ? (seoTemplate.twitterImage.startsWith('http') ? seoTemplate.twitterImage : getCanonicalUrl(seoTemplate.twitterImage)) : ogImage
+    );
+    const canonical = service.canonicalUrl || seoTemplate?.canonicalUrl || getCanonicalUrl(`/services/${slug}`);
+    const robots = service.robots || seoTemplate?.robots || '';
+
     return (
         <>
             <Helmet>
-                <title>{service.metaTitle || service.title} | CrackBuster</title>
-                <meta name="description" content={service.metaDescription || service.description} />
-                <link rel="canonical" href={getCanonicalUrl(`/services/${slug}`)} />
+                <title>{title}</title>
+                <meta name="description" content={description} />
+                {keywords && <meta name="keywords" content={keywords} />}
+                {robots && <meta name="robots" content={robots} />}
+                <link rel="canonical" href={canonical} />
 
                 {/* Open Graph */}
-                <meta property="og:title" content={`${service.metaTitle || service.title} | CrackBuster`} />
-                <meta property="og:description" content={service.metaDescription || service.description} />
+                <meta property="og:title" content={ogTitle} />
+                <meta property="og:description" content={ogDescription} />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content={getCanonicalUrl(`/services/${slug}`)} />
-                <meta property="og:image" content={serviceImage} />
+                <meta property="og:url" content={canonical} />
+                <meta property="og:image" content={ogImage} />
                 <meta property="og:locale" content="en_CA" />
 
                 {/* Twitter Card */}
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content={`${service.metaTitle || service.title} | CrackBuster`} />
-                <meta name="twitter:description" content={service.metaDescription || service.description} />
-                <meta name="twitter:image" content={serviceImage} />
+                <meta name="twitter:title" content={twitterTitle} />
+                <meta name="twitter:description" content={twitterDescription} />
+                <meta name="twitter:image" content={twitterImage} />
 
                 {/* JSON-LD Structured Data */}
                 <script type="application/ld+json">

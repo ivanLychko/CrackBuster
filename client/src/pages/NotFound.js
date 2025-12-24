@@ -1,17 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl } from '../utils/seo';
 import './NotFound.scss';
 
 const NotFound = () => {
+  const { seo } = useSEO();
+  
+  // Get SEO data with fallbacks
+  const title = seo?.title || '404 - Page Not Found | CrackBuster';
+  const description = seo?.description || 'Oops! The page you\'re looking for has a crack in it. Let us help you find what you need.';
+  const robots = seo?.robots || 'noindex, nofollow';
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/404');
+
   return (
     <>
       <Helmet>
-        <title>404 - Page Not Found | CrackBuster</title>
-        <meta name="description" content="Oops! The page you're looking for has a crack in it. Let us help you find what you need." />
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href={getCanonicalUrl('/404')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="robots" content={robots} />
+        <link rel="canonical" href={canonical} />
       </Helmet>
 
       <div className="not-found">

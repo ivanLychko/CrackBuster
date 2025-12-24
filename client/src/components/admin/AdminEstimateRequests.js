@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Lightbox from '../Lightbox';
+import { authenticatedFetch } from '../../utils/auth';
 import './AdminCommon.scss';
 
 const AdminEstimateRequests = () => {
@@ -16,9 +17,7 @@ const AdminEstimateRequests = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await fetch('/api/admin/estimate-requests', {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch('/api/admin/estimate-requests');
       const data = await response.json();
       setRequests(data.requests || []);
     } catch (error) {
@@ -30,10 +29,9 @@ const AdminEstimateRequests = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const response = await fetch(`/api/admin/estimate-requests/${id}`, {
+      const response = await authenticatedFetch(`/api/admin/estimate-requests/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ status: newStatus })
       });
 
@@ -54,9 +52,8 @@ const AdminEstimateRequests = () => {
     if (!confirm('Are you sure you want to delete this estimate request?')) return;
 
     try {
-      const response = await fetch(`/api/admin/estimate-requests/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      const response = await authenticatedFetch(`/api/admin/estimate-requests/${id}`, {
+        method: 'DELETE'
       });
 
       if (response.ok) {
@@ -86,12 +83,13 @@ const AdminEstimateRequests = () => {
 
     return (
       <span style={{
-        padding: '0.25rem 0.75rem',
-        borderRadius: '12px',
-        fontSize: '0.875rem',
+        padding: '0.2rem 0.5rem',
+        borderRadius: '10px',
+        fontSize: '0.75rem',
         fontWeight: '600',
         backgroundColor: statusColors[status] + '20',
-        color: statusColors[status]
+        color: statusColors[status],
+        whiteSpace: 'nowrap'
       }}>
         {statusLabels[status] || status}
       </span>
@@ -110,7 +108,11 @@ const AdminEstimateRequests = () => {
   };
 
   const openLightbox = (images, startIndex = 0) => {
-    setLightboxImages(images);
+    // Normalize image paths for lightbox
+    const normalizedImages = images.map(img => 
+      img.startsWith('/') ? img : `/${img}`
+    );
+    setLightboxImages(normalizedImages);
     setLightboxIndex(startIndex);
     setLightboxOpen(true);
   };
@@ -133,8 +135,7 @@ const AdminEstimateRequests = () => {
 
   return (
     <div className="admin-section">
-      <div className="admin-section-header">
-        <h1>Estimate Requests</h1>
+      <div className="admin-section-header" style={{ marginBottom: '1rem' }}>
         <div style={{ color: '#666', fontSize: '0.9rem' }}>
           Total: {requests.length}
         </div>
@@ -155,37 +156,31 @@ const AdminEstimateRequests = () => {
                   key={request._id}
                   onClick={() => setSelectedRequest(request)}
                   style={{
-                    padding: '1.5rem',
-                    marginBottom: '1rem',
+                    padding: '0.75rem',
+                    marginBottom: '0.5rem',
                     border: selectedRequest?._id === request._id ? '2px solid #031167' : '1px solid #ddd',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     cursor: 'pointer',
                     backgroundColor: selectedRequest?._id === request._id ? 'rgba(3, 17, 103, 0.05)' : '#fff',
                     transition: 'all 0.2s'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                    <h3 style={{ margin: 0, color: '#031167', fontSize: '1.1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                    <h3 style={{ margin: 0, color: '#031167', fontSize: '0.95rem', fontWeight: '600' }}>
                       {request.name}
                     </h3>
                     {getStatusBadge(request.status)}
                   </div>
-                  <p style={{ margin: '0.5rem 0', color: '#666', fontSize: '0.9rem' }}>
-                    {request.email}
-                  </p>
-                  {request.phone && (
-                    <p style={{ margin: '0.5rem 0', color: '#666', fontSize: '0.9rem' }}>
-                      {request.phone}
-                    </p>
-                  )}
-                  <p style={{ margin: '0.5rem 0', color: '#999', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.8rem', color: '#666' }}>
+                    <span>{request.email}</span>
+                    {request.phone && <span>• {request.phone}</span>}
+                    {request.images && request.images.length > 0 && (
+                      <span>• 📷 {request.images.length}</span>
+                    )}
+                  </div>
+                  <p style={{ margin: '0.25rem 0 0 0', color: '#999', fontSize: '0.75rem' }}>
                     {formatDate(request.createdAt)}
                   </p>
-                  {request.images && request.images.length > 0 && (
-                    <p style={{ margin: '0.5rem 0', color: '#666', fontSize: '0.85rem' }}>
-                      📷 {request.images.length} image{request.images.length !== 1 ? 's' : ''}
-                    </p>
-                  )}
                 </div>
               ))}
             </div>
@@ -295,33 +290,55 @@ const AdminEstimateRequests = () => {
                       gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
                       gap: '1rem'
                     }}>
-                      {selectedRequest.images.map((imagePath, index) => (
-                        <div key={index} style={{ position: 'relative' }}>
-                          <img
-                            src={imagePath}
-                            alt={`Estimate ${index + 1}`}
-                            style={{
-                              width: '100%',
-                              height: '150px',
-                              objectFit: 'cover',
-                              borderRadius: '8px',
-                              border: '1px solid #ddd',
-                              cursor: 'pointer',
-                              transition: 'transform 0.2s'
-                            }}
-                            onClick={() => openLightbox(selectedRequest.images, index)}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = 'scale(1)';
-                            }}
-                            onError={(e) => {
-                              e.target.src = '/images/placeholder.jpg';
-                            }}
-                          />
-                        </div>
-                      ))}
+                      {selectedRequest.images.map((imagePath, index) => {
+                        // Ensure the path is correct - handle both relative and absolute paths
+                        const normalizedPath = imagePath.startsWith('/') 
+                          ? imagePath 
+                          : `/${imagePath}`;
+                        
+                        return (
+                          <div key={index} style={{ position: 'relative' }}>
+                            <img
+                              src={normalizedPath}
+                              alt={`Estimate ${index + 1}`}
+                              style={{
+                                width: '100%',
+                                height: '150px',
+                                objectFit: 'cover',
+                                borderRadius: '8px',
+                                border: '1px solid #ddd',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                                backgroundColor: '#f5f5f5'
+                              }}
+                              onClick={() => openLightbox(selectedRequest.images, index)}
+                              onMouseEnter={(e) => {
+                                e.target.style.transform = 'scale(1.05)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.transform = 'scale(1)';
+                              }}
+                              onError={(e) => {
+                                console.error('Failed to load image:', normalizedPath);
+                                // Try alternative path formats
+                                if (!normalizedPath.includes('placeholder')) {
+                                  // If path doesn't start with /images, try adding it
+                                  if (!normalizedPath.startsWith('/images/')) {
+                                    const altPath = `/images${normalizedPath}`;
+                                    if (e.target.src !== altPath) {
+                                      e.target.src = altPath;
+                                      return;
+                                    }
+                                  }
+                                  // Last resort: show placeholder
+                                  e.target.src = '/images/placeholder.jpg';
+                                  e.target.onerror = null; // Prevent infinite loop
+                                }
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

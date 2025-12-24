@@ -8,6 +8,7 @@ const Service = require('../models/Service');
 const Work = require('../models/Work');
 const Contact = require('../models/Contact');
 const SiteSettings = require('../models/SiteSettings');
+const SEO = require('../models/SEO');
 const { sendEstimateEmail, sendContactEmail } = require('../utils/emailService');
 
 // Configure multer for estimate image uploads
@@ -288,6 +289,27 @@ router.get('/settings', async (req, res) => {
   try {
     const settings = await SiteSettings.getSettings();
     res.json({ settings });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// SEO routes (public - get only)
+router.get('/seo/:page', async (req, res) => {
+  try {
+    const { page } = req.params;
+    const seo = await SEO.getSEO(page);
+    res.json({ seo });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all SEO data (public)
+router.get('/seo', async (req, res) => {
+  try {
+    const seo = await SEO.getAllSEO();
+    res.json({ seo });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

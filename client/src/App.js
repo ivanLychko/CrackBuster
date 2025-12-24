@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import CrackInjectionBackground from './components/CrackInjectionBackground';
 import ScrollToTop from './components/ScrollToTop';
+import ToastContainer from './components/ToastContainer';
 import useSiteSettings from './hooks/useSiteSettings';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
@@ -58,6 +59,7 @@ const App = () => {
         </main>
         {!isAdminRoute && <Footer />}
       </div>
+      <ToastContainer />
     </>
   );
 };

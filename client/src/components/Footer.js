@@ -115,6 +115,11 @@ const Footer = () => {
             <p>{settings.address}</p>
             {settings.email && <p>Email: <a href={`mailto:${settings.email}`}>{settings.email}</a></p>}
             {settings.phone && <p>Phone: <a href={`tel:${settings.phone.replace(/\D/g, '')}`}>{settings.phone}</a></p>}
+            {settings.businessHours && (
+              <p className="business-hours">
+                <strong>Hours:</strong> {settings.businessHours}
+              </p>
+            )}
             <Link to="/contact-us" className="footer-cta">Get In Touch</Link>
           </div>
         </div>

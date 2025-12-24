@@ -11,10 +11,12 @@
 
   canvas {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
     pointer-events: auto; // Canvas can receive clicks
-    position: absolute;
+    position: fixed; // Фиксируем canvas при прокрутке
     top: 0;
     left: 0;
     z-index: 0;

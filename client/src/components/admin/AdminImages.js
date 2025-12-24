@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { authenticatedFetch } from '../../utils/auth';
+import { useToast } from '../../contexts/ToastContext';
 import './AdminCommon.scss';
 import './AdminImages.scss';
 
 const AdminImages = () => {
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
   const [categories, setCategories] = useState([]);
   const [currentCategory, setCurrentCategory] = useState('general');
   const [currentSubfolder, setCurrentSubfolder] = useState('');
@@ -29,9 +32,7 @@ const AdminImages = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/images/categories/list', {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch('/api/admin/images/categories/list');
       const data = await response.json();
       const cats = data.categories || [];
       setCategories(cats);
@@ -52,9 +53,7 @@ const AdminImages = () => {
       const url = subfolder
         ? `/api/admin/images/${category}?subfolder=${encodeURIComponent(subfolder)}`
         : `/api/admin/images/${category}`;
-      const response = await fetch(url, {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch(url);
       const data = await response.json();
       setImages(data.images || []);
       setFolders(data.folders || []);
@@ -67,9 +66,7 @@ const AdminImages = () => {
           if (!folderImagesCache[fullFolderPath]) {
             try {
               const folderUrl = `/api/admin/images/folder/${category}/images?subfolder=${encodeURIComponent(fullFolderPath)}`;
-              const folderResponse = await fetch(folderUrl, {
-                credentials: 'include'
-              });
+              const folderResponse = await authenticatedFetch(folderUrl);
               const folderData = await folderResponse.json();
               setFolderImagesCache(prev => ({
                 ...prev,
@@ -83,7 +80,7 @@ const AdminImages = () => {
       }
     } catch (error) {
       console.error('Error fetching images:', error);
-      alert('Error loading images: ' + error.message);
+      showError('Error loading images: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -128,24 +125,23 @@ const AdminImages = () => {
         formData.append('subfolder', currentSubfolder);
       }
 
-      const response = await fetch('/api/admin/images/upload', {
+      const response = await authenticatedFetch('/api/admin/images/upload', {
         method: 'POST',
-        credentials: 'include',
         body: formData
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert(`Successfully uploaded ${data.images.length} image(s)`);
+        showSuccess(`Successfully uploaded ${data.images.length} image(s)`);
         fetchImages(currentCategory, currentSubfolder);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
       } else {
-        alert('Error: ' + (data.error || 'Upload failed'));
+        showError('Error: ' + (data.error || 'Upload failed'));
       }
     } catch (error) {
-      alert('Error uploading images: ' + error.message);
+      showError('Error uploading images: ' + error.message);
     } finally {
       setUploading(false);
     }
@@ -160,20 +156,19 @@ const AdminImages = () => {
       const filename = pathParts.slice(1).join('/'); // Handle subfolders
       const encodedCategory = encodeURIComponent(category);
       const encodedFilename = encodeURIComponent(filename);
-      const response = await fetch(`/api/admin/images/${encodedCategory}/${encodedFilename}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      const response = await authenticatedFetch(`/api/admin/images/${encodedCategory}/${encodedFilename}`, {
+        method: 'DELETE'
       });
 
       if (response.ok) {
-        alert('Image deleted successfully');
+        showSuccess('Image deleted successfully');
         fetchImages(currentCategory, currentSubfolder);
       } else {
         const data = await response.json();
-        alert('Error: ' + (data.error || 'Delete failed'));
+        showError('Error: ' + (data.error || 'Delete failed'));
       }
     } catch (error) {
-      alert('Error deleting image: ' + error.message);
+      showError('Error deleting image: ' + error.message);
     }
   };
 
@@ -188,44 +183,42 @@ const AdminImages = () => {
         const filename = pathParts.slice(1).join('/'); // Handle subfolders
         const encodedCategory = encodeURIComponent(category);
         const encodedFilename = encodeURIComponent(filename);
-        await fetch(`/api/admin/images/${encodedCategory}/${encodedFilename}`, {
-          method: 'DELETE',
-          credentials: 'include'
+        await authenticatedFetch(`/api/admin/images/${encodedCategory}/${encodedFilename}`, {
+          method: 'DELETE'
         });
       }
-      alert('Selected images deleted successfully');
+      showSuccess('Selected images deleted successfully');
       setSelectedImages([]);
       fetchImages(currentCategory);
     } catch (error) {
-      alert('Error deleting images: ' + error.message);
+      showError('Error deleting images: ' + error.message);
     }
   };
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
-      alert('Please enter a category name');
+      showWarning('Please enter a category name');
       return;
     }
 
     try {
-      const response = await fetch('/api/admin/images/categories', {
+      const response = await authenticatedFetch('/api/admin/images/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ name: newCategoryName.trim() })
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert('Category created successfully');
+        showSuccess('Category created successfully');
         setNewCategoryName('');
         fetchCategories();
         setCurrentCategory(data.category);
       } else {
-        alert('Error: ' + (data.error || 'Failed to create category'));
+        showError('Error: ' + (data.error || 'Failed to create category'));
       }
     } catch (error) {
-      alert('Error creating category: ' + error.message);
+      showError('Error creating category: ' + error.message);
     }
   };
 
@@ -237,9 +230,21 @@ const AdminImages = () => {
     );
   };
 
+  // Check if image is already optimized (WebP files are considered optimized)
+  const isImageOptimized = (imagePath) => {
+    const ext = imagePath.toLowerCase().split('.').pop();
+    return ext === 'webp';
+  };
+
+  // Get only optimizable images (exclude WebP)
+  const getOptimizableImages = () => {
+    return images.filter(img => !isImageOptimized(img.path));
+  };
+
   const handleSelectAll = () => {
-    const allImagePaths = images.map(img => img.path);
-    setSelectedImages(allImagePaths);
+    // Only select images that can be optimized (exclude WebP)
+    const optimizableImagePaths = getOptimizableImages().map(img => img.path);
+    setSelectedImages(optimizableImagePaths);
   };
 
   const handleDeselectAll = () => {
@@ -258,9 +263,7 @@ const AdminImages = () => {
 
       if (!folderImages) {
         const url = `/api/admin/images/folder/${currentCategory}/images?subfolder=${encodeURIComponent(fullFolderPath)}`;
-        const response = await fetch(url, {
-          credentials: 'include'
-        });
+        const response = await authenticatedFetch(url);
         const data = await response.json();
         folderImages = data.images || [];
         // Cache the result
@@ -270,10 +273,12 @@ const AdminImages = () => {
         }));
       }
 
-      const folderImagePaths = folderImages.map(img => img.path);
+      // Filter out already optimized images (WebP)
+      const optimizableFolderImages = folderImages.filter(img => !isImageOptimized(img.path));
+      const folderImagePaths = optimizableFolderImages.map(img => img.path);
 
       if (checked) {
-        // Add folder images to selection
+        // Add folder images to selection (only optimizable ones)
         setSelectedImages(prev => {
           const combined = [...new Set([...prev, ...folderImagePaths])];
           return combined;
@@ -298,13 +303,17 @@ const AdminImages = () => {
       return false;
     }
 
-    const folderImagePaths = cachedImages.map(img => img.path);
+    // Only consider optimizable images (exclude WebP)
+    const optimizableFolderImages = cachedImages.filter(img => !isImageOptimized(img.path));
+    const folderImagePaths = optimizableFolderImages.map(img => img.path);
     return folderImagePaths.length > 0 && folderImagePaths.every(path => selectedImages.includes(path));
   };
 
   const copyImageUrl = (url) => {
     navigator.clipboard.writeText(url).then(() => {
-      alert('Image URL copied to clipboard!');
+      showSuccess('Image URL copied to clipboard!');
+    }).catch(() => {
+      showError('Failed to copy URL to clipboard');
     });
   };
 
@@ -318,6 +327,12 @@ const AdminImages = () => {
 
   const handleOptimize = async (imagePath, imageName) => {
     if (optimizing) return;
+    
+    // Check if already optimized
+    if (isImageOptimized(imagePath)) {
+      showWarning('This image is already optimized (WebP format) and cannot be optimized again.');
+      return;
+    }
 
     setOptimizing(true);
     setOptimizingImage(imagePath);
@@ -328,23 +343,22 @@ const AdminImages = () => {
       const filename = pathParts.slice(1).join('/'); // Handle subfolders
       const encodedCategory = encodeURIComponent(category);
       const encodedFilename = encodeURIComponent(filename);
-      const response = await fetch(`/api/admin/images/optimize/${encodedCategory}/${encodedFilename}`, {
+      const response = await authenticatedFetch(`/api/admin/images/optimize/${encodedCategory}/${encodedFilename}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ quality: 85 })
       });
 
       const data = await response.json();
       if (response.ok) {
         const saved = data.result.savedPercent;
-        alert(`Image optimized successfully! Saved ${saved}% (${formatFileSize(data.result.savedBytes)})`);
+        showSuccess(`Image optimized successfully! Saved ${saved}% (${formatFileSize(data.result.savedBytes)})`);
         fetchImages(currentCategory, currentSubfolder);
       } else {
-        alert('Error: ' + (data.error || 'Optimization failed'));
+        showError('Error: ' + (data.error || 'Optimization failed'));
       }
     } catch (error) {
-      alert('Error optimizing image: ' + error.message);
+      showError('Error optimizing image: ' + error.message);
     } finally {
       setOptimizing(false);
       setOptimizingImage(null);
@@ -353,6 +367,12 @@ const AdminImages = () => {
 
   const handleWebOptimize = async (imagePath, imageName) => {
     if (optimizing) return;
+    
+    // Check if already optimized
+    if (isImageOptimized(imagePath)) {
+      showWarning('This image is already optimized (WebP format) and cannot be optimized again.');
+      return;
+    }
 
     setOptimizing(true);
     setOptimizingImage(imagePath);
@@ -363,10 +383,9 @@ const AdminImages = () => {
       const filename = pathParts.slice(1).join('/'); // Handle subfolders
       const encodedCategory = encodeURIComponent(category);
       const encodedFilename = encodeURIComponent(filename);
-      const response = await fetch(`/api/admin/images/optimize/web/${encodedCategory}/${encodedFilename}`, {
+      const response = await authenticatedFetch(`/api/admin/images/optimize/web/${encodedCategory}/${encodedFilename}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           maxWidth: 1920,
           maxHeight: 1920,
@@ -377,13 +396,13 @@ const AdminImages = () => {
       const data = await response.json();
       if (response.ok) {
         const saved = data.result.savedPercent;
-        alert(`Image optimized for web! Saved ${saved}% (${formatFileSize(data.result.savedBytes)}). Converted to WebP format.`);
+        showSuccess(`Image optimized for web! Saved ${saved}% (${formatFileSize(data.result.savedBytes)}). Converted to WebP format.`);
         fetchImages(currentCategory, currentSubfolder);
       } else {
-        alert('Error: ' + (data.error || 'Web optimization failed'));
+        showError('Error: ' + (data.error || 'Web optimization failed'));
       }
     } catch (error) {
-      alert('Error optimizing image: ' + error.message);
+      showError('Error optimizing image: ' + error.message);
     } finally {
       setOptimizing(false);
       setOptimizingImage(null);
@@ -392,17 +411,30 @@ const AdminImages = () => {
 
   const handleOptimizeSelected = async () => {
     if (selectedImages.length === 0 || optimizing) return;
-    if (!confirm(`Optimize ${selectedImages.length} image(s)?`)) return;
+    
+    // Filter out already optimized images
+    const optimizableImages = selectedImages.filter(path => !isImageOptimized(path));
+    
+    if (optimizableImages.length === 0) {
+      showWarning('No optimizable images selected. WebP images are already optimized.');
+      return;
+    }
+    
+    if (optimizableImages.length < selectedImages.length) {
+      const skipped = selectedImages.length - optimizableImages.length;
+      if (!confirm(`Optimize ${optimizableImages.length} image(s)? ${skipped} already optimized image(s) will be skipped.`)) return;
+    } else {
+      if (!confirm(`Optimize ${optimizableImages.length} image(s)?`)) return;
+    }
 
     setOptimizing(true);
 
     try {
-      const response = await fetch('/api/admin/images/optimize/bulk', {
+      const response = await authenticatedFetch('/api/admin/images/optimize/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
-          images: selectedImages,
+          images: optimizableImages,
           quality: 85
         })
       });
@@ -413,14 +445,14 @@ const AdminImages = () => {
         const avgSaved = data.results.length > 0
           ? (data.results.reduce((sum, r) => sum + parseFloat(r.savedPercent), 0) / data.results.length).toFixed(1)
           : 0;
-        alert(`Optimized ${data.results.length} image(s)! Average saved: ${avgSaved}% (Total: ${formatFileSize(totalSaved)})`);
+        showSuccess(`Optimized ${data.results.length} image(s)! Average saved: ${avgSaved}% (Total: ${formatFileSize(totalSaved)})`);
         setSelectedImages([]);
         fetchImages(currentCategory, currentSubfolder);
       } else {
-        alert('Error: ' + (data.error || 'Bulk optimization failed'));
+        showError('Error: ' + (data.error || 'Bulk optimization failed'));
       }
     } catch (error) {
-      alert('Error optimizing images: ' + error.message);
+      showError('Error optimizing images: ' + error.message);
     } finally {
       setOptimizing(false);
     }
@@ -428,17 +460,30 @@ const AdminImages = () => {
 
   const handleWebOptimizeSelected = async () => {
     if (selectedImages.length === 0 || optimizing) return;
-    if (!confirm(`Web optimize ${selectedImages.length} image(s)? This will convert them to WebP format.`)) return;
+    
+    // Filter out already optimized images
+    const optimizableImages = selectedImages.filter(path => !isImageOptimized(path));
+    
+    if (optimizableImages.length === 0) {
+      showWarning('No optimizable images selected. WebP images are already optimized.');
+      return;
+    }
+    
+    if (optimizableImages.length < selectedImages.length) {
+      const skipped = selectedImages.length - optimizableImages.length;
+      if (!confirm(`Web optimize ${optimizableImages.length} image(s)? This will convert them to WebP format. ${skipped} already optimized image(s) will be skipped.`)) return;
+    } else {
+      if (!confirm(`Web optimize ${optimizableImages.length} image(s)? This will convert them to WebP format.`)) return;
+    }
 
     setOptimizing(true);
 
     try {
-      const response = await fetch('/api/admin/images/optimize/web/bulk', {
+      const response = await authenticatedFetch('/api/admin/images/optimize/web/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
-          images: selectedImages,
+          images: optimizableImages,
           maxWidth: 1920,
           maxHeight: 1920,
           quality: 85
@@ -451,14 +496,14 @@ const AdminImages = () => {
         const avgSaved = data.results.length > 0
           ? (data.results.reduce((sum, r) => sum + parseFloat(r.savedPercent), 0) / data.results.length).toFixed(1)
           : 0;
-        alert(`Web optimized ${data.results.length} image(s)! Average saved: ${avgSaved}% (Total: ${formatFileSize(totalSaved)}). All converted to WebP.`);
+        showSuccess(`Web optimized ${data.results.length} image(s)! Average saved: ${avgSaved}% (Total: ${formatFileSize(totalSaved)}). All converted to WebP.`);
         setSelectedImages([]);
         fetchImages(currentCategory, currentSubfolder);
       } else {
-        alert('Error: ' + (data.error || 'Bulk web optimization failed'));
+        showError('Error: ' + (data.error || 'Bulk web optimization failed'));
       }
     } catch (error) {
-      alert('Error optimizing images: ' + error.message);
+      showError('Error optimizing images: ' + error.message);
     } finally {
       setOptimizing(false);
     }
@@ -618,19 +663,25 @@ const AdminImages = () => {
                     <>
                       <div className="images-toolbar">
                         <div className="selection-controls">
-                          {selectedImages.length === images.length ? (
-                            <button onClick={handleDeselectAll} className="btn btn-secondary btn-sm">
-                              Deselect All
-                            </button>
-                          ) : (
-                            <button onClick={handleSelectAll} className="btn btn-secondary btn-sm">
-                              Select All ({images.length})
-                            </button>
-                          )}
+                          {(() => {
+                            const optimizableImages = getOptimizableImages();
+                            const allOptimizableSelected = optimizableImages.length > 0 && 
+                              optimizableImages.every(img => selectedImages.includes(img.path));
+                            
+                            return allOptimizableSelected ? (
+                              <button onClick={handleDeselectAll} className="btn btn-secondary btn-sm">
+                                Deselect All
+                              </button>
+                            ) : (
+                              <button onClick={handleSelectAll} className="btn btn-secondary btn-sm">
+                                Select All ({optimizableImages.length} optimizable)
+                              </button>
+                            );
+                          })()}
                           {selectedImages.length > 0 && (
                             <span className="selection-count">
                               {selectedImages.length} selected
-                              {images.length > 0 && ` (${images.length} in current folder)`}
+                              {images.length > 0 && ` (${getOptimizableImages().length} optimizable of ${images.length} total)`}
                             </span>
                           )}
                         </div>
@@ -665,16 +716,16 @@ const AdminImages = () => {
                                 <button
                                   onClick={() => handleOptimize(image.path, image.name)}
                                   className="btn-small btn-optimize"
-                                  title="Optimize"
-                                  disabled={optimizing && optimizingImage !== image.path}
+                                  title={isImageOptimized(image.path) ? "Already optimized" : "Optimize"}
+                                  disabled={optimizing && optimizingImage !== image.path || isImageOptimized(image.path)}
                                 >
                                   {optimizing && optimizingImage === image.path ? '⏳' : '⚡'}
                                 </button>
                                 <button
                                   onClick={() => handleWebOptimize(image.path, image.name)}
                                   className="btn-small btn-web-optimize"
-                                  title="Web Optimize (WebP)"
-                                  disabled={optimizing && optimizingImage !== image.path}
+                                  title={isImageOptimized(image.path) ? "Already optimized" : "Web Optimize (WebP)"}
+                                  disabled={optimizing && optimizingImage !== image.path || isImageOptimized(image.path)}
                                 >
                                   {optimizing && optimizingImage === image.path ? '⏳' : '🌐'}
                                 </button>

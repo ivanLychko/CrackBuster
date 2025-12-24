@@ -13,13 +13,14 @@ class CrackInjectionBackgroundClass {
     this.lastCrackTime = 0;
     this.settings = {
       crackInterval: settings.crackInterval || 2000,
-      crackCount: settings.crackCount || 30,
+      crackCount: settings.crackCount || 40, // Уменьшено для оптимизации
       injectionRadius: settings.injectionRadius || 80,
       injectionSpeed: settings.injectionSpeed || 1.5,
       scrollSensitivity: settings.scrollSensitivity || 0.7,
     };
     this.scrollY = 0;
     this.lastScrollY = 0;
+    this.scrollGrowthBoost = 0; // Ускорение роста при прокрутке
     this.init();
   }
 
@@ -92,20 +93,26 @@ class CrackInjectionBackgroundClass {
     const currentScrollY = window.scrollY || window.pageYOffset;
     const scrollDelta = Math.abs(currentScrollY - this.lastScrollY);
 
-    // Создаем трещины при прокрутке
+    // При прокрутке ускоряем проявление существующих трещин
     if (scrollDelta > 10) {
-      if (Math.random() > (1 - this.settings.scrollSensitivity)) {
+      this.scrollGrowthBoost = Math.min(1.0, (scrollDelta / 100) * this.settings.scrollSensitivity);
+      // Иногда создаем новую трещину, но редко
+      if (Math.random() > (1 - this.settings.scrollSensitivity * 0.2) && this.cracks.length < this.settings.crackCount * 0.8) {
         this.createRandomCrack();
       }
+    } else {
+      this.scrollGrowthBoost = 0;
     }
 
     this.lastScrollY = currentScrollY;
   }
 
   resize() {
+    // Фиксируем размер canvas размером экрана (viewport)
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    this.createCracks();
+    // Не пересоздаем трещины, только масштабируем координаты если нужно
+    // Трещины продолжат расти естественным образом
   }
 
   handleMouseMove(e) {
@@ -156,49 +163,327 @@ class CrackInjectionBackgroundClass {
 
   createCracks() {
     this.cracks = [];
-    const count = 8; // Начальное количество
-    for (let i = 0; i < count; i++) {
-      this.createRandomCrack();
+    // Создаем больше основных трещин (очагов) - меньше ветвления, больше очагов
+    const mainCracksCount = 8 + Math.floor(Math.random() * 5); // 8-12 основных трещин (очагов)
+    for (let i = 0; i < mainCracksCount; i++) {
+      this.createMainCrack();
+    }
+    
+    // Создаем меньше ветвей от существующих трещин
+    const branchCount = 5 + Math.floor(Math.random() * 5); // 5-10 ветвей (вместо 15-25)
+    for (let i = 0; i < branchCount; i++) {
+      this.createBranchFromExistingCrack();
     }
   }
 
-  createRandomCrack() {
-    const startX = Math.random() * this.canvas.width;
-    const startY = Math.random() * this.canvas.height;
+  createMainCrack() {
+    // Создаем основную трещину от случайной точки на краю экрана
+    const edge = Math.floor(Math.random() * 4); // 0-верх, 1-право, 2-низ, 3-лево
+    let startX, startY;
+    
+    switch(edge) {
+      case 0: // Верх
+        startX = Math.random() * this.canvas.width;
+        startY = 0;
+        break;
+      case 1: // Право
+        startX = this.canvas.width;
+        startY = Math.random() * this.canvas.height;
+        break;
+      case 2: // Низ
+        startX = Math.random() * this.canvas.width;
+        startY = this.canvas.height;
+        break;
+      case 3: // Лево
+        startX = 0;
+        startY = Math.random() * this.canvas.height;
+        break;
+    }
+    
+    this.createCrackFromPoint(startX, startY, true);
+  }
+
+  createBranchFromExistingCrack() {
+    // Создаем ветвь от существующей трещины
+    if (this.cracks.length === 0) {
+      // Если нет трещин, создаем обычную
+      this.createCrackFromPoint(
+        Math.random() * this.canvas.width,
+        Math.random() * this.canvas.height,
+        false
+      );
+      return;
+    }
+    
+    // Выбираем случайную трещину
+    const randomCrack = this.cracks[Math.floor(Math.random() * this.cracks.length)];
+    if (!randomCrack.points || randomCrack.points.length === 0) {
+      this.createCrackFromPoint(
+        Math.random() * this.canvas.width,
+        Math.random() * this.canvas.height,
+        false
+      );
+      return;
+    }
+    
+    // Выбираем случайную точку из трещины (но не первую и не последнюю)
+    const pointIndex = Math.floor(Math.random() * (randomCrack.points.length - 2)) + 1;
+    const branchPoint = randomCrack.points[pointIndex];
+    
+    // Создаем ветвь от этой точки
+    const angle = Math.atan2(
+      randomCrack.points[pointIndex + 1].y - branchPoint.y,
+      randomCrack.points[pointIndex + 1].x - branchPoint.x
+    );
+    
+    // Угол ответвления (перпендикулярно или под углом)
+    const branchAngle = angle + (Math.random() - 0.5) * 2.5 + (Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2);
+    
+    this.createBranchFromPoint(branchPoint.x, branchPoint.y, branchAngle);
+  }
+
+  createCrackFromPoint(startX, startY, isMain = false) {
+    // Создаем трещину от заданной точки
     const points = [];
     let x = startX;
     let y = startY;
-
-    const segments = Math.floor(Math.random() * 20) + 15; // 15-35 сегментов
-
-    // Основное направление трещины (более прямое)
-    const mainAngle = Math.random() * Math.PI * 0.5 + Math.PI * 0.25; // От 45 до 135 градусов (в основном вниз)
+    const segments = isMain 
+      ? Math.floor(Math.random() * 50) + 40  // Основные трещины длиннее (40-90 сегментов)
+      : Math.floor(Math.random() * 40) + 25; // Обычные (25-65 сегментов)
+    let mainAngle = isMain
+      ? Math.atan2(this.canvas.height / 2 - startY, this.canvas.width / 2 - startX) + (Math.random() - 0.5) * 0.5
+      : Math.random() * Math.PI * 2;
+    
+    // Базовая ширина трещины
+    const baseWidth = isMain
+      ? Math.random() * 1.5 + 1.0  // Основные трещины шире (1.0-2.5px)
+      : Math.random() * 1.2 + 0.4; // Обычные (0.4-1.6px)
+    const maxWidth = baseWidth * (1.5 + Math.random() * 1.5);
 
     for (let j = 0; j < segments; j++) {
-      points.push({ x, y, filled: false });
-      // Умеренное отклонение от основного направления
-      const angleVariation = (Math.random() - 0.5) * 0.6; // ±0.3 радиан (±17 градусов)
+      const progress = j / segments;
+      
+      const widthProgress = progress < 0.3 
+        ? progress / 0.3 * 0.5
+        : 0.5 + (progress - 0.3) / 0.7 * 0.5;
+      const currentWidth = baseWidth + (maxWidth - baseWidth) * widthProgress + Math.random() * 0.3;
+      
+      points.push({ 
+        x, 
+        y, 
+        filled: false,
+        width: Math.max(0.3, Math.min(5, currentWidth))
+      });
+      
+      // Более резкие и неровные углы для зигзагообразных трещин
+      const sharpTurn = Math.random() < 0.2 ? (Math.random() - 0.5) * 2.5 : 0;
+      const angleVariation = (Math.random() - 0.5) * 1.8 + sharpTurn;
       const angle = mainAngle + angleVariation;
-      const length = Math.random() * 20 + 12;
-      x += Math.cos(angle) * length;
-      y += Math.sin(angle) * length;
+      
+      mainAngle = angle + (Math.random() - 0.5) * 0.6;
+      
+      const segmentLength = Math.random() < 0.3 
+        ? Math.random() * 8 + 3
+        : Math.random() * 30 + 10;
+      
+      x += Math.cos(angle) * segmentLength;
+      y += Math.sin(angle) * segmentLength;
+
+      // Создаем меньше ответвлений от этой точки (уменьшено ветвление)
+      if (Math.random() < 0.08 && j > segments * 0.3 && j < segments * 0.9) {
+        const branchAngle = angle + (Math.random() - 0.5) * 2.0;
+        this.createBranchFromPoint(x, y, branchAngle);
+      }
+
+      // Проверяем близость к другим трещинам
+      if (this.cracks.length > 0 && Math.random() < 0.15) {
+        const nearestCrack = this.findNearestCrackPoint(x, y);
+        if (nearestCrack && nearestCrack.distance < 100) {
+          const angleToNearest = Math.atan2(nearestCrack.y - y, nearestCrack.x - x);
+          const adjustedAngle = angle + (angleToNearest - angle) * 0.4;
+          x += Math.cos(adjustedAngle) * segmentLength * 0.6;
+          y += Math.sin(adjustedAngle) * segmentLength * 0.6;
+        }
+      }
 
       // Ограничения по границам
-      if (y > this.canvas.height || y < 0 || x < 0 || x > this.canvas.width) {
+      if (y > this.canvas.height * 1.1 || y < -this.canvas.height * 0.1 || 
+          x < -this.canvas.width * 0.1 || x > this.canvas.width * 1.1) {
         break;
       }
     }
 
     this.cracks.push({
       points,
-      width: Math.random() * 3 + 1,
-      age: 0, // Возраст трещины для анимации появления
+      baseWidth: baseWidth,
+      maxWidth: maxWidth,
+      revealProgress: 0,
+      revealSpeed: Math.random() * 0.003 + 0.001,
     });
 
-    // Ограничиваем максимальное количество трещин
     if (this.cracks.length > this.settings.crackCount) {
       this.cracks.shift();
     }
+  }
+
+  createRandomCrack() {
+    // Создаем случайную трещину (используется для автоматического добавления)
+    // Больше очагов - чаще создаем новые основные трещины, реже ветви
+    if (this.cracks.length > 0 && Math.random() < 0.4) {
+      // 40% шанс начать от существующей трещины (вместо 80%)
+      this.createBranchFromExistingCrack();
+    } else {
+      // 60% шанс создать новый очаг (новую основную трещину)
+      this.createCrackFromPoint(
+        Math.random() * this.canvas.width,
+        Math.random() * this.canvas.height,
+        false
+      );
+    }
+  }
+
+
+  createBranchCrack() {
+    // Создаем короткие ветвящиеся трещины сразу со всеми точками с динамической шириной
+    const startX = Math.random() * this.canvas.width;
+    const startY = Math.random() * this.canvas.height;
+    const points = [];
+    let x = startX;
+    let y = startY;
+    const segments = Math.floor(Math.random() * 18) + 10; // 10-28 сегментов
+    let mainAngle = Math.random() * Math.PI * 2;
+    
+    const baseWidth = Math.random() * 1.0 + 0.3; // 0.3-1.3px
+    const maxWidth = baseWidth * (1.3 + Math.random() * 0.7);
+
+    for (let j = 0; j < segments; j++) {
+      const progress = j / segments;
+      
+      const widthProgress = progress < 0.3 
+        ? progress / 0.3 * 0.5
+        : 0.5 + (progress - 0.3) / 0.7 * 0.5;
+      const currentWidth = baseWidth + (maxWidth - baseWidth) * widthProgress;
+      
+      points.push({ 
+        x, 
+        y, 
+        filled: false,
+        width: Math.max(0.3, Math.min(2.5, currentWidth))
+      });
+      
+      // Более резкие повороты
+      const sharpTurn = Math.random() < 0.2 ? (Math.random() - 0.5) * 2.0 : 0;
+      const angleVariation = (Math.random() - 0.5) * 1.6 + sharpTurn;
+      const angle = mainAngle + angleVariation;
+      mainAngle = angle + (Math.random() - 0.5) * 0.5;
+      
+      const length = Math.random() * 12 + 4;
+      x += Math.cos(angle) * length;
+      y += Math.sin(angle) * length;
+
+      if (y > this.canvas.height * 1.1 || y < -this.canvas.height * 0.1 || 
+          x < -this.canvas.width * 0.1 || x > this.canvas.width * 1.1) {
+        break;
+      }
+    }
+
+    this.cracks.push({
+      points,
+      baseWidth: baseWidth,
+      maxWidth: maxWidth,
+      revealProgress: 0,
+      revealSpeed: Math.random() * 0.004 + 0.002, // Немного быстрее для ветвей
+    });
+
+    if (this.cracks.length > this.settings.crackCount) {
+      this.cracks.shift();
+    }
+  }
+
+  findNearestCrackPoint(x, y) {
+    let nearest = null;
+    let minDistance = Infinity;
+
+    this.cracks.forEach(crack => {
+      crack.points.forEach(point => {
+        const dx = point.x - x;
+        const dy = point.y - y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearest = { x: point.x, y: point.y, distance };
+        }
+      });
+    });
+
+    return nearest;
+  }
+
+  createBranchFromPoint(startX, startY, baseAngle) {
+    // Создаем ветвь сразу со всеми точками с динамической шириной
+    const points = [];
+    let x = startX;
+    let y = startY;
+    const segments = Math.floor(Math.random() * 15) + 6; // 6-21 сегмент
+    let angle = baseAngle;
+    
+    // Ветви тоньше основной трещины
+    const baseWidth = Math.random() * 0.8 + 0.2; // 0.2-1.0px
+    const maxWidth = baseWidth * (1.2 + Math.random() * 0.8); // Может немного расти
+
+    for (let j = 0; j < segments; j++) {
+      const progress = j / segments;
+      
+      // Динамическая ширина для ветвей
+      const widthProgress = progress < 0.4 
+        ? progress / 0.4 * 0.6  // Первые 40% - от 0 до 60% ширины
+        : 0.6 + (progress - 0.4) / 0.6 * 0.4; // Остальные 60% - от 60% до 100%
+      const currentWidth = baseWidth + (maxWidth - baseWidth) * widthProgress;
+      
+      points.push({ 
+        x, 
+        y, 
+        filled: false,
+        width: Math.max(0.2, Math.min(2, currentWidth))
+      });
+      
+      // Более резкие повороты для ветвей
+      const sharpTurn = Math.random() < 0.25 ? (Math.random() - 0.5) * 2.2 : 0;
+      const angleVariation = (Math.random() - 0.5) * 1.5 + sharpTurn;
+      angle = angle + angleVariation;
+      
+      const length = Math.random() * 10 + 3; // Короткие сегменты для ветвей
+      x += Math.cos(angle) * length;
+      y += Math.sin(angle) * length;
+
+      if (y > this.canvas.height * 1.1 || y < -this.canvas.height * 0.1 || 
+          x < -this.canvas.width * 0.1 || x > this.canvas.width * 1.1) {
+        break;
+      }
+    }
+
+    this.cracks.push({
+      points,
+      baseWidth: baseWidth,
+      maxWidth: maxWidth,
+      revealProgress: 0,
+      revealSpeed: Math.random() * 0.005 + 0.003, // Быстрее для ветвей
+    });
+
+    if (this.cracks.length > this.settings.crackCount) {
+      this.cracks.shift();
+    }
+  }
+
+  revealCrack(crack) {
+    // Постепенно увеличиваем видимость трещины
+    if (crack.revealProgress >= 1) {
+      return; // Трещина полностью проявилась
+    }
+
+    // Ускоряем проявление при прокрутке
+    const revealBoost = 1 + this.scrollGrowthBoost * 2;
+    crack.revealProgress = Math.min(1, crack.revealProgress + crack.revealSpeed * revealBoost);
   }
 
   animate() {
@@ -207,15 +492,20 @@ class CrackInjectionBackgroundClass {
     this.time += 0.01;
     const currentTime = Date.now();
 
-    // Автоматическое создание трещин по времени
+    // Автоматическое создание трещин по времени (только если их мало)
     const baseInterval = this.settings.crackInterval;
     const randomInterval = baseInterval + (Math.random() - 0.5) * baseInterval * 0.5;
     if (currentTime - this.lastCrackTime > randomInterval) {
-      if (Math.random() > 0.3) { // 70% вероятность
+      if (Math.random() > 0.3 && this.cracks.length < this.settings.crackCount * 0.9) {
         this.createRandomCrack();
       }
       this.lastCrackTime = currentTime;
     }
+
+    // Проявляем существующие трещины
+    this.cracks.forEach(crack => {
+      this.revealCrack(crack);
+    });
 
     // Light gray background (slightly gray foundation)
     this.ctx.fillStyle = '#e9ecef';
@@ -276,20 +566,22 @@ class CrackInjectionBackgroundClass {
       }
     });
 
-    // Draw cracks - black cracks
+    // Draw cracks - dark gray to black cracks (matching photograph)
     this.cracks.forEach(crack => {
-      crack.age += 0.02; // Увеличиваем возраст трещины
+      if (!crack.points || crack.points.length === 0) return;
 
-      // Анимация появления трещины (постепенное проявление)
-      const appearProgress = Math.min(1, crack.age);
+      // Используем revealProgress для контроля видимости
+      const revealProgress = crack.revealProgress || 0;
+      if (revealProgress <= 0) return; // Трещина еще не проявилась
 
-      // Black cracks
-      this.ctx.strokeStyle = `rgba(0, 0, 0, ${0.8 * appearProgress})`;
-      this.ctx.lineWidth = crack.width;
-      this.ctx.lineCap = 'round';
-      this.ctx.beginPath();
+      // Вычисляем сколько точек показывать
+      const visiblePointCount = Math.floor(crack.points.length * revealProgress);
+      const pointsToShow = Math.max(1, visiblePointCount);
+      const visiblePoints = crack.points.slice(0, pointsToShow);
 
-      crack.points.forEach((point, i) => {
+      // Рисуем трещину с динамической шириной и 3D эффектом
+      for (let i = 0; i < visiblePoints.length; i++) {
+        const point = visiblePoints[i];
         const dx = this.mouse.x - point.x;
         const dy = this.mouse.y - point.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -303,23 +595,65 @@ class CrackInjectionBackgroundClass {
           y += (dy / distance) * force * 4;
         }
 
-        // Анимация появления - рисуем только видимую часть
-        const pointProgress = Math.min(1, (i / crack.points.length) * appearProgress * 1.2);
-        if (pointProgress > 0.1) {
-          if (i === 0) {
-            this.ctx.moveTo(x, y);
-          } else {
-            // Don't draw filled parts
-            if (!point.filled && !crack.points[i - 1].filled) {
-              this.ctx.lineTo(x, y);
-            } else {
-              this.ctx.moveTo(x, y);
-            }
-          }
-        }
-      });
+        if (i === 0) continue; // Пропускаем первую точку
 
-      this.ctx.stroke();
+        const prevPoint = visiblePoints[i - 1];
+        if (point.filled && prevPoint.filled) continue; // Пропускаем заполненные части
+
+        // Получаем ширину для текущего сегмента
+        const currentWidth = point.width || crack.baseWidth || 1;
+        const prevWidth = prevPoint.width || crack.baseWidth || 1;
+        
+        // Темные трещины с вариацией
+        const darkness = 0.85 + Math.random() * 0.15;
+        
+        // Рисуем основной контур трещины с динамической шириной
+        this.ctx.strokeStyle = `rgba(20, 20, 20, ${darkness * revealProgress})`;
+        this.ctx.lineWidth = currentWidth;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'miter'; // Острые углы для зигзагообразности
+        
+        // Рисуем сегмент
+        this.ctx.beginPath();
+        this.ctx.moveTo(prevPoint.x, prevPoint.y);
+        this.ctx.lineTo(x, y);
+        this.ctx.stroke();
+        
+        // Добавляем 3D эффект - тень для более широких участков
+        if (currentWidth > 1.2 && revealProgress > 0.2) {
+          // Тень справа-внизу для эффекта глубины
+          this.ctx.strokeStyle = `rgba(0, 0, 0, ${0.4 * revealProgress})`;
+          this.ctx.lineWidth = currentWidth * 0.3;
+          this.ctx.globalCompositeOperation = 'multiply';
+          
+          const shadowOffset = currentWidth * 0.3;
+          const angle = Math.atan2(y - prevPoint.y, x - prevPoint.x);
+          const shadowX = Math.cos(angle + Math.PI / 2) * shadowOffset;
+          const shadowY = Math.sin(angle + Math.PI / 2) * shadowOffset;
+          
+          this.ctx.beginPath();
+          this.ctx.moveTo(prevPoint.x + shadowX, prevPoint.y + shadowY);
+          this.ctx.lineTo(x + shadowX, y + shadowY);
+          this.ctx.stroke();
+          this.ctx.globalCompositeOperation = 'source-over';
+        }
+        
+        // Добавляем внутреннюю подсветку для 3D эффекта (на более широких участках)
+        if (currentWidth > 1.5 && revealProgress > 0.3) {
+          this.ctx.strokeStyle = `rgba(60, 60, 60, ${0.3 * revealProgress})`;
+          this.ctx.lineWidth = currentWidth * 0.2;
+          
+          const highlightOffset = -currentWidth * 0.25;
+          const angle = Math.atan2(y - prevPoint.y, x - prevPoint.x);
+          const highlightX = Math.cos(angle + Math.PI / 2) * highlightOffset;
+          const highlightY = Math.sin(angle + Math.PI / 2) * highlightOffset;
+          
+          this.ctx.beginPath();
+          this.ctx.moveTo(prevPoint.x + highlightX, prevPoint.y + highlightY);
+          this.ctx.lineTo(x + highlightX, y + highlightY);
+          this.ctx.stroke();
+        }
+      }
 
       // Draw filled parts in blue color (injection material)
       this.ctx.strokeStyle = 'rgba(3, 17, 103, 0.6)';
@@ -402,7 +736,7 @@ const CrackInjectionBackground = () => {
     if (containerRef.current) {
       backgroundRef.current = new CrackInjectionBackgroundClass(containerRef.current, {
         crackInterval: 2000,
-        crackCount: 30,
+        crackCount: 40, // Уменьшено для оптимизации производительности
         injectionRadius: 80,
         injectionSpeed: 1.5,
         scrollSensitivity: 0.7,

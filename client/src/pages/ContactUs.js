@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import useSiteSettings from '../hooks/useSiteSettings';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './ContactUs.scss';
 
 const ContactUs = () => {
   const { settings, loading } = useSiteSettings();
+  const { seo } = useSEO();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -61,29 +63,39 @@ const ContactUs = () => {
     "url": getCanonicalUrl('/contact-us')
   };
 
+  // Get SEO data with fallbacks
+  const title = seo?.title || 'Contact Us - Foundation Repair Experts | CrackBuster Edmonton';
+  const description = seo?.description || 'Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries.';
+  const keywords = seo?.keywords || '';
+  const ogTitle = seo?.ogTitle || title;
+  const ogDescription = seo?.ogDescription || description;
+  const ogImage = seo?.ogImage ? (seo.ogImage.startsWith('http') ? seo.ogImage : getCanonicalUrl(seo.ogImage)) : getDefaultOgImage();
+  const twitterTitle = seo?.twitterTitle || ogTitle;
+  const twitterDescription = seo?.twitterDescription || ogDescription;
+  const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/contact-us');
+
   return (
     <>
       <Helmet>
-        <title>Contact Us - Foundation Repair Experts | CrackBuster Edmonton</title>
-        <meta
-          name="description"
-          content="Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries."
-        />
-        <link rel="canonical" href={getCanonicalUrl('/contact-us')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        {keywords && <meta name="keywords" content={keywords} />}
+        <link rel="canonical" href={canonical} />
 
         {/* Open Graph */}
-        <meta property="og:title" content="Contact Us - Foundation Repair Experts | CrackBuster Edmonton" />
-        <meta property="og:description" content="Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries." />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getCanonicalUrl('/contact-us')} />
-        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Contact Us - Foundation Repair Experts | CrackBuster Edmonton" />
-        <meta name="twitter:description" content="Contact CrackBuster for foundation repair services in Edmonton." />
-        <meta name="twitter:image" content={getDefaultOgImage()} />
+        <meta name="twitter:title" content={twitterTitle} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={twitterImage} />
 
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">

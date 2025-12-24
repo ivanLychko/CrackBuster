@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import useSiteSettings from '../hooks/useSiteSettings';
+import useSEO from '../hooks/useSEO';
 import { useServerData } from '../contexts/ServerDataContext';
 import { getCanonicalUrl, getDefaultOgImage, SITE_NAME } from '../utils/seo';
 import './Home.scss';
 
 const Home = () => {
   const { settings } = useSiteSettings();
+  const { seo } = useSEO();
   const serverData = useServerData();
 
   // Initialize with SSR data if available
@@ -80,35 +82,41 @@ const Home = () => {
     "openingHours": settings?.businessHours || "Mo-Fr 08:00-17:00"
   };
 
+  // Get SEO data with fallbacks
+  const title = seo?.title || 'Foundation Crack Repair in Edmonton | CrackBuster';
+  const description = seo?.description || 'Professional foundation crack repair services in Edmonton, Canada. Expert solutions for basement waterproofing, foundation repair, and crack injection. Free estimates available.';
+  const keywords = seo?.keywords || 'foundation crack repair, edmonton, canada, basement waterproofing, foundation repair, crack injection, concrete repair';
+  const ogTitle = seo?.ogTitle || title;
+  const ogDescription = seo?.ogDescription || description;
+  const ogImage = seo?.ogImage ? (seo.ogImage.startsWith('http') ? seo.ogImage : getCanonicalUrl(seo.ogImage)) : getDefaultOgImage();
+  const twitterTitle = seo?.twitterTitle || ogTitle;
+  const twitterDescription = seo?.twitterDescription || ogDescription;
+  const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/');
+
   return (
     <>
       <Helmet>
-        <title>Foundation Crack Repair in Edmonton | CrackBuster</title>
-        <meta
-          name="description"
-          content="Professional foundation crack repair services in Edmonton, Canada. Expert solutions for basement waterproofing, foundation repair, and crack injection. Free estimates available."
-        />
-        <meta
-          name="keywords"
-          content="foundation crack repair, edmonton, canada, basement waterproofing, foundation repair, crack injection, concrete repair"
-        />
-        <link rel="canonical" href={getCanonicalUrl('/')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="keywords" content={keywords} />
+        <link rel="canonical" href={canonical} />
 
         {/* Open Graph */}
-        <meta property="og:title" content="Foundation Crack Repair in Edmonton | CrackBuster" />
-        <meta property="og:description" content="Professional foundation crack repair services in Edmonton, Canada. Expert solutions for basement waterproofing, foundation repair, and crack injection." />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getCanonicalUrl('/')} />
-        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Foundation Crack Repair in Edmonton | CrackBuster" />
-        <meta name="twitter:description" content="Professional foundation crack repair services in Edmonton, Canada." />
-        <meta name="twitter:image" content={getDefaultOgImage()} />
+        <meta name="twitter:title" content={twitterTitle} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={twitterImage} />
 
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">

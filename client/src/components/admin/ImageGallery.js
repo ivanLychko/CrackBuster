@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { authenticatedFetch } from '../../utils/auth';
 import './ImageGallery.scss';
 
 const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images' }) => {
@@ -27,9 +28,7 @@ const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/images/categories/list', {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch('/api/admin/images/categories/list');
       const data = await response.json();
       setCategories(data.categories || []);
     } catch (error) {
@@ -43,9 +42,7 @@ const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images
       const url = subfolder
         ? `/api/admin/images/${cat}?subfolder=${encodeURIComponent(subfolder)}`
         : `/api/admin/images/${cat}`;
-      const response = await fetch(url, {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch(url);
       const data = await response.json();
       setImages(data.images || []);
       setFolders(data.folders || []);
@@ -84,9 +81,8 @@ const ImageGallery = ({ value = [], onChange, category = 'jobs', label = 'Images
         formData.append('subfolder', currentSubfolder);
       }
 
-      const response = await fetch('/api/admin/images/upload', {
+      const response = await authenticatedFetch('/api/admin/images/upload', {
         method: 'POST',
-        credentials: 'include',
         body: formData
       });
 

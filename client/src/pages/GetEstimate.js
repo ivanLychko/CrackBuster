@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './GetEstimate.scss';
 
 const GetEstimate = () => {
+  const { seo } = useSEO();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -156,29 +158,39 @@ const GetEstimate = () => {
     }
   };
 
+  // Get SEO data with fallbacks
+  const title = seo?.title || 'Get Free Estimate - Foundation Repair | CrackBuster Edmonton';
+  const description = seo?.description || 'Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we\'ll get back to you with a detailed quote.';
+  const keywords = seo?.keywords || '';
+  const ogTitle = seo?.ogTitle || title;
+  const ogDescription = seo?.ogDescription || description;
+  const ogImage = seo?.ogImage ? (seo.ogImage.startsWith('http') ? seo.ogImage : getCanonicalUrl(seo.ogImage)) : getDefaultOgImage();
+  const twitterTitle = seo?.twitterTitle || ogTitle;
+  const twitterDescription = seo?.twitterDescription || ogDescription;
+  const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/get-estimate');
+
   return (
     <>
       <Helmet>
-        <title>Get Free Estimate - Foundation Repair | CrackBuster Edmonton</title>
-        <meta
-          name="description"
-          content="Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we'll get back to you with a detailed quote."
-        />
-        <link rel="canonical" href={getCanonicalUrl('/get-estimate')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        {keywords && <meta name="keywords" content={keywords} />}
+        <link rel="canonical" href={canonical} />
 
         {/* Open Graph */}
-        <meta property="og:title" content="Get Free Estimate - Foundation Repair | CrackBuster Edmonton" />
-        <meta property="og:description" content="Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we'll get back to you with a detailed quote." />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getCanonicalUrl('/get-estimate')} />
-        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Get Free Estimate - Foundation Repair | CrackBuster Edmonton" />
-        <meta name="twitter:description" content="Get a free estimate for your foundation repair project in Edmonton." />
-        <meta name="twitter:image" content={getDefaultOgImage()} />
+        <meta name="twitter:title" content={twitterTitle} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={twitterImage} />
       </Helmet>
 
       <div className="get-estimate">

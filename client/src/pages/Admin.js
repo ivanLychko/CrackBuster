@@ -5,12 +5,68 @@ import AdminServices from '../components/admin/AdminServices';
 import AdminBlog from '../components/admin/AdminBlog';
 import AdminWorks from '../components/admin/AdminWorks';
 import AdminImages from '../components/admin/AdminImages';
-import AdminEstimateRequests from '../components/admin/AdminEstimateRequests';
+import AdminRequests from '../components/admin/AdminRequests';
 import AdminSettings from '../components/admin/AdminSettings';
+import AdminSEO from '../components/admin/AdminSEO';
+import LoginForm from '../components/admin/LoginForm';
+import { isAuthenticated, clearAuthCredentials, authenticatedFetch } from '../utils/auth';
 import './Admin.scss';
 
 const Admin = () => {
   const location = useLocation();
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    if (isAuthenticated()) {
+      // Verify credentials are still valid
+      try {
+        const response = await authenticatedFetch('/api/admin/services');
+        if (response.ok || response.status === 404) {
+          setAuthenticated(true);
+        } else {
+          setAuthenticated(false);
+        }
+      } catch (error) {
+        setAuthenticated(false);
+      }
+    } else {
+      setAuthenticated(false);
+    }
+    setChecking(false);
+  };
+
+  const handleLoginSuccess = () => {
+    setAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    clearAuthCredentials();
+    setAuthenticated(false);
+  };
+
+  if (checking) {
+    return (
+      <div className="admin-loading">
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <>
+        <Helmet>
+          <title>Admin Login - CrackBuster</title>
+        </Helmet>
+        <LoginForm onLoginSuccess={handleLoginSuccess} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -21,6 +77,9 @@ const Admin = () => {
         <div className="admin-sidebar">
           <div className="admin-header">
             <h2>CrackBuster Admin</h2>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
           <nav className="admin-nav">
             <Link
@@ -48,16 +107,22 @@ const Admin = () => {
               Images
             </Link>
             <Link
-              to="/admin/estimate-requests"
-              className={location.pathname.includes('/estimate-requests') ? 'active' : ''}
+              to="/admin/requests"
+              className={location.pathname.includes('/requests') ? 'active' : ''}
             >
-              Estimate Requests
+              Requests
             </Link>
             <Link
               to="/admin/settings"
               className={location.pathname.includes('/settings') ? 'active' : ''}
             >
               Settings
+            </Link>
+            <Link
+              to="/admin/seo"
+              className={location.pathname.includes('/seo') ? 'active' : ''}
+            >
+              SEO
             </Link>
           </nav>
         </div>
@@ -67,8 +132,9 @@ const Admin = () => {
             <Route path="/blog/*" element={<AdminBlog />} />
             <Route path="/works/*" element={<AdminWorks />} />
             <Route path="/images/*" element={<AdminImages />} />
-            <Route path="/estimate-requests" element={<AdminEstimateRequests />} />
+            <Route path="/requests" element={<AdminRequests />} />
             <Route path="/settings" element={<AdminSettings />} />
+            <Route path="/seo" element={<AdminSEO />} />
             <Route path="/" element={
               <div className="admin-dashboard">
                 <h1>Admin Dashboard</h1>

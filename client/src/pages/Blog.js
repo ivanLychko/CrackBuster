@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './Blog.scss';
 
 const Blog = () => {
+  const { seo } = useSEO();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,29 +63,39 @@ const Blog = () => {
     }
   };
 
+  // Get SEO data with fallbacks
+  const title = seo?.title || 'Foundation Repair Blog | CrackBuster Edmonton';
+  const description = seo?.description || 'Expert articles about foundation repair, basement waterproofing, and crack repair. Tips and guides from Edmonton\'s foundation repair experts.';
+  const keywords = seo?.keywords || '';
+  const ogTitle = seo?.ogTitle || title;
+  const ogDescription = seo?.ogDescription || description;
+  const ogImage = seo?.ogImage ? (seo.ogImage.startsWith('http') ? seo.ogImage : getCanonicalUrl(seo.ogImage)) : getDefaultOgImage();
+  const twitterTitle = seo?.twitterTitle || ogTitle;
+  const twitterDescription = seo?.twitterDescription || ogDescription;
+  const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/blog');
+
   return (
     <>
       <Helmet>
-        <title>Foundation Repair Blog | CrackBuster Edmonton</title>
-        <meta
-          name="description"
-          content="Expert articles about foundation repair, basement waterproofing, and crack repair. Tips and guides from Edmonton's foundation repair experts."
-        />
-        <link rel="canonical" href={getCanonicalUrl('/blog')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        {keywords && <meta name="keywords" content={keywords} />}
+        <link rel="canonical" href={canonical} />
 
         {/* Open Graph */}
-        <meta property="og:title" content="Foundation Repair Blog | CrackBuster Edmonton" />
-        <meta property="og:description" content="Expert articles about foundation repair, basement waterproofing, and crack repair. Tips and guides from Edmonton's foundation repair experts." />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getCanonicalUrl('/blog')} />
-        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Foundation Repair Blog | CrackBuster Edmonton" />
-        <meta name="twitter:description" content="Expert articles about foundation repair, basement waterproofing, and crack repair." />
-        <meta name="twitter:image" content={getDefaultOgImage()} />
+        <meta name="twitter:title" content={twitterTitle} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={twitterImage} />
 
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">

@@ -8,6 +8,7 @@ const Service = require('../models/Service');
 const Work = require('../models/Work');
 const Contact = require('../models/Contact');
 const SiteSettings = require('../models/SiteSettings');
+const SEO = require('../models/SEO');
 
 // Apply auth to all admin routes
 router.use(authMiddleware);
@@ -273,6 +274,56 @@ router.delete('/estimate-requests/:id', async (req, res) => {
   }
 });
 
+// ========== CONTACT REQUESTS ==========
+// Get all contact requests
+router.get('/contact-requests', async (req, res) => {
+  try {
+    const requests = await Contact.find({ type: 'contact' }).sort({ createdAt: -1 });
+    res.json({ requests });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update contact request status
+router.put('/contact-requests/:id', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const request = await Contact.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true }
+    );
+    if (!request) {
+      return res.status(404).json({ error: 'Contact request not found' });
+    }
+    if (request.type !== 'contact') {
+      return res.status(400).json({ error: 'Not a contact request' });
+    }
+    res.json({ request, message: 'Status updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Delete contact request
+router.delete('/contact-requests/:id', async (req, res) => {
+  try {
+    const request = await Contact.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ error: 'Contact request not found' });
+    }
+    if (request.type !== 'contact') {
+      return res.status(400).json({ error: 'Not a contact request' });
+    }
+
+    await Contact.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Contact request deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ========== SITE SETTINGS ==========
 // Get site settings
 router.get('/settings', async (req, res) => {
@@ -296,6 +347,46 @@ router.put('/settings', async (req, res) => {
       await settings.save();
     }
     res.json({ settings, message: 'Settings updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ========== SEO SETTINGS ==========
+// Get all SEO settings
+router.get('/seo', async (req, res) => {
+  try {
+    const seo = await SEO.getAllSEO();
+    res.json({ seo });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get SEO for specific page
+router.get('/seo/:page', async (req, res) => {
+  try {
+    const { page } = req.params;
+    const seo = await SEO.getSEO(page);
+    res.json({ seo });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update SEO for specific page
+router.put('/seo/:page', async (req, res) => {
+  try {
+    const { page } = req.params;
+    let seo = await SEO.findOne({ page });
+    if (!seo) {
+      seo = new SEO({ page, ...req.body });
+      await seo.save();
+    } else {
+      Object.assign(seo, req.body);
+      await seo.save();
+    }
+    res.json({ seo, message: 'SEO settings updated successfully' });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

@@ -24,6 +24,12 @@ async function optimizeImage(imagePath, options = {}) {
   const ext = path.extname(imagePath).toLowerCase();
   const isJpeg = ['.jpg', '.jpeg'].includes(ext);
   const isPng = ext === '.png';
+  const isWebP = ext === '.webp';
+  
+  // Prevent re-optimization of already optimized WebP files
+  if (isWebP) {
+    throw new Error('WebP images are already optimized and cannot be optimized again');
+  }
   
   if (!isJpeg && !isPng && !convertToWebP) {
     throw new Error('Only JPG and PNG images can be optimized');
@@ -131,6 +137,12 @@ async function optimizeForWeb(imagePath, options = {}) {
     maxHeight = 1920,
     quality = 85
   } = options;
+
+  // Check if already WebP
+  const ext = path.extname(imagePath).toLowerCase();
+  if (ext === '.webp') {
+    throw new Error('Image is already optimized as WebP and cannot be optimized again');
+  }
 
   return optimizeImage(imagePath, {
     convertToWebP: true,

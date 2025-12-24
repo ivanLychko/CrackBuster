@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ImageGallery from './ImageGallery';
+import RichTextEditor from './RichTextEditor';
+import { authenticatedFetch } from '../../utils/auth';
 import './AdminCommon.scss';
 
 const AdminWorks = () => {
@@ -7,6 +9,7 @@ const AdminWorks = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,9 +27,7 @@ const AdminWorks = () => {
 
   const fetchWorks = async () => {
     try {
-      const response = await fetch('/api/admin/works', {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch('/api/admin/works');
       const data = await response.json();
       setWorks(data.works || []);
     } catch (error) {
@@ -38,9 +39,7 @@ const AdminWorks = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch('/api/admin/services', {
-        credentials: 'include'
-      });
+      const response = await authenticatedFetch('/api/admin/services');
       const data = await response.json();
       setServices(data.services || []);
     } catch (error) {
@@ -64,16 +63,16 @@ const AdminWorks = () => {
         service: formData.service || null
       };
 
-      const response = await fetch(url, {
+      const response = await authenticatedFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(payload)
       });
 
       if (response.ok) {
         await fetchWorks();
         resetForm();
+        setShowForm(false);
         alert(editing ? 'Work updated!' : 'Work created!');
       } else {
         const error = await response.json();
@@ -86,6 +85,7 @@ const AdminWorks = () => {
 
   const handleEdit = (work) => {
     setEditing(work);
+    setShowForm(true);
     setFormData({
       title: work.title || '',
       description: work.description || '',
@@ -101,9 +101,8 @@ const AdminWorks = () => {
     if (!confirm('Are you sure you want to delete this work?')) return;
     
     try {
-      const response = await fetch(`/api/admin/works/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      const response = await authenticatedFetch(`/api/admin/works/${id}`, {
+        method: 'DELETE'
       });
 
       if (response.ok) {
@@ -119,6 +118,7 @@ const AdminWorks = () => {
 
   const resetForm = () => {
     setEditing(null);
+    setShowForm(false);
     setFormData({
       title: '',
       description: '',
@@ -130,18 +130,26 @@ const AdminWorks = () => {
     });
   };
 
+  const handleNewWork = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
   if (loading) return <div className="admin-loading">Loading...</div>;
 
   return (
     <div className="admin-section">
       <div className="admin-section-header">
         <h1>Manage Works Gallery</h1>
-        <button onClick={resetForm} className="btn btn-primary">
-          + Add New Work
-        </button>
+        {!showForm && (
+          <button onClick={handleNewWork} className="btn btn-primary">
+            + Add New Work
+          </button>
+        )}
       </div>
 
-      <form onSubmit={handleSubmit} className="admin-form">
+      {showForm && (
+        <form onSubmit={handleSubmit} className="admin-form">
         <div className="form-group">
           <label>Title *</label>
           <input
@@ -154,10 +162,10 @@ const AdminWorks = () => {
 
         <div className="form-group">
           <label>Description *</label>
-          <textarea
+          <RichTextEditor
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows="5"
+            onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
+            rows={5}
             required
           />
         </div>
@@ -229,9 +237,10 @@ const AdminWorks = () => {
           )}
         </div>
       </form>
+      )}
 
       <div className="admin-list">
-        <h2>Existing Works</h2>
+        <h2>All Works</h2>
         {works.length === 0 ? (
           <p>No works found.</p>
         ) : (

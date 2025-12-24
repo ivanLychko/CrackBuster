@@ -23,7 +23,25 @@
         color: $blue-primary;
         font-size: 1.5rem;
         font-weight: 700;
-        margin: 0;
+        margin: 0 0 1rem 0;
+      }
+
+      .logout-button {
+        width: 100%;
+        padding: 0.5rem;
+        background: transparent;
+        color: $text-secondary;
+        border: 1px solid $border-light;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &:hover {
+          background: rgba(220, 53, 69, 0.1);
+          color: #dc3545;
+          border-color: #dc3545;
+        }
       }
     }
 
@@ -76,6 +94,22 @@
     }
   }
 }
+
+.admin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: $bg-primary;
+
+  .loading-spinner {
+    color: $text-secondary;
+    font-size: 1.1rem;
+  }
+}
+
+
+
 
 
 

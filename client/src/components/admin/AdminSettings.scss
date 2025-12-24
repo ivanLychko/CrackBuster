@@ -1,0 +1,232 @@
+@import '../../styles/variables';
+
+.admin-settings {
+  .admin-section-header {
+    p {
+      color: $text-secondary;
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0;
+    }
+  }
+
+  .admin-form {
+    background: transparent;
+    padding: 0;
+
+    .form-section {
+      background: $bg-card;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: $shadow-card;
+      border: 1px solid $border-light;
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow: $shadow-hover;
+      }
+
+      h2 {
+        color: $blue-primary;
+        font-size: 1.5rem;
+        margin: 0 0 1.5rem 0;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid $border-light;
+        font-weight: 600;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1.75rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      label {
+        display: block;
+        color: $text-primary;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
+        transition: color 0.2s;
+
+        &:has(+ input:focus) {
+          color: $blue-primary;
+        }
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"],
+      input[type="url"],
+      input[type="date"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid $border-light;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: $bg-secondary;
+        color: $text-primary;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+
+        &::placeholder {
+          color: $text-muted;
+          opacity: 0.6;
+        }
+
+        &:hover {
+          border-color: rgba(3, 17, 103, 0.3);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        &:focus {
+          outline: none;
+          border-color: $blue-primary;
+          box-shadow: 0 0 0 4px rgba(3, 17, 103, 0.1),
+                      0 4px 12px rgba(3, 17, 103, 0.15);
+          transform: translateY(-1px);
+        }
+
+        &:disabled {
+          background: rgba(248, 249, 250, 0.8);
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+        line-height: 1.6;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        cursor: pointer;
+        font-weight: 600;
+        padding: 1rem;
+        background: rgba(3, 17, 103, 0.03);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(3, 17, 103, 0.05);
+          border-color: rgba(3, 17, 103, 0.1);
+        }
+
+        input[type="checkbox"] {
+          width: 22px;
+          height: 22px;
+          margin-right: 0.875rem;
+          margin-top: 2px;
+          cursor: pointer;
+          accent-color: $blue-primary;
+          flex-shrink: 0;
+          border-radius: 4px;
+          border: 2px solid $border-light;
+          transition: all 0.2s ease;
+
+          &:checked {
+            background: $blue-primary;
+            border-color: $blue-primary;
+          }
+
+          &:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(3, 17, 103, 0.2);
+          }
+        }
+
+        span {
+          user-select: none;
+          flex: 1;
+          color: $text-primary;
+          font-size: 0.95rem;
+          line-height: 1.5;
+        }
+      }
+
+      .form-hint {
+        margin-top: 0.75rem;
+        font-size: 0.875rem;
+        color: $text-secondary;
+        font-weight: normal;
+        line-height: 1.6;
+        padding-left: 1rem;
+        border-left: 3px solid $border-light;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 2px solid $border-light;
+
+      .btn {
+        padding: 1rem 2.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(3, 17, 103, 0.15);
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(3, 17, 103, 0.25);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .admin-settings {
+    .admin-form {
+      .form-section {
+        padding: 1.5rem;
+      }
+
+      .form-group {
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="date"],
+        select,
+        textarea {
+          padding: 0.875rem 1rem;
+          font-size: 0.95rem;
+        }
+      }
+
+      .form-actions {
+        .btn {
+          width: 100%;
+          padding: 1rem;
+        }
+      }
+    }
+  }
+}
+

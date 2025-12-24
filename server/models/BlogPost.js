@@ -28,6 +28,40 @@ const blogPostSchema = new mongoose.Schema({
     type: String,
   },
   keywords: [String],
+  // Extended SEO fields
+  seoTitle: {
+    type: String,
+  },
+  seoDescription: {
+    type: String,
+  },
+  seoKeywords: {
+    type: String,
+  },
+  ogTitle: {
+    type: String,
+  },
+  ogDescription: {
+    type: String,
+  },
+  ogImage: {
+    type: String,
+  },
+  twitterTitle: {
+    type: String,
+  },
+  twitterDescription: {
+    type: String,
+  },
+  twitterImage: {
+    type: String,
+  },
+  canonicalUrl: {
+    type: String,
+  },
+  robots: {
+    type: String,
+  },
   published: {
     type: Boolean,
     default: false,

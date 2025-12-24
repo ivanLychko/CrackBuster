@@ -61,6 +61,24 @@ const siteSettingsSchema = new mongoose.Schema({
   allowIndexing: {
     type: Boolean,
     default: true
+  },
+
+  // Email Notification Settings
+  notificationsEnabled: {
+    type: Boolean,
+    default: true
+  },
+  notificationEmail: {
+    type: String,
+    default: ''
+  },
+  estimateNotificationsEnabled: {
+    type: Boolean,
+    default: true
+  },
+  contactNotificationsEnabled: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true

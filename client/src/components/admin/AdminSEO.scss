@@ -1,0 +1,94 @@
+@import '../../styles/variables';
+
+.admin-seo {
+  .seo-page-selector {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: $bg-section;
+    border-radius: 8px;
+    border: 1px solid $border-light;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .page-select {
+      width: 100%;
+      max-width: 400px;
+      padding: 0.75rem;
+      border: 1px solid $border-light;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: white;
+      color: $text-primary;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &:hover {
+        border-color: $blue-primary;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $blue-primary;
+        box-shadow: 0 0 0 3px rgba(3, 17, 103, 0.1);
+      }
+    }
+  }
+
+  .form-section {
+    margin-bottom: 2.5rem;
+
+    h2 {
+      color: $blue-primary;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid $border-light;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid $border-light;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.3s;
+
+      &:focus {
+        outline: none;
+        border-color: $blue-primary;
+        box-shadow: 0 0 0 3px rgba(3, 17, 103, 0.1);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-hint {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: $text-secondary;
+      line-height: 1.5;
+    }
+  }
+}
+

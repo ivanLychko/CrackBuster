@@ -1,0 +1,51 @@
+@import '../../styles/variables';
+
+.admin-requests {
+  .admin-requests-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $border-light;
+
+    h1 {
+      color: $blue-primary;
+      font-size: 2rem;
+      margin: 0;
+    }
+  }
+
+  .admin-requests-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid $border-light;
+
+    .tab-button {
+      padding: 1rem 2rem;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: $text-secondary;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: -2px;
+
+      &:hover {
+        color: $blue-primary;
+        background: rgba(3, 17, 103, 0.05);
+      }
+
+      &.active {
+        color: $blue-primary;
+        border-bottom-color: $blue-primary;
+        background: rgba(3, 17, 103, 0.05);
+      }
+    }
+  }
+
+  .admin-requests-content {
+    // Content will be rendered by child components
+  }
+}
+

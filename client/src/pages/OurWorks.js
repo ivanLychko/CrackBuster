@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Lightbox from '../components/Lightbox';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './OurWorks.scss';
 
 const OurWorks = () => {
+  const { seo } = useSEO();
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -133,29 +135,39 @@ const OurWorks = () => {
     setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
   };
 
+  // Get SEO data with fallbacks
+  const title = seo?.title || 'Our Works - Foundation Repair Projects | CrackBuster Edmonton';
+  const description = seo?.description || 'View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions.';
+  const keywords = seo?.keywords || '';
+  const ogTitle = seo?.ogTitle || title;
+  const ogDescription = seo?.ogDescription || description;
+  const ogImage = seo?.ogImage ? (seo.ogImage.startsWith('http') ? seo.ogImage : getCanonicalUrl(seo.ogImage)) : getDefaultOgImage();
+  const twitterTitle = seo?.twitterTitle || ogTitle;
+  const twitterDescription = seo?.twitterDescription || ogDescription;
+  const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/our-works');
+
   return (
     <>
       <Helmet>
-        <title>Our Works - Foundation Repair Projects | CrackBuster Edmonton</title>
-        <meta
-          name="description"
-          content="View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions."
-        />
-        <link rel="canonical" href={getCanonicalUrl('/our-works')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        {keywords && <meta name="keywords" content={keywords} />}
+        <link rel="canonical" href={canonical} />
 
         {/* Open Graph */}
-        <meta property="og:title" content="Our Works - Foundation Repair Projects | CrackBuster Edmonton" />
-        <meta property="og:description" content="View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions." />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getCanonicalUrl('/our-works')} />
-        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Our Works - Foundation Repair Projects | CrackBuster Edmonton" />
-        <meta name="twitter:description" content="View our completed foundation repair projects in Edmonton." />
-        <meta name="twitter:image" content={getDefaultOgImage()} />
+        <meta name="twitter:title" content={twitterTitle} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={twitterImage} />
       </Helmet>
 
       <div className="our-works">
