@@ -138,6 +138,15 @@ app.use('/api', require('./routes/api'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/admin/images', require('./routes/images'));
 
+// Middleware to catch any API requests that weren't handled by API routes
+// This ensures API requests always return JSON, never HTML
+// Must be AFTER all API routes but BEFORE SSR router
+app.use('/api', (req, res) => {
+    // If we reach here, it means no API route matched the request
+    // Return JSON 404 instead of letting it fall through to SSR
+    res.status(404).json({ error: 'API endpoint not found', path: req.path });
+});
+
 // SEO routes
 app.use('/', require('./routes/sitemap'));
 app.use('/', require('./routes/robots'));
@@ -530,15 +539,13 @@ const renderApp = async (req) => {
 
 // SSR route handler - catch all routes except static files and API routes
 // Note: express.static middleware above should handle all static file requests
-// API routes are handled before this middleware, but we add a safety check
-// This route only handles HTML page requests
+// API routes are handled before this middleware
+// This route only handles HTML page requests (GET only for SSR)
 app.get('*', async (req, res, next) => {
     // CRITICAL: Skip API routes - they should be handled by API middleware above
-    // This is a safety check in case API routes didn't handle the request
+    // Double check to prevent any API requests from reaching SSR
     if (req.path.startsWith('/api/')) {
-        // If we reach here, it means API route didn't handle it (404)
-        // Let it fall through to return 404 JSON response
-        return res.status(404).json({ error: 'API endpoint not found' });
+        return res.status(404).json({ error: 'API endpoint not found', path: req.path });
     }
 
     // Skip static file requests - they should be handled by express.static above
