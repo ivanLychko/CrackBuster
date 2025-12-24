@@ -58,7 +58,7 @@ function getProjectRoot() {
     // If we're in dist/server, go up two levels
     if (normalizedCurrentDir.endsWith('/dist/server') || normalizedCurrentDir.endsWith('\\dist\\server')) {
         const root = path.resolve(currentDir, '../..');
-        console.log('Detected dist/server, going up two levels to:', root);
+        // Will use log function defined later
         return root;
     }
 
@@ -67,7 +67,7 @@ function getProjectRoot() {
         // Check if parent has package.json (we're in source server directory)
         const parent = path.resolve(currentDir, '..');
         if (fs.existsSync(path.join(parent, 'package.json'))) {
-            console.log('Detected server directory, going up one level to:', parent);
+            // Will use log function defined later
             return parent;
         }
     }
@@ -78,7 +78,7 @@ function getProjectRoot() {
     while (dir !== lastDir) {
         const packageJsonPath = path.join(dir, 'package.json');
         if (fs.existsSync(packageJsonPath)) {
-            console.log('Found package.json at:', dir);
+            // Will use log function defined later
             return dir;
         }
         lastDir = dir;
@@ -87,13 +87,13 @@ function getProjectRoot() {
 
     // Fallback: use process.cwd() if available (working directory)
     if (process.cwd && fs.existsSync(path.join(process.cwd(), 'package.json'))) {
-        console.log('Using process.cwd() as project root:', process.cwd());
+        // Will use log function defined later
         return process.cwd();
     }
 
     // Last fallback to parent directory
     const fallback = path.resolve(currentDir, '..');
-    console.log('Using fallback parent directory:', fallback);
+    // Will use log function defined later
     return fallback;
 }
 
@@ -103,12 +103,26 @@ const PROJECT_ROOT = getProjectRoot();
 const distClientPath = path.join(PROJECT_ROOT, 'dist/client');
 const distClientExists = fs.existsSync(distClientPath);
 
+// Logging functions - defined early but will be used throughout
+const log = (...args) => {
+    console.log(...args);
+    if (process.stdout && typeof process.stdout.write === 'function') {
+        process.stdout.write('\n');
+    }
+};
+const logError = (...args) => {
+    console.error(...args);
+    if (process.stderr && typeof process.stderr.write === 'function') {
+        process.stderr.write('\n');
+    }
+};
+
 if (!distClientExists) {
-    console.error('ERROR: dist/client directory not found!');
-    console.error('Please run: npm run build');
+    logError('ERROR: dist/client directory not found!');
+    logError('Please run: npm run build');
     // List what's in PROJECT_ROOT to help debug
     if (fs.existsSync(PROJECT_ROOT)) {
-        console.log('Contents of PROJECT_ROOT:', fs.readdirSync(PROJECT_ROOT).join(', '));
+        log('Contents of PROJECT_ROOT:', fs.readdirSync(PROJECT_ROOT).join(', '));
     }
 }
 
@@ -124,18 +138,37 @@ const PORT = process.env.PORT || 3000;
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/crackbuster')
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+    .then(() => log('MongoDB connected'))
+    .catch(err => logError('MongoDB connection error:', err));
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// CRITICAL: Add middleware to ensure API requests are NEVER handled by static files
+// This MUST be before static files middleware
+// Express static middleware can sometimes intercept requests, so we need to be explicit
+app.use((req, res, next) => {
+    // Check if this is an API request - check all possible path variations
+    const isApiRequest = req.path.startsWith('/api/') ||
+        req.url.startsWith('/api/') ||
+        req.originalUrl.startsWith('/api/') ||
+        (req.baseUrl && req.baseUrl.startsWith('/api/'));
+
+    if (isApiRequest) {
+        // Ensure Content-Type is set to JSON for API requests
+        res.setHeader('Content-Type', 'application/json');
+        // Continue to API routes
+        return next();
+    }
+    next();
+});
+
 // API routes - must be before static files
 // IMPORTANT: These must be registered before any catch-all routes
 const apiRouter = require('./routes/api');
 app.use('/api', (req, res, next) => {
-    console.log('API request:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
+    log('API request:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
     next();
 }, apiRouter);
 
@@ -145,11 +178,11 @@ app.use('/api/admin/images', require('./routes/images'));
 
 // Middleware to catch any API requests that weren't handled by API routes
 // This ensures API requests always return JSON, never HTML
-// Must be AFTER all API routes but BEFORE SSR router
+// Must be AFTER all API routes but BEFORE static files and SSR router
 app.use('/api', (req, res) => {
     // If we reach here, it means no API route matched the request
     // This should rarely happen as router.use() 404 handler should catch it
-    console.log('API fallback 404 - request not handled by any route:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
+    log('API fallback 404 - request not handled by any route:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
     res.setHeader('Content-Type', 'application/json');
     res.status(404).json({ error: 'API endpoint not found', path: req.path });
 });
@@ -162,7 +195,14 @@ app.use('/', require('./routes/robots'));
 // This includes bundle files, images copied by webpack, etc.
 // We use index: false to prevent express.static from serving index.html
 // so that SSR can handle all HTML page requests
-app.use(express.static(distClientPath, {
+// CRITICAL: Skip API requests - they should never be handled by static files
+app.use((req, res, next) => {
+    // Skip API requests - they should be handled by API routes above
+    if (req.path.startsWith('/api/') || req.url.startsWith('/api/')) {
+        return next();
+    }
+    next();
+}, express.static(distClientPath, {
     maxAge: '1y', // Cache static assets for 1 year
     etag: true,
     lastModified: true,
@@ -192,7 +232,7 @@ const findBundleFiles = () => {
 
     // Check if dist directory exists
     if (!fs.existsSync(distPath)) {
-        console.warn('Warning: dist/client directory not found');
+        logError('Warning: dist/client directory not found');
         return { jsBundle: 'bundle.js', cssBundle: null };
     }
 
@@ -216,7 +256,7 @@ const findBundleFiles = () => {
             return statB.mtime.getTime() - statA.mtime.getTime();
         });
         jsBundle = jsFiles[0];
-        console.log('Found JS bundle:', jsBundle, 'Modified:', fs.statSync(path.join(distPath, jsBundle)).mtime);
+        log('Found JS bundle:', jsBundle, 'Modified:', fs.statSync(path.join(distPath, jsBundle)).mtime);
     }
 
     // Find CSS bundle - must end with .css
@@ -233,7 +273,7 @@ const findBundleFiles = () => {
             return statB.mtime.getTime() - statA.mtime.getTime();
         });
         cssBundle = cssFiles[0];
-        console.log('Found CSS bundle:', cssBundle, 'Modified:', fs.statSync(path.join(distPath, cssBundle)).mtime);
+        log('Found CSS bundle:', cssBundle, 'Modified:', fs.statSync(path.join(distPath, cssBundle)).mtime);
     }
 
     return { jsBundle, cssBundle };
@@ -255,7 +295,7 @@ const renderApp = async (req) => {
         // Convert mongoose document to plain object
         siteSettings = siteSettings.toObject ? siteSettings.toObject() : siteSettings;
     } catch (error) {
-        console.error('Error loading site settings for SSR:', error);
+        logError('Error loading site settings for SSR:', error);
         // Use default settings
         siteSettings = {
             phone: '(780) XXX-XXXX',
@@ -283,7 +323,7 @@ const renderApp = async (req) => {
             const featuredServices = servicesData.filter(s => s.featured).slice(0, 3);
             services = featuredServices.length >= 3 ? featuredServices : servicesData.slice(0, 3);
         } catch (error) {
-            console.error('Error loading services for SSR:', error);
+            logError('Error loading services for SSR:', error);
             services = [];
         }
     }
@@ -294,9 +334,9 @@ const renderApp = async (req) => {
         try {
             const postsData = await BlogPost.find({ published: true }).sort({ publishedAt: -1 }).lean();
             blogPosts = postsData;
-            console.log('SSR: Loaded blog posts:', blogPosts.length, 'for URL:', req.url);
+            log('SSR: Loaded blog posts:', blogPosts.length, 'for URL:', req.url);
         } catch (error) {
-            console.error('Error loading blog posts for SSR:', error);
+            logError('Error loading blog posts for SSR:', error);
             blogPosts = [];
         }
     }
@@ -311,7 +351,7 @@ const renderApp = async (req) => {
                 serviceDetail = service;
             }
         } catch (error) {
-            console.error('Error loading service detail for SSR:', error);
+            logError('Error loading service detail for SSR:', error);
             serviceDetail = null;
         }
     }
@@ -326,7 +366,7 @@ const renderApp = async (req) => {
                 blogPostDetail = post;
             }
         } catch (error) {
-            console.error('Error loading blog post detail for SSR:', error);
+            logError('Error loading blog post detail for SSR:', error);
             blogPostDetail = null;
         }
     }
@@ -338,7 +378,7 @@ const renderApp = async (req) => {
             const worksData = await Work.find({}).sort({ completedAt: -1 }).lean();
             works = worksData;
         } catch (error) {
-            console.error('Error loading works for SSR:', error);
+            logError('Error loading works for SSR:', error);
             works = [];
         }
     }
@@ -358,8 +398,8 @@ const renderApp = async (req) => {
 
     let html = '';
     try {
-        console.log('Starting SSR render for URL:', location);
-        console.log('Server data available:', {
+        log('Starting SSR render for URL:', location);
+        log('Server data available:', {
             hasSiteSettings: !!serverData.siteSettings,
             hasServices: !!serverData.services,
             servicesCount: serverData.services?.length || 0
@@ -367,7 +407,7 @@ const renderApp = async (req) => {
 
         // Wrap in try-catch to catch any rendering errors
         try {
-            console.log('About to call renderToString...');
+            log('About to call renderToString...');
             const appElement = React.createElement(
                 HelmetProvider,
                 { context: helmetContext },
@@ -385,30 +425,30 @@ const renderApp = async (req) => {
                     )
                 )
             );
-            console.log('App element created, calling renderToString...');
+            log('App element created, calling renderToString...');
             html = ReactDOMServer.renderToString(appElement);
-            console.log('renderToString completed, html length:', html ? html.length : 0);
+            log('renderToString completed, html length:', html ? html.length : 0);
         } catch (renderError) {
-            console.error('Error during React renderToString:', renderError);
-            console.error('Render error message:', renderError.message);
-            console.error('Render error stack:', renderError.stack);
+            logError('Error during React renderToString:', renderError);
+            logError('Render error message:', renderError.message);
+            logError('Render error stack:', renderError.stack);
             throw renderError; // Re-throw to be caught by outer try-catch
         }
 
         // Log if HTML is empty (for debugging)
         if (!html || html.trim().length === 0) {
-            console.error('ERROR: SSR rendered empty HTML for URL:', location);
-            console.error('Server data:', JSON.stringify(serverData, null, 2));
-            console.error('This usually means a component threw an error or returned null/undefined');
+            logError('ERROR: SSR rendered empty HTML for URL:', location);
+            logError('Server data:', JSON.stringify(serverData, null, 2));
+            logError('This usually means a component threw an error or returned null/undefined');
         } else {
-            console.log('SSR rendered HTML length:', html.length, 'for URL:', location);
+            log('SSR rendered HTML length:', html.length, 'for URL:', location);
             // Log first 500 chars of HTML for debugging
-            console.log('HTML preview:', html.substring(0, 500));
+            log('HTML preview:', html.substring(0, 500));
         }
     } catch (error) {
-        console.error('Error during SSR render:', error);
-        console.error('Error message:', error.message);
-        console.error('Stack:', error.stack);
+        logError('Error during SSR render:', error);
+        logError('Error message:', error.message);
+        logError('Stack:', error.stack);
         // Return empty HTML on error - client will hydrate
         html = '';
     }
@@ -451,7 +491,7 @@ const renderApp = async (req) => {
                 parts.push(ReactDOMServer.renderToStaticMarkup(baseComponent));
             }
         } catch (error) {
-            console.error('Error rendering helmet components:', error);
+            logError('Error rendering helmet components:', error);
         }
 
         helmetHtml = parts.join('\n        ');
@@ -507,11 +547,11 @@ const renderApp = async (req) => {
 
     // Debug: log HTML length before inserting into template
     const htmlLength = html ? html.length : 0;
-    console.log('HTML length before template insertion:', htmlLength);
+    log('HTML length before template insertion:', htmlLength);
     if (htmlLength === 0) {
-        console.error('WARNING: HTML is empty! This will result in empty root div.');
-        console.error('Location:', location);
-        console.error('Server data keys:', Object.keys(serverData));
+        logError('WARNING: HTML is empty! This will result in empty root div.');
+        logError('Location:', location);
+        logError('Server data keys:', Object.keys(serverData));
     }
 
     const finalHtml = `
@@ -536,29 +576,48 @@ const renderApp = async (req) => {
     // Debug: verify HTML was inserted
     const rootDivMatch = finalHtml.match(/<div id="root">(.*?)<\/div>/s);
     if (rootDivMatch) {
-        console.log('Root div content length in final HTML:', rootDivMatch[1].length);
+        log('Root div content length in final HTML:', rootDivMatch[1].length);
         if (rootDivMatch[1].length === 0) {
-            console.error('ERROR: Root div is empty in final HTML!');
+            logError('ERROR: Root div is empty in final HTML!');
         }
     }
 
     return finalHtml;
 };
 
-// CRITICAL: Add middleware to catch ALL API requests before SSR
-// This ensures API requests are never handled by SSR, even if they somehow bypass the API router
+// Skip .well-known paths (used by browsers, Chrome DevTools, etc.) - return 404 immediately
 app.use((req, res, next) => {
-    // Check if this is an API request
-    if (req.path.startsWith('/api/') || req.url.startsWith('/api/')) {
+    if (req.path.startsWith('/.well-known/')) {
+        return res.status(404).send('Not found');
+    }
+    next();
+});
+
+// FINAL SAFETY CHECK: Catch any API requests that somehow bypassed all previous middleware
+// This should NEVER happen, but it's a safety net before SSR
+app.use((req, res, next) => {
+    // Check if this is an API request - check all possible path variations
+    const isApiRequest = req.path.startsWith('/api/') ||
+        req.url.startsWith('/api/') ||
+        req.originalUrl.startsWith('/api/') ||
+        (req.baseUrl && req.baseUrl.startsWith('/api/'));
+
+    if (isApiRequest) {
         // This should have been handled by API router above
         // If we reach here, it means the API router didn't handle it
-        console.error('API request reached catch-all middleware - API router should have handled this:', {
+        logError('CRITICAL: API request reached final safety middleware - API router should have handled this:', {
             method: req.method,
             path: req.path,
             url: req.url,
-            originalUrl: req.originalUrl
+            originalUrl: req.originalUrl,
+            baseUrl: req.baseUrl,
+            headers: {
+                'accept': req.headers.accept,
+                'content-type': req.headers['content-type']
+            }
         });
         res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'no-cache');
         return res.status(404).json({ error: 'API endpoint not found', path: req.path });
     }
     next();
@@ -573,7 +632,7 @@ app.get('*', async (req, res, next) => {
     // Double check to prevent any API requests from reaching SSR
     // Check both req.path and req.url to handle different proxy configurations
     if (req.path.startsWith('/api/') || req.url.startsWith('/api/')) {
-        console.log('SSR route caught API request - this should not happen:', { path: req.path, url: req.url, originalUrl: req.originalUrl });
+        log('SSR route caught API request - this should not happen:', { path: req.path, url: req.url, originalUrl: req.originalUrl });
         res.setHeader('Content-Type', 'application/json');
         return res.status(404).json({ error: 'API endpoint not found', path: req.path });
     }
@@ -623,8 +682,8 @@ app.get('*', async (req, res, next) => {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache HTML for 1 hour
         res.send(html);
     } catch (error) {
-        console.error('SSR Error:', error);
-        console.error('Stack:', error.stack);
+        logError('SSR Error:', error);
+        logError('Stack:', error.stack);
         // Fallback to static HTML if SSR fails
         const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
         if (fs.existsSync(indexPath)) {
@@ -636,6 +695,8 @@ app.get('*', async (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    log(`Server running on port ${PORT}`);
+    log('Environment:', process.env.NODE_ENV || 'development');
+    log('MongoDB URI:', process.env.MONGODB_URI ? 'configured' : 'using default');
 });
 

@@ -298,10 +298,10 @@ router.get('/settings', async (req, res) => {
 router.get('/seo/:page', async (req, res) => {
   try {
     const { page } = req.params;
-    console.log('SEO API request:', { page, path: req.path, originalUrl: req.originalUrl, url: req.url });
-    // Explicitly set Content-Type to ensure JSON response
+    // Explicitly set Content-Type FIRST to ensure JSON response
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Cache-Control', 'no-cache');
+    console.log('SEO API request:', { page, path: req.path, originalUrl: req.originalUrl, url: req.url });
     const seo = await SEO.getSEO(page);
     console.log('SEO data found:', !!seo, 'for page:', page);
     res.json({ seo });
