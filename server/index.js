@@ -103,13 +103,6 @@ const PROJECT_ROOT = getProjectRoot();
 const distClientPath = path.join(PROJECT_ROOT, 'dist/client');
 const distClientExists = fs.existsSync(distClientPath);
 
-console.log('=== Server Startup Debug Info ===');
-console.log('__dirname:', __dirname);
-console.log('process.cwd():', process.cwd());
-console.log('PROJECT_ROOT:', PROJECT_ROOT);
-console.log('dist/client path:', distClientPath);
-console.log('dist/client exists:', distClientExists);
-
 if (!distClientExists) {
     console.error('ERROR: dist/client directory not found!');
     console.error('Please run: npm run build');
@@ -118,12 +111,13 @@ if (!distClientExists) {
         console.log('Contents of PROJECT_ROOT:', fs.readdirSync(PROJECT_ROOT).join(', '));
     }
 }
-console.log('================================');
+
 
 // Import App component and ServerDataProvider - webpack will bundle it when building server bundle
 // This must be a static require (not in try-catch) so webpack can include it in the bundle
 const App = require('../client/src/App').default;
 const { ServerDataProvider } = require('../client/src/contexts/ServerDataContext');
+const { ToastProvider } = require('../client/src/contexts/ToastContext');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -137,12 +131,26 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/crackbust
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from dist/client (built files) - MUST be before catch-all route
+// API routes - must be before static files
+app.use('/api', require('./routes/api'));
+
+// Admin routes (protected with HTTP Basic Auth)
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/admin/images', require('./routes/images'));
+
+// SEO routes
+app.use('/', require('./routes/sitemap'));
+app.use('/', require('./routes/robots'));
+
+// Serve static files from dist/client (built files) - but NOT index.html
 // This includes bundle files, images copied by webpack, etc.
+// We use index: false to prevent express.static from serving index.html
+// so that SSR can handle all HTML page requests
 app.use(express.static(distClientPath, {
     maxAge: '1y', // Cache static assets for 1 year
     etag: true,
-    lastModified: true
+    lastModified: true,
+    index: false // Don't serve index.html automatically - let SSR handle it
 }));
 
 // Serve static files from public folder (images, etc.) as fallback
@@ -157,19 +165,9 @@ const publicPath = path.join(PROJECT_ROOT, 'client/public');
 app.use(express.static(publicPath, {
     maxAge: '1y',
     etag: true,
-    lastModified: true
+    lastModified: true,
+    index: false // Don't serve index.html automatically
 }));
-
-// API routes
-app.use('/api', require('./routes/api'));
-
-// Admin routes (protected with HTTP Basic Auth)
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/admin/images', require('./routes/images'));
-
-// SEO routes
-app.use('/', require('./routes/sitemap'));
-app.use('/', require('./routes/robots'));
 
 // Helper function to find bundle files
 const findBundleFiles = () => {
@@ -217,6 +215,8 @@ const renderApp = async (req) => {
     // Load data on server before rendering
     const SiteSettings = require('./models/SiteSettings');
     const Service = require('./models/Service');
+    const BlogPost = require('./models/BlogPost');
+    const Work = require('./models/Work');
 
     let siteSettings = null;
     try {
@@ -257,19 +257,86 @@ const renderApp = async (req) => {
         }
     }
 
+    // Load blog posts for blog page
+    let blogPosts = [];
+    if (req.url === '/blog' || req.url.startsWith('/blog/')) {
+        try {
+            const postsData = await BlogPost.find({ published: true }).sort({ publishedAt: -1 }).lean();
+            blogPosts = postsData;
+        } catch (error) {
+            console.error('Error loading blog posts for SSR:', error);
+            blogPosts = [];
+        }
+    }
+
+    // Load service detail for service pages
+    let serviceDetail = null;
+    if (req.url.startsWith('/services/')) {
+        try {
+            const slug = req.url.split('/services/')[1]?.split('?')[0]?.split('#')[0];
+            if (slug) {
+                const service = await Service.findOne({ slug: slug }).lean();
+                serviceDetail = service;
+            }
+        } catch (error) {
+            console.error('Error loading service detail for SSR:', error);
+            serviceDetail = null;
+        }
+    }
+
+    // Load blog post detail for blog post pages
+    let blogPostDetail = null;
+    if (req.url.startsWith('/blog/') && req.url !== '/blog') {
+        try {
+            const slug = req.url.split('/blog/')[1]?.split('?')[0]?.split('#')[0];
+            if (slug) {
+                const post = await BlogPost.findOne({ slug: slug, published: true }).lean();
+                blogPostDetail = post;
+            }
+        } catch (error) {
+            console.error('Error loading blog post detail for SSR:', error);
+            blogPostDetail = null;
+        }
+    }
+
+    // Load works for our-works page
+    let works = [];
+    if (req.url === '/our-works') {
+        try {
+            const worksData = await Work.find({}).sort({ completedAt: -1 }).lean();
+            works = worksData;
+        } catch (error) {
+            console.error('Error loading works for SSR:', error);
+            works = [];
+        }
+    }
+
     // StaticRouter expects the URL string
     const location = req.url;
 
     // Prepare server data for components
     const serverData = {
         siteSettings: siteSettings,
-        services: services
+        services: services,
+        blogPosts: blogPosts,
+        serviceDetail: serviceDetail,
+        blogPostDetail: blogPostDetail,
+        works: works
     };
 
     let html = '';
     try {
-        html = ReactDOMServer.renderToString(
-            React.createElement(
+        console.log('Starting SSR render for URL:', location);
+        console.log('Server data available:', {
+            hasSiteSettings: !!serverData.siteSettings,
+            hasServices: !!serverData.services,
+            servicesCount: serverData.services?.length || 0
+        });
+
+        // Wrap in try-catch to catch any rendering errors
+        try {
+            console.log('About to call renderToString...');
+            const appElement = React.createElement(
                 HelmetProvider,
                 { context: helmetContext },
                 React.createElement(
@@ -278,18 +345,37 @@ const renderApp = async (req) => {
                     React.createElement(
                         ServerDataProvider,
                         { data: serverData },
-                        React.createElement(App)
+                        React.createElement(
+                            ToastProvider,
+                            null,
+                            React.createElement(App)
+                        )
                     )
                 )
-            )
-        );
+            );
+            console.log('App element created, calling renderToString...');
+            html = ReactDOMServer.renderToString(appElement);
+            console.log('renderToString completed, html length:', html ? html.length : 0);
+        } catch (renderError) {
+            console.error('Error during React renderToString:', renderError);
+            console.error('Render error message:', renderError.message);
+            console.error('Render error stack:', renderError.stack);
+            throw renderError; // Re-throw to be caught by outer try-catch
+        }
 
         // Log if HTML is empty (for debugging)
         if (!html || html.trim().length === 0) {
-            console.warn('Warning: SSR rendered empty HTML for URL:', location);
+            console.error('ERROR: SSR rendered empty HTML for URL:', location);
+            console.error('Server data:', JSON.stringify(serverData, null, 2));
+            console.error('This usually means a component threw an error or returned null/undefined');
+        } else {
+            console.log('SSR rendered HTML length:', html.length, 'for URL:', location);
+            // Log first 500 chars of HTML for debugging
+            console.log('HTML preview:', html.substring(0, 500));
         }
     } catch (error) {
         console.error('Error during SSR render:', error);
+        console.error('Error message:', error.message);
         console.error('Stack:', error.stack);
         // Return empty HTML on error - client will hydrate
         html = '';
@@ -379,10 +465,23 @@ const renderApp = async (req) => {
     // Embed initial data in HTML for client-side hydration
     const initialData = {
         siteSettings: siteSettings,
-        services: services
+        services: services,
+        blogPosts: blogPosts,
+        serviceDetail: serviceDetail,
+        blogPostDetail: blogPostDetail,
+        works: works
     };
 
-    return `
+    // Debug: log HTML length before inserting into template
+    const htmlLength = html ? html.length : 0;
+    console.log('HTML length before template insertion:', htmlLength);
+    if (htmlLength === 0) {
+        console.error('WARNING: HTML is empty! This will result in empty root div.');
+        console.error('Location:', location);
+        console.error('Server data keys:', Object.keys(serverData));
+    }
+
+    const finalHtml = `
     <!DOCTYPE html>
     ${htmlTag}
       <head>
@@ -395,11 +494,22 @@ const renderApp = async (req) => {
         </script>
       </head>
       ${bodyTag}
-        <div id="root">${html}</div>
+        <div id="root">${html || ''}</div>
         <script src="/${jsBundle}"></script>
       </body>
     </html>
   `;
+
+    // Debug: verify HTML was inserted
+    const rootDivMatch = finalHtml.match(/<div id="root">(.*?)<\/div>/s);
+    if (rootDivMatch) {
+        console.log('Root div content length in final HTML:', rootDivMatch[1].length);
+        if (rootDivMatch[1].length === 0) {
+            console.error('ERROR: Root div is empty in final HTML!');
+        }
+    }
+
+    return finalHtml;
 };
 
 // SSR route handler - catch all routes except static files
@@ -425,46 +535,34 @@ app.get('*', async (req, res, next) => {
         return res.status(404).send('File not found');
     }
 
-    // Check if request is from a bot/crawler or curl
-    const userAgent = req.headers['user-agent'] || '';
-    const isBot = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|sogou|exabot|facebot|ia_archiver|curl|wget|postman|insomnia/i.test(userAgent);
+    // Exclude admin routes from SSR - they should not be indexed and don't need SSR
+    const isAdminRoute = req.path.startsWith('/admin');
 
-    // Check if Accept header suggests HTML is expected (not API request)
-    const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
-
-    // Always use SSR for bots/crawlers/curl, and optionally for all requests
-    // This ensures SEO markup is always present for search engines
-    // For regular browsers, we can serve static HTML and let React hydrate
-    const shouldUseSSR = isBot || process.env.ENABLE_SSR === 'true' || (process.env.NODE_ENV === 'production' && acceptsHtml);
-
-    if (shouldUseSSR) {
-        try {
-            const html = await renderApp(req);
-            res.send(html);
-        } catch (error) {
-            console.error('SSR Error:', error);
-            // Fallback to static HTML if SSR fails
-            const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
-            if (fs.existsSync(indexPath)) {
-                res.sendFile(indexPath);
-            } else {
-                res.status(500).send('Server error: SSR failed and no static HTML found');
-            }
+    if (isAdminRoute) {
+        // For admin routes, serve static HTML (no SSR, no indexing)
+        const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
+        if (fs.existsSync(indexPath)) {
+            return res.sendFile(indexPath);
+        } else {
+            return res.status(500).send('Server error: Static HTML not found');
         }
-    } else {
-        // For regular users, serve static HTML (React will hydrate on client)
+    }
+
+    // Always use SSR for all other HTML page requests to ensure bot-friendliness
+    // This ensures that Googlebot and other search engines always get fully rendered HTML
+    // with all content visible, not just an empty div
+    try {
+        const html = await renderApp(req);
+        res.send(html);
+    } catch (error) {
+        console.error('SSR Error:', error);
+        console.error('Stack:', error.stack);
+        // Fallback to static HTML if SSR fails
         const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
         if (fs.existsSync(indexPath)) {
             res.sendFile(indexPath);
         } else {
-            // If no static HTML, try SSR as fallback
-            try {
-                const html = await renderApp(req);
-                res.send(html);
-            } catch (error) {
-                console.error('SSR Error:', error);
-                res.status(500).send('Server error: Unable to serve page');
-            }
+            res.status(500).send('Server error: SSR failed and no static HTML found');
         }
     }
 });

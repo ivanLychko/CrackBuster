@@ -14,8 +14,10 @@ const Home = () => {
 
   // Initialize with SSR data if available
   const initialServices = serverData?.services || [];
+  const isServer = typeof window === 'undefined';
+  // On server, always render content even if no services yet
   const [services, setServices] = useState(initialServices);
-  const [loading, setLoading] = useState(!initialServices.length);
+  const [loading, setLoading] = useState(!initialServices.length && !isServer);
 
   useEffect(() => {
     // If we already have services from SSR, skip fetching

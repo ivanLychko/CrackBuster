@@ -2,16 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import useSEO from '../hooks/useSEO';
+import { useServerData } from '../contexts/ServerDataContext';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './BlogPost.scss';
 
 const BlogPost = () => {
   const { slug } = useParams();
   const { seo: seoTemplate } = useSEO(); // Get template SEO for blog-post
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const serverData = useServerData();
+  const isServer = typeof window === 'undefined';
+  
+  // Initialize with SSR data if available
+  // Check both serverData and window.__INITIAL_STATE__ for SSR data
+  const clientData = typeof window !== 'undefined' && window.__INITIAL_STATE__;
+  const initialPost = serverData?.blogPostDetail || clientData?.blogPostDetail || null;
+  const [post, setPost] = useState(initialPost);
+  const [loading, setLoading] = useState(!initialPost && !isServer);
 
   useEffect(() => {
+    // If we already have post from SSR, skip fetching
+    if (initialPost) {
+      setLoading(false);
+      return;
+    }
+
     const fetchPost = async () => {
       try {
         const response = await fetch(`/api/blog/${slug}`);
@@ -30,7 +44,7 @@ const BlogPost = () => {
     };
 
     fetchPost();
-  }, [slug]);
+  }, [slug, initialPost]);
 
   // Add lazy loading and styling to all images in post content
   useEffect(() => {

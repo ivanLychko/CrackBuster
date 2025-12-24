@@ -2,15 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import useSEO from '../hooks/useSEO';
+import { useServerData } from '../contexts/ServerDataContext';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './Blog.scss';
 
 const Blog = () => {
   const { seo } = useSEO();
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const serverData = useServerData();
+  const isServer = typeof window === 'undefined';
+  
+  // Initialize with SSR data if available
+  const initialPosts = serverData?.blogPosts || [];
+  const [posts, setPosts] = useState(initialPosts);
+  const [loading, setLoading] = useState(!initialPosts.length && !isServer);
 
   useEffect(() => {
+    // If we already have posts from SSR, skip fetching
+    if (initialPosts.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     const fetchPosts = async () => {
       try {
         const response = await fetch('/api/blog');
@@ -18,17 +30,7 @@ const Blog = () => {
         if (data.posts && data.posts.length > 0) {
           setPosts(data.posts);
         } else {
-          // Fallback to static data if API returns empty
-          setPosts([
-            {
-              _id: 1,
-              title: 'Why Repair Foundation Cracks',
-              slug: 'why-repair-cracks',
-              excerpt: 'Understanding the importance of timely foundation crack repair...',
-              publishedAt: '2024-01-15',
-              featuredImage: '/data/Stock Images/crack-repair.jpg'
-            }
-          ]);
+          setPosts([]);
         }
       } catch (error) {
         console.error('Error fetching blog posts:', error);
@@ -39,7 +41,7 @@ const Blog = () => {
     };
 
     fetchPosts();
-  }, []);
+  }, [initialPosts.length]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

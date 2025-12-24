@@ -2,18 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Lightbox from '../components/Lightbox';
 import useSEO from '../hooks/useSEO';
+import { useServerData } from '../contexts/ServerDataContext';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './OurWorks.scss';
 
 const OurWorks = () => {
   const { seo } = useSEO();
-  const [works, setWorks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const serverData = useServerData();
+  const isServer = typeof window === 'undefined';
+  
+  // Initialize with SSR data if available
+  const initialWorks = serverData?.works || [];
+  const [works, setWorks] = useState(initialWorks);
+  const [loading, setLoading] = useState(!initialWorks.length && !isServer);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
+    // If we already have works from SSR, skip fetching
+    if (initialWorks.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     const fetchWorks = async () => {
       try {
         const response = await fetch('/api/works');
@@ -113,7 +125,7 @@ const OurWorks = () => {
     };
 
     fetchWorks();
-  }, []);
+  }, [initialWorks.length]);
 
   const openLightbox = (images, startIndex = 0) => {
     setLightboxImages(images);

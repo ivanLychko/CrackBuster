@@ -27,9 +27,14 @@ const App = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   // Determine robots meta tag based on settings
-  const robotsContent = settings?.allowIndexing === false
+  // Admin routes should NEVER be indexed
+  // Use default allowIndexing: true if settings not available (for SSR)
+  const allowIndexing = settings?.allowIndexing !== undefined ? settings.allowIndexing : true;
+  const robotsContent = isAdminRoute
     ? 'noindex, nofollow'
-    : 'index, follow';
+    : (allowIndexing === false
+      ? 'noindex, nofollow'
+      : 'index, follow');
 
   return (
     <>

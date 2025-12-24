@@ -23,8 +23,14 @@ const useSiteSettings = () => {
   const clientData = typeof window !== 'undefined' && window.__INITIAL_STATE__;
   const initialSettings = serverData?.siteSettings || clientData?.siteSettings || null;
 
-  const [settings, setSettings] = useState(initialSettings);
-  const [loading, setLoading] = useState(!initialSettings);
+  // On server (SSR), always use default settings if no data provided
+  // This ensures components render content even during SSR
+  const isServer = typeof window === 'undefined';
+  const defaultSettings = getDefaultSettings();
+  const settingsForRender = initialSettings || (isServer ? defaultSettings : null);
+
+  const [settings, setSettings] = useState(settingsForRender);
+  const [loading, setLoading] = useState(!initialSettings && !isServer);
   const [error, setError] = useState(null);
 
   useEffect(() => {

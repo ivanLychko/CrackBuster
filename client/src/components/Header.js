@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logoImage from '../assets/images/logo.png';
 import './Header.scss';
 
 const Header = () => {
@@ -46,7 +45,7 @@ const Header = () => {
             <div className="container">
                 <div className="header-content">
                     <Link to="/" className="logo">
-                        <img src={logoImage} alt="CrackBuster Logo" />
+                        <img src="/images/logo.png" alt="CrackBuster Logo" />
                     </Link>
 
                     <button

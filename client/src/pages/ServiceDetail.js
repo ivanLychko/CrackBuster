@@ -3,16 +3,28 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import FAQ from '../components/FAQ';
 import useSEO from '../hooks/useSEO';
+import { useServerData } from '../contexts/ServerDataContext';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './ServiceDetail.scss';
 
 const ServiceDetail = () => {
     const { slug } = useParams();
     const { seo: seoTemplate } = useSEO(); // Get template SEO for service-detail
-    const [service, setService] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const serverData = useServerData();
+    const isServer = typeof window === 'undefined';
+    
+    // Initialize with SSR data if available
+    const initialService = serverData?.serviceDetail || null;
+    const [service, setService] = useState(initialService);
+    const [loading, setLoading] = useState(!initialService && !isServer);
 
     useEffect(() => {
+        // If we already have service from SSR, skip fetching
+        if (initialService) {
+            setLoading(false);
+            return;
+        }
+
         const fetchService = async () => {
             try {
                 const response = await fetch(`/api/services/${slug}`);
@@ -31,7 +43,7 @@ const ServiceDetail = () => {
         };
 
         fetchService();
-    }, [slug]);
+    }, [slug, initialService]);
 
     // Add lazy loading to all images in service content
     useEffect(() => {

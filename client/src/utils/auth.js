@@ -61,6 +61,12 @@ export async function authenticatedFetch(url, options = {}) {
     throw new Error('Not authenticated');
   }
 
+  // Use relative paths - they work for both:
+  // - Dev: webpack dev server proxy handles /api -> localhost:3000
+  // - Production: same origin, so relative paths work directly
+  // Only convert to absolute if URL already starts with http
+  const fullUrl = url.startsWith('http') ? url : url;
+
   // Don't override Content-Type if body is FormData (it sets its own boundary)
   const headers = new Headers(options.headers);
   headers.set('Authorization', authHeader);
@@ -70,9 +76,11 @@ export async function authenticatedFetch(url, options = {}) {
     headers.delete('Content-Type');
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(fullUrl, {
     ...options,
     headers,
+    // Ensure credentials are sent (important for CORS if needed)
+    credentials: 'same-origin',
   });
 
   // If we get 401, clear credentials
@@ -82,6 +90,7 @@ export async function authenticatedFetch(url, options = {}) {
 
   return response;
 }
+
 
 /**
  * Verifies credentials by making a test request
@@ -93,11 +102,18 @@ export async function verifyCredentials(username, password) {
   const authHeader = createBasicAuthHeader(username, password);
   
   try {
-    const response = await fetch('/api/admin/services', {
+    // Use relative path - works for both dev (via proxy) and production (same origin)
+    // The webpack dev server proxy handles /api -> localhost:3000 in development
+    // In production, the same Express server handles both static files and API routes
+    const apiUrl = '/api/admin/services';
+    
+    const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
         'Authorization': authHeader,
       },
+      // Ensure credentials are sent (important for CORS if needed)
+      credentials: 'same-origin',
     });
 
     if (response.ok || response.status === 404) {
@@ -106,9 +122,19 @@ export async function verifyCredentials(username, password) {
       return true;
     }
     
+    // Log the error for debugging
+    console.error('Authentication failed:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: apiUrl,
+      origin: typeof window !== 'undefined' ? window.location.origin : 'unknown'
+    });
+    
     return false;
   } catch (error) {
     console.error('Error verifying credentials:', error);
+    console.error('API URL attempted: /api/admin/services');
+    console.error('Current origin:', typeof window !== 'undefined' ? window.location.origin : 'unknown');
     return false;
   }
 }

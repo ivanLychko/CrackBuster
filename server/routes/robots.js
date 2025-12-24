@@ -14,9 +14,10 @@ router.get('/robots.txt', async (req, res) => {
 Disallow: /
 `;
     } else {
-      // Allow indexing
+      // Allow indexing, but exclude admin routes
       robots = `User-agent: *
 Allow: /
+Disallow: /admin/
 
 Sitemap: ${baseUrl}/sitemap.xml
 `;
@@ -26,10 +27,11 @@ Sitemap: ${baseUrl}/sitemap.xml
     res.send(robots);
   } catch (error) {
     console.error('Error generating robots.txt:', error);
-    // Fallback to allowing indexing on error
+    // Fallback to allowing indexing on error, but exclude admin
     const baseUrl = req.protocol + '://' + req.get('host');
     const robots = `User-agent: *
 Allow: /
+Disallow: /admin/
 
 Sitemap: ${baseUrl}/sitemap.xml
 `;
