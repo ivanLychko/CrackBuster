@@ -12,7 +12,9 @@ const Blog = () => {
   const isServer = typeof window === 'undefined';
   
   // Initialize with SSR data if available
-  const initialPosts = serverData?.blogPosts || [];
+  // Check both serverData and window.__INITIAL_STATE__ for SSR data
+  const clientData = typeof window !== 'undefined' && window.__INITIAL_STATE__;
+  const initialPosts = serverData?.blogPosts || clientData?.blogPosts || [];
   const [posts, setPosts] = useState(initialPosts);
   const [loading, setLoading] = useState(!initialPosts.length && !isServer);
 

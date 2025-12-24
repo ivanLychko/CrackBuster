@@ -132,9 +132,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // API routes - must be before static files
+// IMPORTANT: These must be registered before any catch-all routes
 const apiRouter = require('./routes/api');
 app.use('/api', (req, res, next) => {
-    console.log('API request:', { method: req.method, path: req.path, originalUrl: req.originalUrl });
+    console.log('API request:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
     next();
 }, apiRouter);
 
@@ -148,7 +149,7 @@ app.use('/api/admin/images', require('./routes/images'));
 app.use('/api', (req, res) => {
     // If we reach here, it means no API route matched the request
     // This should rarely happen as router.use() 404 handler should catch it
-    console.log('API fallback 404 - request not handled by any route:', { method: req.method, path: req.path, originalUrl: req.originalUrl });
+    console.log('API fallback 404 - request not handled by any route:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
     res.setHeader('Content-Type', 'application/json');
     res.status(404).json({ error: 'API endpoint not found', path: req.path });
 });
@@ -289,10 +290,11 @@ const renderApp = async (req) => {
 
     // Load blog posts for blog page
     let blogPosts = [];
-    if (req.url === '/blog' || req.url.startsWith('/blog/')) {
+    if (req.url === '/blog' || req.url.startsWith('/blog')) {
         try {
             const postsData = await BlogPost.find({ published: true }).sort({ publishedAt: -1 }).lean();
             blogPosts = postsData;
+            console.log('SSR: Loaded blog posts:', blogPosts.length, 'for URL:', req.url);
         } catch (error) {
             console.error('Error loading blog posts for SSR:', error);
             blogPosts = [];
@@ -543,6 +545,25 @@ const renderApp = async (req) => {
     return finalHtml;
 };
 
+// CRITICAL: Add middleware to catch ALL API requests before SSR
+// This ensures API requests are never handled by SSR, even if they somehow bypass the API router
+app.use((req, res, next) => {
+    // Check if this is an API request
+    if (req.path.startsWith('/api/') || req.url.startsWith('/api/')) {
+        // This should have been handled by API router above
+        // If we reach here, it means the API router didn't handle it
+        console.error('API request reached catch-all middleware - API router should have handled this:', {
+            method: req.method,
+            path: req.path,
+            url: req.url,
+            originalUrl: req.originalUrl
+        });
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+    }
+    next();
+});
+
 // SSR route handler - catch all routes except static files and API routes
 // Note: express.static middleware above should handle all static file requests
 // API routes are handled before this middleware
@@ -550,7 +571,10 @@ const renderApp = async (req) => {
 app.get('*', async (req, res, next) => {
     // CRITICAL: Skip API routes - they should be handled by API middleware above
     // Double check to prevent any API requests from reaching SSR
-    if (req.path.startsWith('/api/')) {
+    // Check both req.path and req.url to handle different proxy configurations
+    if (req.path.startsWith('/api/') || req.url.startsWith('/api/')) {
+        console.log('SSR route caught API request - this should not happen:', { path: req.path, url: req.url, originalUrl: req.originalUrl });
+        res.setHeader('Content-Type', 'application/json');
         return res.status(404).json({ error: 'API endpoint not found', path: req.path });
     }
 
