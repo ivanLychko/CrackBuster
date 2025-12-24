@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -95,7 +96,7 @@ module.exports = (env, argv) => {
       },
       proxy: {
         '/api': {
-          target: 'http://localhost:3000',
+          target: process.env.API_URL || 'http://localhost:3000',
           changeOrigin: true,
         },
       },
