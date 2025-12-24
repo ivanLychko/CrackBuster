@@ -170,6 +170,7 @@ app.use(express.static(publicPath, {
 }));
 
 // Helper function to find bundle files
+// Always picks the most recent bundle file to avoid serving old cached versions
 const findBundleFiles = () => {
     const distPath = path.join(PROJECT_ROOT, 'dist/client');
 
@@ -192,7 +193,14 @@ const findBundleFiles = () => {
         !f.endsWith('.js.LICENSE.txt')
     );
     if (jsFiles.length > 0) {
+        // Sort by modification time and pick the most recent
+        jsFiles.sort((a, b) => {
+            const statA = fs.statSync(path.join(distPath, a));
+            const statB = fs.statSync(path.join(distPath, b));
+            return statB.mtime.getTime() - statA.mtime.getTime();
+        });
         jsBundle = jsFiles[0];
+        console.log('Found JS bundle:', jsBundle, 'Modified:', fs.statSync(path.join(distPath, jsBundle)).mtime);
     }
 
     // Find CSS bundle - must end with .css
@@ -202,7 +210,14 @@ const findBundleFiles = () => {
         !f.endsWith('.js') // Extra check to ensure it's not a JS file
     );
     if (cssFiles.length > 0) {
+        // Sort by modification time and pick the most recent
+        cssFiles.sort((a, b) => {
+            const statA = fs.statSync(path.join(distPath, a));
+            const statB = fs.statSync(path.join(distPath, b));
+            return statB.mtime.getTime() - statA.mtime.getTime();
+        });
         cssBundle = cssFiles[0];
+        console.log('Found CSS bundle:', cssBundle, 'Modified:', fs.statSync(path.join(distPath, cssBundle)).mtime);
     }
 
     return { jsBundle, cssBundle };
@@ -469,7 +484,8 @@ const renderApp = async (req) => {
         blogPosts: blogPosts,
         serviceDetail: serviceDetail,
         blogPostDetail: blogPostDetail,
-        works: works
+        works: works,
+        apiUrl: process.env.API_URL || '' // Pass API URL to client for production
     };
 
     // Debug: log HTML length before inserting into template
@@ -540,8 +556,12 @@ app.get('*', async (req, res, next) => {
 
     if (isAdminRoute) {
         // For admin routes, serve static HTML (no SSR, no indexing)
+        // Don't cache HTML files to ensure latest version is always served
         const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
         if (fs.existsSync(indexPath)) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
             return res.sendFile(indexPath);
         } else {
             return res.status(500).send('Server error: Static HTML not found');
@@ -553,6 +573,8 @@ app.get('*', async (req, res, next) => {
     // with all content visible, not just an empty div
     try {
         const html = await renderApp(req);
+        // Set cache headers for SSR HTML - short cache for HTML, long cache for assets
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache HTML for 1 hour
         res.send(html);
     } catch (error) {
         console.error('SSR Error:', error);

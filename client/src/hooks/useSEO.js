@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useServerData } from '../contexts/ServerDataContext';
+import { apiFetch } from '../utils/api';
 
 const getPageFromPath = (pathname) => {
   if (pathname === '/') return 'home';
@@ -37,7 +38,7 @@ const useSEO = () => {
 
     const fetchSEO = async () => {
       try {
-        const response = await fetch(`/api/seo/${page}`);
+        const response = await apiFetch(`/api/seo/${page}`);
         const data = await response.json();
         if (data.seo) {
           setSeo(data.seo);

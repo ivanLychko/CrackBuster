@@ -19,7 +19,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist/client'),
       filename: isProduction ? 'bundle.[contenthash].js' : 'bundle.js',
       publicPath: '/',
-      clean: !argv.watch, // Don't clean in watch mode
+      clean: isProduction, // Always clean in production to avoid old bundle files
     },
     module: {
       rules: [

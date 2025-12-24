@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useServerData } from '../contexts/ServerDataContext';
+import { apiFetch } from '../utils/api';
 
 const getDefaultSettings = () => ({
   phone: '(780) XXX-XXXX',
@@ -42,7 +43,7 @@ const useSiteSettings = () => {
 
     const fetchSettings = async () => {
       try {
-        const response = await fetch('/api/settings');
+        const response = await apiFetch('/api/settings');
         const data = await response.json();
         if (data.settings) {
           setSettings(data.settings);
