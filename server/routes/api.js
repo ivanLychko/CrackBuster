@@ -301,9 +301,7 @@ router.get('/seo/:page', async (req, res) => {
     // Explicitly set Content-Type FIRST to ensure JSON response
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Cache-Control', 'no-cache');
-    console.log('SEO API request:', { page, path: req.path, originalUrl: req.originalUrl, url: req.url });
     const seo = await SEO.getSEO(page);
-    console.log('SEO data found:', !!seo, 'for page:', page);
     res.json({ seo });
   } catch (error) {
     console.error('SEO API error:', error);
@@ -329,7 +327,6 @@ router.get('/seo', async (req, res) => {
 
 // 404 handler for API routes - always return JSON
 router.use((req, res) => {
-  console.log('API 404 - route not found:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-cache');
   res.status(404).json({ error: 'API endpoint not found', path: req.path });

@@ -164,25 +164,22 @@ app.use((req, res, next) => {
     next();
 });
 
-// API routes - must be before static files
-// IMPORTANT: These must be registered before any catch-all routes
-const apiRouter = require('./routes/api');
-app.use('/api', (req, res, next) => {
-    log('API request:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
-    next();
-}, apiRouter);
-
 // Admin routes (protected with HTTP Basic Auth)
+// IMPORTANT: These must be registered BEFORE the main API router
+// because Express matches routes in order and /api/admin would be caught by /api
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/admin/images', require('./routes/images'));
+
+// API routes - must be before static files
+// IMPORTANT: These must be registered after admin routes but before any catch-all routes
+const apiRouter = require('./routes/api');
+app.use('/api', apiRouter);
 
 // Middleware to catch any API requests that weren't handled by API routes
 // This ensures API requests always return JSON, never HTML
 // Must be AFTER all API routes but BEFORE static files and SSR router
 app.use('/api', (req, res) => {
     // If we reach here, it means no API route matched the request
-    // This should rarely happen as router.use() 404 handler should catch it
-    log('API fallback 404 - request not handled by any route:', { method: req.method, path: req.path, originalUrl: req.originalUrl, url: req.url });
     res.setHeader('Content-Type', 'application/json');
     res.status(404).json({ error: 'API endpoint not found', path: req.path });
 });
@@ -256,7 +253,6 @@ const findBundleFiles = () => {
             return statB.mtime.getTime() - statA.mtime.getTime();
         });
         jsBundle = jsFiles[0];
-        log('Found JS bundle:', jsBundle, 'Modified:', fs.statSync(path.join(distPath, jsBundle)).mtime);
     }
 
     // Find CSS bundle - must end with .css
@@ -273,7 +269,6 @@ const findBundleFiles = () => {
             return statB.mtime.getTime() - statA.mtime.getTime();
         });
         cssBundle = cssFiles[0];
-        log('Found CSS bundle:', cssBundle, 'Modified:', fs.statSync(path.join(distPath, cssBundle)).mtime);
     }
 
     return { jsBundle, cssBundle };
@@ -334,7 +329,6 @@ const renderApp = async (req) => {
         try {
             const postsData = await BlogPost.find({ published: true }).sort({ publishedAt: -1 }).lean();
             blogPosts = postsData;
-            log('SSR: Loaded blog posts:', blogPosts.length, 'for URL:', req.url);
         } catch (error) {
             logError('Error loading blog posts for SSR:', error);
             blogPosts = [];
@@ -398,16 +392,8 @@ const renderApp = async (req) => {
 
     let html = '';
     try {
-        log('Starting SSR render for URL:', location);
-        log('Server data available:', {
-            hasSiteSettings: !!serverData.siteSettings,
-            hasServices: !!serverData.services,
-            servicesCount: serverData.services?.length || 0
-        });
-
         // Wrap in try-catch to catch any rendering errors
         try {
-            log('About to call renderToString...');
             const appElement = React.createElement(
                 HelmetProvider,
                 { context: helmetContext },
@@ -425,30 +411,18 @@ const renderApp = async (req) => {
                     )
                 )
             );
-            log('App element created, calling renderToString...');
             html = ReactDOMServer.renderToString(appElement);
-            log('renderToString completed, html length:', html ? html.length : 0);
         } catch (renderError) {
             logError('Error during React renderToString:', renderError);
-            logError('Render error message:', renderError.message);
-            logError('Render error stack:', renderError.stack);
             throw renderError; // Re-throw to be caught by outer try-catch
         }
 
-        // Log if HTML is empty (for debugging)
+        // Log if HTML is empty (critical error)
         if (!html || html.trim().length === 0) {
             logError('ERROR: SSR rendered empty HTML for URL:', location);
-            logError('Server data:', JSON.stringify(serverData, null, 2));
-            logError('This usually means a component threw an error or returned null/undefined');
-        } else {
-            log('SSR rendered HTML length:', html.length, 'for URL:', location);
-            // Log first 500 chars of HTML for debugging
-            log('HTML preview:', html.substring(0, 500));
         }
     } catch (error) {
         logError('Error during SSR render:', error);
-        logError('Error message:', error.message);
-        logError('Stack:', error.stack);
         // Return empty HTML on error - client will hydrate
         html = '';
     }
@@ -545,13 +519,10 @@ const renderApp = async (req) => {
         apiUrl: process.env.API_URL || '' // Pass API URL to client for production
     };
 
-    // Debug: log HTML length before inserting into template
+    // Check if HTML is empty (critical error)
     const htmlLength = html ? html.length : 0;
-    log('HTML length before template insertion:', htmlLength);
     if (htmlLength === 0) {
         logError('WARNING: HTML is empty! This will result in empty root div.');
-        logError('Location:', location);
-        logError('Server data keys:', Object.keys(serverData));
     }
 
     const finalHtml = `
@@ -573,13 +544,10 @@ const renderApp = async (req) => {
     </html>
   `;
 
-    // Debug: verify HTML was inserted
+    // Verify HTML was inserted (critical check)
     const rootDivMatch = finalHtml.match(/<div id="root">(.*?)<\/div>/s);
-    if (rootDivMatch) {
-        log('Root div content length in final HTML:', rootDivMatch[1].length);
-        if (rootDivMatch[1].length === 0) {
-            logError('ERROR: Root div is empty in final HTML!');
-        }
+    if (rootDivMatch && rootDivMatch[1].length === 0) {
+        logError('ERROR: Root div is empty in final HTML!');
     }
 
     return finalHtml;
@@ -605,17 +573,7 @@ app.use((req, res, next) => {
     if (isApiRequest) {
         // This should have been handled by API router above
         // If we reach here, it means the API router didn't handle it
-        logError('CRITICAL: API request reached final safety middleware - API router should have handled this:', {
-            method: req.method,
-            path: req.path,
-            url: req.url,
-            originalUrl: req.originalUrl,
-            baseUrl: req.baseUrl,
-            headers: {
-                'accept': req.headers.accept,
-                'content-type': req.headers['content-type']
-            }
-        });
+        logError('CRITICAL: API request reached final safety middleware - API router should have handled this:', req.path);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-cache');
         return res.status(404).json({ error: 'API endpoint not found', path: req.path });
@@ -632,7 +590,7 @@ app.get('*', async (req, res, next) => {
     // Double check to prevent any API requests from reaching SSR
     // Check both req.path and req.url to handle different proxy configurations
     if (req.path.startsWith('/api/') || req.url.startsWith('/api/')) {
-        log('SSR route caught API request - this should not happen:', { path: req.path, url: req.url, originalUrl: req.originalUrl });
+        logError('SSR route caught API request - this should not happen:', req.path);
         res.setHeader('Content-Type', 'application/json');
         return res.status(404).json({ error: 'API endpoint not found', path: req.path });
     }
@@ -683,7 +641,6 @@ app.get('*', async (req, res, next) => {
         res.send(html);
     } catch (error) {
         logError('SSR Error:', error);
-        logError('Stack:', error.stack);
         // Fallback to static HTML if SSR fails
         const indexPath = path.join(PROJECT_ROOT, 'dist/client/index.html');
         if (fs.existsSync(indexPath)) {
@@ -696,7 +653,5 @@ app.get('*', async (req, res, next) => {
 
 app.listen(PORT, () => {
     log(`Server running on port ${PORT}`);
-    log('Environment:', process.env.NODE_ENV || 'development');
-    log('MongoDB URI:', process.env.MONGODB_URI ? 'configured' : 'using default');
 });
 
