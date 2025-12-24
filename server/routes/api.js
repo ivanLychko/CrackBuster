@@ -107,27 +107,27 @@ function checkImageExists(imageUrl) {
   if (!imageUrl || !imageUrl.startsWith('/images/')) {
     return false;
   }
-  
+
   // Remove leading /images/ to get relative path
   const relativePath = imageUrl.replace(/^\/images\//, '');
   const fullPath = path.join(__dirname, '../../client/public/images', relativePath);
-  
+
   // Check if file exists
   if (fs.existsSync(fullPath)) {
     return true;
   }
-  
+
   // Check for alternative formats (e.g., if .jpg was converted to .webp)
   const ext = path.extname(fullPath).toLowerCase();
   const basePath = fullPath.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
-  
+
   const alternativeExts = ['.webp', '.jpg', '.jpeg', '.png', '.gif'];
   for (const altExt of alternativeExts) {
     if (altExt !== ext && fs.existsSync(basePath + altExt)) {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -138,45 +138,45 @@ router.get('/works', async (req, res) => {
       .sort({ featured: -1, completedAt: -1 })
       .populate('service', 'title slug')
       .select('title description images service location completedAt featured');
-    
+
     // Filter out non-existent images and update paths if format changed
     const worksWithValidImages = works.map(work => {
       if (!work.images || !Array.isArray(work.images)) {
         return work.toObject();
       }
-      
+
       const validImages = work.images.filter(img => {
         if (!img) return false;
-        
+
         // Check if original path exists
         if (checkImageExists(img)) {
           return true;
         }
-        
+
         // Try to find alternative format
         if (img.startsWith('/images/')) {
           const relativePath = img.replace(/^\/images\//, '');
           const fullPath = path.join(__dirname, '../../client/public/images', relativePath);
           const ext = path.extname(fullPath).toLowerCase();
           const basePath = fullPath.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
-          
+
           // Check for webp version (most common after optimization)
           if (ext !== '.webp' && fs.existsSync(basePath + '.webp')) {
             return true; // Will be updated below
           }
         }
-        
+
         return false;
       }).map(img => {
         // Update path if format changed (e.g., .jpg -> .webp)
         if (img && img.startsWith('/images/')) {
           const relativePath = img.replace(/^\/images\//, '');
           const fullPath = path.join(__dirname, '../../client/public/images', relativePath);
-          
+
           if (!fs.existsSync(fullPath)) {
             const ext = path.extname(fullPath).toLowerCase();
             const basePath = fullPath.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
-            
+
             // Check for webp version first (most common after optimization)
             if (ext !== '.webp' && fs.existsSync(basePath + '.webp')) {
               const newRelativePath = relativePath.replace(/\.(jpg|jpeg|png|gif)$/i, '.webp');
@@ -184,16 +184,16 @@ router.get('/works', async (req, res) => {
             }
           }
         }
-        
+
         return img;
       });
-      
+
       return {
         ...work.toObject(),
         images: validImages
       };
     });
-    
+
     res.json({ works: worksWithValidImages });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -212,15 +212,15 @@ router.post('/contact', async (req, res) => {
       type: 'contact'
     });
     await contact.save();
-    
+
     // Send email notification
     const emailResult = await sendContactEmail({ name, email, phone, message });
-    
+
     if (!emailResult.success) {
       console.error('Failed to send email:', emailResult.error);
       // Don't fail the request if email fails, just log it
     }
-    
+
     res.json({ success: true, message: 'Thank you for contacting us!' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -231,17 +231,17 @@ router.post('/contact', async (req, res) => {
 router.post('/estimate', uploadEstimateImages.array('images', 10), async (req, res) => {
   try {
     const { name, email, phone, address, description } = req.body;
-    
+
     // Validate that at least one image is uploaded
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ 
-        error: 'At least one image is required for estimate requests' 
+      return res.status(400).json({
+        error: 'At least one image is required for estimate requests'
       });
     }
-    
+
     // Get uploaded image paths
     const imagePaths = req.files.map(file => `/images/estimate-requests/${file.filename}`);
-    
+
     const contact = new Contact({
       name,
       email,
@@ -253,20 +253,20 @@ router.post('/estimate', uploadEstimateImages.array('images', 10), async (req, r
       images: imagePaths
     });
     await contact.save();
-    
+
     // Send email notification
     const emailResult = await sendEstimateEmail(
       { name, email, phone, address, description },
       imagePaths
     );
-    
+
     if (!emailResult.success) {
       console.error('Failed to send email:', emailResult.error);
       // Don't fail the request if email fails, just log it
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: 'Estimate request received!',
       imagesCount: imagePaths.length
     });
@@ -298,9 +298,15 @@ router.get('/settings', async (req, res) => {
 router.get('/seo/:page', async (req, res) => {
   try {
     const { page } = req.params;
+    console.log('SEO API request:', { page, path: req.path, originalUrl: req.originalUrl });
+    // Explicitly set Content-Type to ensure JSON response
+    res.setHeader('Content-Type', 'application/json');
     const seo = await SEO.getSEO(page);
+    console.log('SEO data found:', !!seo);
     res.json({ seo });
   } catch (error) {
+    console.error('SEO API error:', error);
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({ error: error.message });
   }
 });
@@ -308,16 +314,20 @@ router.get('/seo/:page', async (req, res) => {
 // Get all SEO data (public)
 router.get('/seo', async (req, res) => {
   try {
+    res.setHeader('Content-Type', 'application/json');
     const seo = await SEO.getAllSEO();
     res.json({ seo });
   } catch (error) {
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({ error: error.message });
   }
 });
 
 // 404 handler for API routes - always return JSON
 router.use((req, res) => {
-  res.status(404).json({ error: 'API endpoint not found' });
+  console.log('API 404 - route not found:', { method: req.method, path: req.path, originalUrl: req.originalUrl });
+  res.setHeader('Content-Type', 'application/json');
+  res.status(404).json({ error: 'API endpoint not found', path: req.path });
 });
 
 module.exports = router;

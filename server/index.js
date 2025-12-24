@@ -132,7 +132,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // API routes - must be before static files
-app.use('/api', require('./routes/api'));
+const apiRouter = require('./routes/api');
+app.use('/api', (req, res, next) => {
+    console.log('API request:', { method: req.method, path: req.path, originalUrl: req.originalUrl });
+    next();
+}, apiRouter);
 
 // Admin routes (protected with HTTP Basic Auth)
 app.use('/api/admin', require('./routes/admin'));
@@ -143,7 +147,9 @@ app.use('/api/admin/images', require('./routes/images'));
 // Must be AFTER all API routes but BEFORE SSR router
 app.use('/api', (req, res) => {
     // If we reach here, it means no API route matched the request
-    // Return JSON 404 instead of letting it fall through to SSR
+    // This should rarely happen as router.use() 404 handler should catch it
+    console.log('API fallback 404 - request not handled by any route:', { method: req.method, path: req.path, originalUrl: req.originalUrl });
+    res.setHeader('Content-Type', 'application/json');
     res.status(404).json({ error: 'API endpoint not found', path: req.path });
 });
 
