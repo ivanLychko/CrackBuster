@@ -528,10 +528,19 @@ const renderApp = async (req) => {
     return finalHtml;
 };
 
-// SSR route handler - catch all routes except static files
+// SSR route handler - catch all routes except static files and API routes
 // Note: express.static middleware above should handle all static file requests
+// API routes are handled before this middleware, but we add a safety check
 // This route only handles HTML page requests
 app.get('*', async (req, res, next) => {
+    // CRITICAL: Skip API routes - they should be handled by API middleware above
+    // This is a safety check in case API routes didn't handle the request
+    if (req.path.startsWith('/api/')) {
+        // If we reach here, it means API route didn't handle it (404)
+        // Let it fall through to return 404 JSON response
+        return res.status(404).json({ error: 'API endpoint not found' });
+    }
+
     // Skip static file requests - they should be handled by express.static above
     // If we reach here for a static file, it means express.static didn't find it
     if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|eot|ttf|otf|mp4)$/)) {

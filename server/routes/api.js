@@ -315,5 +315,10 @@ router.get('/seo', async (req, res) => {
   }
 });
 
+// 404 handler for API routes - always return JSON
+router.use((req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
 module.exports = router;
 
