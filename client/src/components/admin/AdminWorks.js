@@ -3,11 +3,13 @@ import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import ImageGallery from './ImageGallery';
 import RichTextEditor from './RichTextEditor';
 import { authenticatedFetch } from '../../utils/auth';
+import { useToast } from '../../contexts/ToastContext';
 import './AdminCommon.scss';
 
 // Works List Component
 const AdminWorksList = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,12 +43,12 @@ const AdminWorksList = () => {
 
       if (response.ok) {
         await fetchWorks();
-        alert('Work deleted!');
+        showSuccess('Work deleted!');
       } else {
-        alert('Error deleting work');
+        showError('Error deleting work');
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 
@@ -109,6 +111,7 @@ const AdminWorksList = () => {
 const AdminWorkForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showSuccess, showError } = useToast();
   const isEditing = !!id;
   const [loading, setLoading] = useState(isEditing);
   const [services, setServices] = useState([]);
@@ -155,7 +158,7 @@ const AdminWorkForm = () => {
       });
     } catch (error) {
       console.error('Error fetching work:', error);
-      alert('Error loading work');
+      showError('Error loading work');
     } finally {
       setLoading(false);
     }
@@ -184,14 +187,14 @@ const AdminWorkForm = () => {
       });
 
       if (response.ok) {
-        alert(isEditing ? 'Work updated!' : 'Work created!');
+        showSuccess(isEditing ? 'Work updated!' : 'Work created!');
         navigate('/admin/content/works');
       } else {
         const error = await response.json();
-        alert('Error: ' + (error.error || 'Failed to save'));
+        showError('Error: ' + (error.error || 'Failed to save'));
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 

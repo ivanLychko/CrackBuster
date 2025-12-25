@@ -9,6 +9,8 @@ const Work = require('../models/Work');
 const Contact = require('../models/Contact');
 const SiteSettings = require('../models/SiteSettings');
 const SEO = require('../models/SEO');
+const GoogleReview = require('../models/GoogleReview');
+const GoogleReviewSettings = require('../models/GoogleReviewSettings');
 const { sendEstimateEmail, sendContactEmail } = require('../utils/emailService');
 
 // Configure multer for estimate image uploads
@@ -321,6 +323,28 @@ router.get('/seo', async (req, res) => {
   } catch (error) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Cache-Control', 'no-cache');
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Google Reviews routes (public - get only)
+router.get('/google-reviews', async (req, res) => {
+  try {
+    const settings = await GoogleReviewSettings.getSettings();
+    
+    if (!settings.enabled) {
+      return res.json({ reviews: [], enabled: false });
+    }
+
+    const limit = settings.displayCount || 5;
+    const reviews = await GoogleReview.getActiveReviews(limit);
+    
+    res.json({ 
+      reviews, 
+      enabled: true,
+      lastSynced: settings.lastSynced
+    });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

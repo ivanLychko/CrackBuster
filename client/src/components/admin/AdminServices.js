@@ -3,11 +3,13 @@ import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import ImagePicker from './ImagePicker';
 import RichTextEditor from './RichTextEditor';
 import { authenticatedFetch } from '../../utils/auth';
+import { useToast } from '../../contexts/ToastContext';
 import './AdminCommon.scss';
 
 // Services List Component
 const AdminServicesList = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,12 +43,12 @@ const AdminServicesList = () => {
 
       if (response.ok) {
         await fetchServices();
-        alert('Service deleted!');
+        showSuccess('Service deleted!');
       } else {
-        alert('Error deleting service');
+        showError('Error deleting service');
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 
@@ -107,6 +109,7 @@ const AdminServicesList = () => {
 const AdminServiceForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showSuccess, showError } = useToast();
   const isEditing = !!id;
   const [loading, setLoading] = useState(isEditing);
   const [formData, setFormData] = useState({
@@ -171,7 +174,7 @@ const AdminServiceForm = () => {
       });
     } catch (error) {
       console.error('Error fetching service:', error);
-      alert('Error loading service');
+      showError('Error loading service');
     } finally {
       setLoading(false);
     }
@@ -199,14 +202,14 @@ const AdminServiceForm = () => {
       });
 
       if (response.ok) {
-        alert(isEditing ? 'Service updated!' : 'Service created!');
+        showSuccess(isEditing ? 'Service updated!' : 'Service created!');
         navigate('/admin/content/services');
       } else {
         const error = await response.json();
-        alert('Error: ' + (error.error || 'Failed to save'));
+        showError('Error: ' + (error.error || 'Failed to save'));
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 

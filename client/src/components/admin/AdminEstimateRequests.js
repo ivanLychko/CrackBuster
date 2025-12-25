@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Lightbox from '../Lightbox';
 import { authenticatedFetch } from '../../utils/auth';
+import { useToast } from '../../contexts/ToastContext';
 import './AdminCommon.scss';
 
 const AdminEstimateRequests = () => {
+  const { showSuccess, showError } = useToast();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -41,10 +43,10 @@ const AdminEstimateRequests = () => {
           setSelectedRequest({ ...selectedRequest, status: newStatus });
         }
       } else {
-        alert('Error updating status');
+        showError('Error updating status');
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 
@@ -62,10 +64,10 @@ const AdminEstimateRequests = () => {
           setSelectedRequest(null);
         }
       } else {
-        alert('Error deleting request');
+        showError('Error deleting request');
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 

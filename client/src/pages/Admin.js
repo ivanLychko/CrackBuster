@@ -6,6 +6,7 @@ import AdminImages from '../components/admin/AdminImages';
 import AdminRequests from '../components/admin/AdminRequests';
 import AdminSettings from '../components/admin/AdminSettings';
 import AdminSEO from '../components/admin/AdminSEO';
+import AdminRemovedUrls from '../components/admin/AdminRemovedUrls';
 import LoginForm from '../components/admin/LoginForm';
 import { isAuthenticated, clearAuthCredentials, authenticatedFetch } from '../utils/auth';
 import './Admin.scss';
@@ -110,6 +111,12 @@ const Admin = () => {
             >
               SEO
             </Link>
+            <Link
+              to="/admin/removed-urls"
+              className={location.pathname.includes('/removed-urls') ? 'active' : ''}
+            >
+              Removed URLs (410)
+            </Link>
           </nav>
         </div>
         <div className="admin-content">
@@ -119,6 +126,7 @@ const Admin = () => {
             <Route path="/requests" element={<AdminRequests />} />
             <Route path="/settings" element={<AdminSettings />} />
             <Route path="/seo" element={<AdminSEO />} />
+            <Route path="/removed-urls/*" element={<AdminRemovedUrls />} />
             <Route path="/" element={
               <div className="admin-dashboard">
                 <h1>Admin Dashboard</h1>

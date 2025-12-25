@@ -3,11 +3,13 @@ import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import ImagePicker from './ImagePicker';
 import RichTextEditor from './RichTextEditor';
 import { authenticatedFetch } from '../../utils/auth';
+import { useToast } from '../../contexts/ToastContext';
 import './AdminCommon.scss';
 
 // Blog List Component
 const AdminBlogList = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,12 +43,12 @@ const AdminBlogList = () => {
 
       if (response.ok) {
         await fetchPosts();
-        alert('Post deleted!');
+        showSuccess('Post deleted!');
       } else {
-        alert('Error deleting post');
+        showError('Error deleting post');
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 
@@ -107,6 +109,7 @@ const AdminBlogList = () => {
 const AdminBlogForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showSuccess, showError } = useToast();
   const isEditing = !!id;
   const [loading, setLoading] = useState(isEditing);
   const [formData, setFormData] = useState({
@@ -169,7 +172,7 @@ const AdminBlogForm = () => {
       });
     } catch (error) {
       console.error('Error fetching post:', error);
-      alert('Error loading post');
+      showError('Error loading post');
     } finally {
       setLoading(false);
     }
@@ -197,14 +200,14 @@ const AdminBlogForm = () => {
       });
 
       if (response.ok) {
-        alert(isEditing ? 'Post updated!' : 'Post created!');
+        showSuccess(isEditing ? 'Post updated!' : 'Post created!');
         navigate('/admin/content/blog');
       } else {
         const error = await response.json();
-        alert('Error: ' + (error.error || 'Failed to save'));
+        showError('Error: ' + (error.error || 'Failed to save'));
       }
     } catch (error) {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 

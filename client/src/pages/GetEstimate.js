@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import useSEO from '../hooks/useSEO';
+import { useToast } from '../contexts/ToastContext';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './GetEstimate.scss';
 
 const GetEstimate = () => {
   const { seo } = useSEO();
+  const { showError, showWarning } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -51,7 +53,7 @@ const GetEstimate = () => {
 
     if (errors.length > 0) {
       setImageErrors(errors);
-      alert('Some files were not added:\n' + errors.join('\n'));
+      showWarning('Some files were not added:\n' + errors.join('\n'));
     } else {
       setImageErrors([]);
     }
@@ -83,13 +85,13 @@ const GetEstimate = () => {
 
     // Validate required fields
     if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.description) {
-      alert('Please fill in all required fields.');
+      showError('Please fill in all required fields.');
       return;
     }
 
     // Validate that at least one image is selected
     if (selectedImages.length === 0) {
-      alert('Please upload at least one image for your estimate request.');
+      showError('Please upload at least one image for your estimate request.');
       return;
     }
 
@@ -148,12 +150,12 @@ const GetEstimate = () => {
         } catch (e) {
           errorMessage = `Server error: ${response.status} ${response.statusText}`;
         }
-        alert('Error: ' + errorMessage);
+        showError('Error: ' + errorMessage);
         setSubmitting(false);
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('There was an error submitting your request. Please check your connection and try again.');
+      showError('There was an error submitting your request. Please check your connection and try again.');
       setSubmitting(false);
     }
   };

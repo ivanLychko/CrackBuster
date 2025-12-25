@@ -9,6 +9,10 @@ const Work = require('../models/Work');
 const Contact = require('../models/Contact');
 const SiteSettings = require('../models/SiteSettings');
 const SEO = require('../models/SEO');
+const RemovedUrl = require('../models/RemovedUrl');
+const GoogleReview = require('../models/GoogleReview');
+const GoogleReviewSettings = require('../models/GoogleReviewSettings');
+const googleReviewsService = require('../utils/googleReviewsService');
 
 // Apply auth to all admin routes
 router.use(authMiddleware);
@@ -389,6 +393,202 @@ router.put('/seo/:page', async (req, res) => {
     res.json({ seo, message: 'SEO settings updated successfully' });
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// ========== REMOVED URLS ==========
+// Get all removed URLs
+router.get('/removed-urls', async (req, res) => {
+  try {
+    const removedUrls = await RemovedUrl.find({}).sort({ createdAt: -1 });
+    res.json({ removedUrls });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get single removed URL
+router.get('/removed-urls/:id', async (req, res) => {
+  try {
+    const removedUrl = await RemovedUrl.findById(req.params.id);
+    if (!removedUrl) {
+      return res.status(404).json({ error: 'Removed URL not found' });
+    }
+    res.json({ removedUrl });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create removed URL
+router.post('/removed-urls', async (req, res) => {
+  try {
+    const { url, reason, notes } = req.body;
+    
+    if (!url || !url.trim()) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+    
+    // Check if URL already exists
+    const existing = await RemovedUrl.findOne({ url: url.trim() });
+    if (existing) {
+      return res.status(400).json({ error: 'This URL is already in the removed URLs list' });
+    }
+    
+    const removedUrl = new RemovedUrl({
+      url: url.trim(),
+      reason: reason || '',
+      notes: notes || '',
+      removedAt: new Date()
+    });
+    
+    await removedUrl.save();
+    res.json({ removedUrl, message: 'Removed URL added successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Update removed URL
+router.put('/removed-urls/:id', async (req, res) => {
+  try {
+    const { url, reason, notes } = req.body;
+    
+    const removedUrl = await RemovedUrl.findById(req.params.id);
+    if (!removedUrl) {
+      return res.status(404).json({ error: 'Removed URL not found' });
+    }
+    
+    // If URL is being changed, check for duplicates
+    if (url && url.trim() !== removedUrl.url) {
+      const existing = await RemovedUrl.findOne({ url: url.trim(), _id: { $ne: req.params.id } });
+      if (existing) {
+        return res.status(400).json({ error: 'This URL is already in the removed URLs list' });
+      }
+      removedUrl.url = url.trim();
+    }
+    
+    if (reason !== undefined) removedUrl.reason = reason;
+    if (notes !== undefined) removedUrl.notes = notes;
+    
+    await removedUrl.save();
+    res.json({ removedUrl, message: 'Removed URL updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Delete removed URL
+router.delete('/removed-urls/:id', async (req, res) => {
+  try {
+    const removedUrl = await RemovedUrl.findByIdAndDelete(req.params.id);
+    if (!removedUrl) {
+      return res.status(404).json({ error: 'Removed URL not found' });
+    }
+    res.json({ message: 'Removed URL deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== GOOGLE REVIEWS ==========
+// Get Google Review settings
+router.get('/google-reviews/settings', async (req, res) => {
+  try {
+    const settings = await GoogleReviewSettings.getSettings();
+    res.json({ settings });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update Google Review settings
+router.put('/google-reviews/settings', async (req, res) => {
+  try {
+    const settings = await GoogleReviewSettings.updateSettings(req.body);
+    res.json({ settings, message: 'Google Review settings updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Sync Google Reviews
+router.post('/google-reviews/sync', async (req, res) => {
+  try {
+    const result = await googleReviewsService.syncReviews();
+    res.json({ 
+      ...result,
+      message: result.message || 'Reviews synced successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Validate Place ID
+router.post('/google-reviews/validate', async (req, res) => {
+  try {
+    const { placeId, apiKey } = req.body;
+    const result = await googleReviewsService.validatePlaceId(placeId, apiKey);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ 
+      valid: false,
+      message: error.message 
+    });
+  }
+});
+
+// Get all Google Reviews
+router.get('/google-reviews', async (req, res) => {
+  try {
+    const reviews = await GoogleReview.getAllReviews();
+    res.json({ reviews });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get single Google Review
+router.get('/google-reviews/:id', async (req, res) => {
+  try {
+    const review = await GoogleReview.findById(req.params.id);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    res.json({ review });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update Google Review (toggle active status, etc.)
+router.put('/google-reviews/:id', async (req, res) => {
+  try {
+    const review = await GoogleReview.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    res.json({ review, message: 'Review updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Delete Google Review
+router.delete('/google-reviews/:id', async (req, res) => {
+  try {
+    const review = await GoogleReview.findByIdAndDelete(req.params.id);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    res.json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

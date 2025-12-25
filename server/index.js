@@ -207,6 +207,11 @@ app.use('/api', (req, res) => {
 app.use('/', require('./routes/sitemap'));
 app.use('/', require('./routes/robots'));
 
+// Removed URLs middleware - check for removed URLs and return 410
+// This should be after API routes but before static files and SSR
+const checkRemovedUrls = require('./middleware/removedUrls');
+app.use(checkRemovedUrls);
+
 // Serve static files from dist/client (built files) - but NOT index.html
 // This includes bundle files, images copied by webpack, etc.
 // We use index: false to prevent express.static from serving index.html

@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import useSiteSettings from '../hooks/useSiteSettings';
 import useSEO from '../hooks/useSEO';
+import { useToast } from '../contexts/ToastContext';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './ContactUs.scss';
 
 const ContactUs = () => {
   const { settings, loading } = useSiteSettings();
   const { seo } = useSEO();
+  const { showError } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,7 +50,7 @@ const ContactUs = () => {
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('There was an error submitting your message. Please try again.');
+      showError('There was an error submitting your message. Please try again.');
     } finally {
       setSubmitting(false);
     }

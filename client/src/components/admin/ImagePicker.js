@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { authenticatedFetch } from '../../utils/auth';
+import { useToast } from '../../contexts/ToastContext';
 import './ImagePicker.scss';
 
 const ImagePicker = ({ value, onChange, category = 'general', label = 'Image' }) => {
+  const { showError } = useToast();
   const [showPicker, setShowPicker] = useState(false);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -70,10 +72,10 @@ const ImagePicker = ({ value, onChange, category = 'general', label = 'Image' })
         setShowPicker(false);
         fetchImages(currentCategory);
       } else {
-        alert('Error: ' + (data.error || 'Upload failed'));
+        showError('Error: ' + (data.error || 'Upload failed'));
       }
     } catch (error) {
-      alert('Error uploading image: ' + error.message);
+      showError('Error uploading image: ' + error.message);
     } finally {
       setUploading(false);
       if (fileInputRef.current) {

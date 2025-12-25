@@ -5,6 +5,7 @@ import useSiteSettings from '../hooks/useSiteSettings';
 import useSEO from '../hooks/useSEO';
 import { useServerData } from '../contexts/ServerDataContext';
 import { getCanonicalUrl, getDefaultOgImage, SITE_NAME } from '../utils/seo';
+import GoogleReviews from '../components/GoogleReviews';
 import './Home.scss';
 
 const Home = () => {
@@ -244,6 +245,9 @@ const Home = () => {
             </div>
           </div>
         </section>
+
+        {/* Google Reviews Section */}
+        <GoogleReviews />
 
         {/* CTA Section */}
         <section className="cta-section">

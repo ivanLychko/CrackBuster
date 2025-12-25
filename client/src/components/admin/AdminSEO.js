@@ -8,8 +8,18 @@ const AdminSEO = () => {
   const { showSuccess, showError } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [activePage, setActivePage] = useState('home');
   const [seoData, setSeoData] = useState({});
+  const [googleReviewSettings, setGoogleReviewSettings] = useState({
+    placeId: '',
+    apiKey: '',
+    enabled: false,
+    displayCount: 5
+  });
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState(null);
 
   const pages = [
     { value: 'home', label: 'Home Page' },
@@ -26,6 +36,7 @@ const AdminSEO = () => {
 
   useEffect(() => {
     fetchAllSEO();
+    fetchGoogleReviewSettings();
   }, []);
 
   useEffect(() => {
@@ -78,6 +89,133 @@ const AdminSEO = () => {
         [field]: value
       }
     }));
+  };
+
+  const fetchGoogleReviewSettings = async () => {
+    try {
+      const response = await authenticatedFetch('/api/admin/google-reviews/settings');
+      const data = await response.json();
+      if (data.settings) {
+        setGoogleReviewSettings(data.settings);
+      }
+    } catch (error) {
+      console.error('Error fetching Google Review settings:', error);
+    }
+  };
+
+  const handleGoogleReviewChange = (field, value) => {
+    setGoogleReviewSettings(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleGoogleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      const response = await authenticatedFetch('/api/admin/google-reviews/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(googleReviewSettings)
+      });
+
+      if (response.ok) {
+        showSuccess('Google Review settings saved successfully!');
+        await fetchGoogleReviewSettings();
+      } else {
+        const error = await response.json();
+        showError('Error: ' + (error.error || 'Failed to save Google Review settings'));
+      }
+    } catch (error) {
+      showError('Error: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleValidatePlaceId = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('handleValidatePlaceId called', { 
+      placeId: googleReviewSettings.placeId, 
+      apiKey: googleReviewSettings.apiKey ? '***' : '' 
+    });
+    
+    if (!googleReviewSettings.placeId) {
+      showError('Please enter a Place ID first');
+      return;
+    }
+
+    if (!googleReviewSettings.apiKey) {
+      showError('API key is required for validation. Please enter your Google Places API key.');
+      return;
+    }
+
+    setValidating(true);
+    setValidationResult(null);
+    
+    try {
+      console.log('Sending validation request...');
+      const response = await authenticatedFetch('/api/admin/google-reviews/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          placeId: googleReviewSettings.placeId,
+          apiKey: googleReviewSettings.apiKey
+        })
+      });
+
+      console.log('Validation response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Validation error response:', errorData);
+        throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Validation result:', data);
+      setValidationResult(data);
+      
+      if (data.valid) {
+        showSuccess(data.message || 'Place ID is valid!');
+      } else {
+        showError(data.message || 'Place ID validation failed');
+      }
+    } catch (error) {
+      console.error('Validation error:', error);
+      showError('Error: ' + error.message);
+      setValidationResult({ valid: false, message: error.message });
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const handleSyncReviews = async () => {
+    setSyncing(true);
+    try {
+      const response = await authenticatedFetch('/api/admin/google-reviews/sync', {
+        method: 'POST'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showSuccess(data.message || 'Reviews synced successfully!');
+        await fetchGoogleReviewSettings();
+      } else {
+        const error = await response.json();
+        showError('Error: ' + (error.error || 'Failed to sync reviews'));
+      }
+    } catch (error) {
+      showError('Error: ' + error.message);
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -313,6 +451,180 @@ const AdminSEO = () => {
           </button>
         </div>
       </form>
+
+      {/* Google Reviews Settings */}
+      <div className="google-reviews-settings">
+        <div className="admin-section-header">
+          <h2>Google Reviews Settings</h2>
+          <p>Configure and sync Google Maps reviews to display on your homepage</p>
+        </div>
+
+        <form onSubmit={handleGoogleReviewSubmit} className="admin-form">
+          <div className="form-section">
+            <div className="form-group">
+              <label>
+                Google Place ID
+                <span 
+                  className="tooltip-trigger"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  ℹ️
+                  {showTooltip && (
+                    <div className="tooltip-content">
+                      <strong>How to find your Place ID:</strong>
+                      <ol>
+                        <li>Go to <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">Google Maps</a></li>
+                        <li>Search for your business</li>
+                        <li>Click on your business listing</li>
+                        <li>In the address bar, you'll see a URL like: <code>https://www.google.com/maps/place/Your+Business/@lat,lng,zoom/data=...</code></li>
+                        <li>Look for <code>!1s</code> followed by a long string - that's your Place ID</li>
+                        <li>Alternatively, use <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener noreferrer">Google's Place ID Finder</a></li>
+                      </ol>
+                      <p><strong>Example Place ID format:</strong> <code>ChIJN1t_tDeuEmsRUsoyG83frY4</code></p>
+                    </div>
+                  )}
+                </span>
+              </label>
+              <input
+                type="text"
+                value={googleReviewSettings.placeId || ''}
+                onChange={(e) => handleGoogleReviewChange('placeId', e.target.value)}
+                placeholder="ChIJN1t_tDeuEmsRUsoyG83frY4"
+              />
+              <p className="form-hint">
+                The unique identifier for your business location on Google Maps.
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label>Google API Key (Optional)</label>
+              <input
+                type="password"
+                value={googleReviewSettings.apiKey || ''}
+                onChange={(e) => handleGoogleReviewChange('apiKey', e.target.value)}
+                placeholder="AIzaSy..."
+              />
+              <p className="form-hint">
+                Optional: Google Places API key for official API access. If not provided, the system will use alternative methods.
+                <a href="https://developers.google.com/maps/documentation/places/web-service/get-api-key" target="_blank" rel="noopener noreferrer"> Get API Key</a>
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={googleReviewSettings.enabled || false}
+                  onChange={(e) => handleGoogleReviewChange('enabled', e.target.checked)}
+                />
+                <span>Enable Google Reviews on homepage</span>
+              </label>
+              <p className="form-hint">
+                When enabled, Google Reviews will be displayed on the homepage.
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label>Number of Reviews to Display</label>
+              <input
+                type="number"
+                min="1"
+                max="20"
+                value={googleReviewSettings.displayCount || 5}
+                onChange={(e) => handleGoogleReviewChange('displayCount', parseInt(e.target.value) || 5)}
+              />
+              <p className="form-hint">
+                Number of reviews to show on the homepage (1-20).
+              </p>
+            </div>
+
+            {validationResult && (
+              <div className="form-group">
+                <div 
+                  className="form-hint" 
+                  style={{ 
+                    color: validationResult.valid ? '#28a745' : '#dc3545',
+                    padding: '1rem',
+                    backgroundColor: validationResult.valid ? '#f0f9f4' : '#fff5f5',
+                    borderRadius: '6px',
+                    border: `1px solid ${validationResult.valid ? '#28a745' : '#dc3545'}`
+                  }}
+                >
+                  <strong>{validationResult.valid ? '✓ Valid' : '✗ Invalid'}:</strong><br />
+                  {validationResult.message}
+                  {validationResult.place && (
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                      <p><strong>Place:</strong> {validationResult.place.name}</p>
+                      <p><strong>Address:</strong> {validationResult.place.address}</p>
+                      <p><strong>Rating:</strong> {validationResult.place.rating} ⭐ ({validationResult.place.totalRatings} ratings)</p>
+                      <p><strong>Reviews available:</strong> {validationResult.place.reviewCount}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {googleReviewSettings.lastSynced && (
+              <div className="form-group">
+                <p className="form-hint" style={{ color: '#28a745' }}>
+                  Last synced: {new Date(googleReviewSettings.lastSynced).toLocaleString()}
+                </p>
+              </div>
+            )}
+
+            {googleReviewSettings.lastSyncError && (
+              <div className="form-group">
+                <div className="form-hint" style={{ color: '#dc3545', whiteSpace: 'pre-line' }}>
+                  <strong>Last sync error:</strong><br />
+                  {googleReviewSettings.lastSyncError}
+                </div>
+              </div>
+            )}
+
+            <div className="form-actions">
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? 'Saving...' : 'Save Google Review Settings'}
+              </button>
+            </div>
+          </div>
+        </form>
+
+        {/* Action buttons outside form to avoid form submission issues */}
+        <div className="form-actions" style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
+          <button 
+            type="button" 
+            className="btn btn-secondary" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Validate button clicked');
+              console.log('Current settings:', { 
+                placeId: googleReviewSettings.placeId, 
+                hasApiKey: !!googleReviewSettings.apiKey 
+              });
+              handleValidatePlaceId(e);
+            }}
+            disabled={validating || !googleReviewSettings.placeId || !googleReviewSettings.apiKey}
+            style={{ marginRight: '1rem' }}
+            title={(!googleReviewSettings.placeId || !googleReviewSettings.apiKey) ? 'Please enter Place ID and API Key first' : 'Validate your Google Place ID'}
+          >
+            {validating ? 'Validating...' : 'Validate Place ID'}
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-secondary" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSyncReviews();
+            }}
+            disabled={syncing || !googleReviewSettings.placeId}
+          >
+            {syncing ? 'Syncing...' : 'Synchronize Reviews'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
