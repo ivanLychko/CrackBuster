@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
-import AdminServices from '../components/admin/AdminServices';
-import AdminBlog from '../components/admin/AdminBlog';
-import AdminWorks from '../components/admin/AdminWorks';
+import AdminContent from '../components/admin/AdminContent';
 import AdminImages from '../components/admin/AdminImages';
 import AdminRequests from '../components/admin/AdminRequests';
 import AdminSettings from '../components/admin/AdminSettings';
@@ -83,22 +81,10 @@ const Admin = () => {
           </div>
           <nav className="admin-nav">
             <Link
-              to="/admin/services"
-              className={location.pathname.includes('/services') ? 'active' : ''}
+              to="/admin/content"
+              className={location.pathname.includes('/content') ? 'active' : ''}
             >
-              Services
-            </Link>
-            <Link
-              to="/admin/blog"
-              className={location.pathname.includes('/blog') ? 'active' : ''}
-            >
-              Blog Posts
-            </Link>
-            <Link
-              to="/admin/works"
-              className={location.pathname.includes('/works') ? 'active' : ''}
-            >
-              Works Gallery
+              Content
             </Link>
             <Link
               to="/admin/images"
@@ -128,9 +114,7 @@ const Admin = () => {
         </div>
         <div className="admin-content">
           <Routes>
-            <Route path="/services/*" element={<AdminServices />} />
-            <Route path="/blog/*" element={<AdminBlog />} />
-            <Route path="/works/*" element={<AdminWorks />} />
+            <Route path="/content/*" element={<AdminContent />} />
             <Route path="/images/*" element={<AdminImages />} />
             <Route path="/requests" element={<AdminRequests />} />
             <Route path="/settings" element={<AdminSettings />} />

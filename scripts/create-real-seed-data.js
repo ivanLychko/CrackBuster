@@ -455,3 +455,5 @@ console.log(`   Blog Posts: ${blogPostsData.length}`);
 console.log(`   Output saved to: ${seedFilePath}`);
 console.log(`\nTo use this file, rename it to seed-database.js or run: node scripts/seed-database-real.js`);
 
+
+

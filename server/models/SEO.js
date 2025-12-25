@@ -82,3 +82,5 @@ seoSchema.statics.getAllSEO = async function () {
 
 module.exports = mongoose.model('SEO', seoSchema);
 
+
+

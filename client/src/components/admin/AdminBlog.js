@@ -1,14 +1,114 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import ImagePicker from './ImagePicker';
 import RichTextEditor from './RichTextEditor';
 import { authenticatedFetch } from '../../utils/auth';
 import './AdminCommon.scss';
 
-const AdminBlog = () => {
+// Blog List Component
+const AdminBlogList = () => {
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await authenticatedFetch('/api/admin/blog');
+      const data = await response.json();
+      setPosts(data.posts || []);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (post) => {
+    navigate(`/admin/content/blog/edit/${post._id}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    
+    try {
+      const response = await authenticatedFetch(`/api/admin/blog/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        await fetchPosts();
+        alert('Post deleted!');
+      } else {
+        alert('Error deleting post');
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
+
+  const handleNewPost = () => {
+    navigate('/admin/content/blog/new');
+  };
+
+  if (loading) return <div className="admin-loading">Loading...</div>;
+
+  return (
+    <div className="admin-section">
+      <div className="admin-section-header">
+        <h1>Manage Blog Posts</h1>
+        <button onClick={handleNewPost} className="btn btn-primary">
+          + Add New Post
+        </button>
+      </div>
+
+      <div className="admin-list">
+        <h2>All Posts</h2>
+        {posts.length === 0 ? (
+          <p>No posts found.</p>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Slug</th>
+                <th>Published</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {posts.map(post => (
+                <tr key={post._id}>
+                  <td>{post.title}</td>
+                  <td>{post.slug}</td>
+                  <td>{post.published ? '✓' : '✗'}</td>
+                  <td>
+                    <button onClick={() => handleEdit(post)} className="btn-small btn-secondary">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(post._id)} className="btn-small btn-danger">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Blog Form Component
+const AdminBlogForm = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = !!id;
+  const [loading, setLoading] = useState(isEditing);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -34,16 +134,42 @@ const AdminBlog = () => {
   });
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (isEditing) {
+      fetchPost();
+    }
+  }, [id]);
 
-  const fetchPosts = async () => {
+  const fetchPost = async () => {
     try {
-      const response = await authenticatedFetch('/api/admin/blog');
+      const response = await authenticatedFetch(`/api/admin/blog/${id}`);
       const data = await response.json();
-      setPosts(data.posts || []);
+      const post = data.post;
+      setFormData({
+        title: post.title || '',
+        slug: post.slug || '',
+        excerpt: post.excerpt || '',
+        content: post.content || '',
+        featuredImage: post.featuredImage || '',
+        metaTitle: post.metaTitle || '',
+        metaDescription: post.metaDescription || '',
+        keywords: (post.keywords || []).join(', '),
+        published: post.published || false,
+        // Extended SEO fields
+        seoTitle: post.seoTitle || '',
+        seoDescription: post.seoDescription || '',
+        seoKeywords: post.seoKeywords || '',
+        ogTitle: post.ogTitle || '',
+        ogDescription: post.ogDescription || '',
+        ogImage: post.ogImage || '',
+        twitterTitle: post.twitterTitle || '',
+        twitterDescription: post.twitterDescription || '',
+        twitterImage: post.twitterImage || '',
+        canonicalUrl: post.canonicalUrl || '',
+        robots: post.robots || ''
+      });
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('Error fetching post:', error);
+      alert('Error loading post');
     } finally {
       setLoading(false);
     }
@@ -52,16 +178,16 @@ const AdminBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editing 
-        ? `/api/admin/blog/${editing._id}`
+      const url = isEditing 
+        ? `/api/admin/blog/${id}`
         : '/api/admin/blog';
       
-      const method = editing ? 'PUT' : 'POST';
+      const method = isEditing ? 'PUT' : 'POST';
       
       const payload = {
         ...formData,
         keywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
-        publishedAt: formData.published ? (editing?.publishedAt || new Date()) : null
+        publishedAt: formData.published ? (formData.publishedAt || new Date()) : null
       };
 
       const response = await authenticatedFetch(url, {
@@ -71,10 +197,8 @@ const AdminBlog = () => {
       });
 
       if (response.ok) {
-        await fetchPosts();
-        resetForm();
-        setShowForm(false);
-        alert(editing ? 'Post updated!' : 'Post created!');
+        alert(isEditing ? 'Post updated!' : 'Post created!');
+        navigate('/admin/content/blog');
       } else {
         const error = await response.json();
         alert('Error: ' + (error.error || 'Failed to save'));
@@ -84,101 +208,18 @@ const AdminBlog = () => {
     }
   };
 
-  const handleEdit = (post) => {
-    setEditing(post);
-    setShowForm(true);
-    setFormData({
-      title: post.title || '',
-      slug: post.slug || '',
-      excerpt: post.excerpt || '',
-      content: post.content || '',
-      featuredImage: post.featuredImage || '',
-      metaTitle: post.metaTitle || '',
-      metaDescription: post.metaDescription || '',
-      keywords: (post.keywords || []).join(', '),
-      published: post.published || false,
-      // Extended SEO fields
-      seoTitle: post.seoTitle || '',
-      seoDescription: post.seoDescription || '',
-      seoKeywords: post.seoKeywords || '',
-      ogTitle: post.ogTitle || '',
-      ogDescription: post.ogDescription || '',
-      ogImage: post.ogImage || '',
-      twitterTitle: post.twitterTitle || '',
-      twitterDescription: post.twitterDescription || '',
-      twitterImage: post.twitterImage || '',
-      canonicalUrl: post.canonicalUrl || '',
-      robots: post.robots || ''
-    });
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-    
-    try {
-      const response = await authenticatedFetch(`/api/admin/blog/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        await fetchPosts();
-        alert('Post deleted!');
-      } else {
-        alert('Error deleting post');
-      }
-    } catch (error) {
-      alert('Error: ' + error.message);
-    }
-  };
-
-  const resetForm = () => {
-    setEditing(null);
-    setShowForm(false);
-    setFormData({
-      title: '',
-      slug: '',
-      excerpt: '',
-      content: '',
-      featuredImage: '',
-      metaTitle: '',
-      metaDescription: '',
-      keywords: '',
-      published: false,
-      // Extended SEO fields
-      seoTitle: '',
-      seoDescription: '',
-      seoKeywords: '',
-      ogTitle: '',
-      ogDescription: '',
-      ogImage: '',
-      twitterTitle: '',
-      twitterDescription: '',
-      twitterImage: '',
-      canonicalUrl: '',
-      robots: ''
-    });
-  };
-
-  const handleNewPost = () => {
-    resetForm();
-    setShowForm(true);
-  };
-
   if (loading) return <div className="admin-loading">Loading...</div>;
 
   return (
     <div className="admin-section">
       <div className="admin-section-header">
-        <h1>Manage Blog Posts</h1>
-        {!showForm && (
-          <button onClick={handleNewPost} className="btn btn-primary">
-            + Add New Post
-          </button>
-        )}
+        <button onClick={() => navigate('/admin/content/blog')} className="btn btn-secondary" style={{ marginBottom: '1rem' }}>
+          ← Back to Blog Posts
+        </button>
+        <h1>{isEditing ? 'Edit Post' : 'Create New Post'}</h1>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="admin-form">
+      <form onSubmit={handleSubmit} className="admin-form">
         <div className="form-row">
           <div className="form-group">
             <label>Title *</label>
@@ -400,54 +441,26 @@ const AdminBlog = () => {
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
-            {editing ? 'Update Post' : 'Create Post'}
+            {isEditing ? 'Update Post' : 'Create Post'}
           </button>
-          {editing && (
-            <button type="button" onClick={resetForm} className="btn btn-secondary">
-              Cancel
-            </button>
-          )}
+          <button type="button" onClick={() => navigate('/admin/content/blog')} className="btn btn-secondary">
+            Cancel
+          </button>
         </div>
       </form>
-      )}
-
-      <div className="admin-list">
-        <h2>All Posts</h2>
-        {posts.length === 0 ? (
-          <p>No posts found.</p>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Slug</th>
-                <th>Published</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {posts.map(post => (
-                <tr key={post._id}>
-                  <td>{post.title}</td>
-                  <td>{post.slug}</td>
-                  <td>{post.published ? '✓' : '✗'}</td>
-                  <td>
-                    <button onClick={() => handleEdit(post)} className="btn-small btn-secondary">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(post._id)} className="btn-small btn-danger">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
     </div>
   );
 };
 
-export default AdminBlog;
+// Main AdminBlog Component with Routing
+const AdminBlog = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<AdminBlogList />} />
+      <Route path="new" element={<AdminBlogForm />} />
+      <Route path="edit/:id" element={<AdminBlogForm />} />
+    </Routes>
+  );
+};
 
+export default AdminBlog;

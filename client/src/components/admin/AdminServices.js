@@ -1,14 +1,114 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import ImagePicker from './ImagePicker';
 import RichTextEditor from './RichTextEditor';
 import { authenticatedFetch } from '../../utils/auth';
 import './AdminCommon.scss';
 
-const AdminServices = () => {
+// Services List Component
+const AdminServicesList = () => {
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await authenticatedFetch('/api/admin/services');
+      const data = await response.json();
+      setServices(data.services || []);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (service) => {
+    navigate(`/admin/content/services/edit/${service._id}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this service?')) return;
+    
+    try {
+      const response = await authenticatedFetch(`/api/admin/services/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        await fetchServices();
+        alert('Service deleted!');
+      } else {
+        alert('Error deleting service');
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
+
+  const handleNewService = () => {
+    navigate('/admin/content/services/new');
+  };
+
+  if (loading) return <div className="admin-loading">Loading...</div>;
+
+  return (
+    <div className="admin-section">
+      <div className="admin-section-header">
+        <h1>Manage Services</h1>
+        <button onClick={handleNewService} className="btn btn-primary">
+          + Add New Service
+        </button>
+      </div>
+
+      <div className="admin-list">
+        <h2>All Services</h2>
+        {services.length === 0 ? (
+          <p>No services found.</p>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Slug</th>
+                <th>Featured</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {services.map(service => (
+                <tr key={service._id}>
+                  <td>{service.title}</td>
+                  <td>{service.slug}</td>
+                  <td>{service.featured ? '✓' : ''}</td>
+                  <td>
+                    <button onClick={() => handleEdit(service)} className="btn-small btn-secondary">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(service._id)} className="btn-small btn-danger">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Service Form Component
+const AdminServiceForm = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = !!id;
+  const [loading, setLoading] = useState(isEditing);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -35,16 +135,43 @@ const AdminServices = () => {
   });
 
   useEffect(() => {
-    fetchServices();
-  }, []);
+    if (isEditing) {
+      fetchService();
+    }
+  }, [id]);
 
-  const fetchServices = async () => {
+  const fetchService = async () => {
     try {
-      const response = await authenticatedFetch('/api/admin/services');
+      const response = await authenticatedFetch(`/api/admin/services/${id}`);
       const data = await response.json();
-      setServices(data.services || []);
+      const service = data.service;
+      setFormData({
+        title: service.title || '',
+        slug: service.slug || '',
+        description: service.description || '',
+        content: service.content || '',
+        image: service.image || '',
+        metaTitle: service.metaTitle || '',
+        metaDescription: service.metaDescription || '',
+        keywords: (service.keywords || []).join(', '),
+        featured: service.featured || false,
+        faq: service.faq || [],
+        // Extended SEO fields
+        seoTitle: service.seoTitle || '',
+        seoDescription: service.seoDescription || '',
+        seoKeywords: service.seoKeywords || '',
+        ogTitle: service.ogTitle || '',
+        ogDescription: service.ogDescription || '',
+        ogImage: service.ogImage || '',
+        twitterTitle: service.twitterTitle || '',
+        twitterDescription: service.twitterDescription || '',
+        twitterImage: service.twitterImage || '',
+        canonicalUrl: service.canonicalUrl || '',
+        robots: service.robots || ''
+      });
     } catch (error) {
-      console.error('Error fetching services:', error);
+      console.error('Error fetching service:', error);
+      alert('Error loading service');
     } finally {
       setLoading(false);
     }
@@ -53,11 +180,11 @@ const AdminServices = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editing 
-        ? `/api/admin/services/${editing._id}`
+      const url = isEditing 
+        ? `/api/admin/services/${id}`
         : '/api/admin/services';
       
-      const method = editing ? 'PUT' : 'POST';
+      const method = isEditing ? 'PUT' : 'POST';
       
       const payload = {
         ...formData,
@@ -72,10 +199,8 @@ const AdminServices = () => {
       });
 
       if (response.ok) {
-        await fetchServices();
-        resetForm();
-        setShowForm(false);
-        alert(editing ? 'Service updated!' : 'Service created!');
+        alert(isEditing ? 'Service updated!' : 'Service created!');
+        navigate('/admin/content/services');
       } else {
         const error = await response.json();
         alert('Error: ' + (error.error || 'Failed to save'));
@@ -83,88 +208,6 @@ const AdminServices = () => {
     } catch (error) {
       alert('Error: ' + error.message);
     }
-  };
-
-  const handleEdit = (service) => {
-    setEditing(service);
-    setShowForm(true);
-    setFormData({
-      title: service.title || '',
-      slug: service.slug || '',
-      description: service.description || '',
-      content: service.content || '',
-      image: service.image || '',
-      metaTitle: service.metaTitle || '',
-      metaDescription: service.metaDescription || '',
-      keywords: (service.keywords || []).join(', '),
-      featured: service.featured || false,
-      faq: service.faq || [],
-      // Extended SEO fields
-      seoTitle: service.seoTitle || '',
-      seoDescription: service.seoDescription || '',
-      seoKeywords: service.seoKeywords || '',
-      ogTitle: service.ogTitle || '',
-      ogDescription: service.ogDescription || '',
-      ogImage: service.ogImage || '',
-      twitterTitle: service.twitterTitle || '',
-      twitterDescription: service.twitterDescription || '',
-      twitterImage: service.twitterImage || '',
-      canonicalUrl: service.canonicalUrl || '',
-      robots: service.robots || ''
-    });
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this service?')) return;
-    
-    try {
-      const response = await authenticatedFetch(`/api/admin/services/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        await fetchServices();
-        alert('Service deleted!');
-      } else {
-        alert('Error deleting service');
-      }
-    } catch (error) {
-      alert('Error: ' + error.message);
-    }
-  };
-
-  const resetForm = () => {
-    setEditing(null);
-    setShowForm(false);
-    setFormData({
-      title: '',
-      slug: '',
-      description: '',
-      content: '',
-      image: '',
-      metaTitle: '',
-      metaDescription: '',
-      keywords: '',
-      featured: false,
-      faq: [],
-      // Extended SEO fields
-      seoTitle: '',
-      seoDescription: '',
-      seoKeywords: '',
-      ogTitle: '',
-      ogDescription: '',
-      ogImage: '',
-      twitterTitle: '',
-      twitterDescription: '',
-      twitterImage: '',
-      canonicalUrl: '',
-      robots: ''
-    });
-  };
-
-  const handleNewService = () => {
-    resetForm();
-    setShowForm(true);
   };
 
   const addFAQItem = () => {
@@ -190,16 +233,13 @@ const AdminServices = () => {
   return (
     <div className="admin-section">
       <div className="admin-section-header">
-        <h1>Manage Services</h1>
-        {!showForm && (
-          <button onClick={handleNewService} className="btn btn-primary">
-            + Add New Service
-          </button>
-        )}
+        <button onClick={() => navigate('/admin/content/services')} className="btn btn-secondary" style={{ marginBottom: '1rem' }}>
+          ← Back to Services
+        </button>
+        <h1>{isEditing ? 'Edit Service' : 'Create New Service'}</h1>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="admin-form">
+      <form onSubmit={handleSubmit} className="admin-form">
         <div className="form-row">
           <div className="form-group">
             <label>Title *</label>
@@ -478,52 +518,25 @@ const AdminServices = () => {
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
-            {editing ? 'Update Service' : 'Create Service'}
+            {isEditing ? 'Update Service' : 'Create Service'}
           </button>
-          {editing && (
-            <button type="button" onClick={resetForm} className="btn btn-secondary">
-              Cancel
-            </button>
-          )}
+          <button type="button" onClick={() => navigate('/admin/content/services')} className="btn btn-secondary">
+            Cancel
+          </button>
         </div>
       </form>
-      )}
-
-      <div className="admin-list">
-        <h2>All Services</h2>
-        {services.length === 0 ? (
-          <p>No services found.</p>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Slug</th>
-                <th>Featured</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {services.map(service => (
-                <tr key={service._id}>
-                  <td>{service.title}</td>
-                  <td>{service.slug}</td>
-                  <td>{service.featured ? '✓' : ''}</td>
-                  <td>
-                    <button onClick={() => handleEdit(service)} className="btn-small btn-secondary">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(service._id)} className="btn-small btn-danger">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
     </div>
+  );
+};
+
+// Main AdminServices Component with Routing
+const AdminServices = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<AdminServicesList />} />
+      <Route path="new" element={<AdminServiceForm />} />
+      <Route path="edit/:id" element={<AdminServiceForm />} />
+    </Routes>
   );
 };
 

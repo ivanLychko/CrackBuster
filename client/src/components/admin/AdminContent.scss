@@ -1,7 +1,7 @@
 @import '../../styles/variables';
 
-.admin-requests {
-  .admin-requests-header {
+.admin-content-wrapper {
+  .admin-content-header {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid $border-light;
@@ -13,7 +13,7 @@
     }
   }
 
-  .admin-requests-tabs {
+  .admin-content-tabs {
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
@@ -44,10 +44,8 @@
     }
   }
 
-  .admin-requests-content {
+  .admin-content-tab-content {
     // Content will be rendered by child components
   }
 }
-
-
 
