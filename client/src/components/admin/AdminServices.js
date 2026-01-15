@@ -203,7 +203,8 @@ const AdminServiceForm = () => {
 
       if (response.ok) {
         showSuccess(isEditing ? 'Service updated!' : 'Service created!');
-        navigate('/admin/content/services');
+        // Don't navigate away - stay on the edit page
+        // User can use the "Back to Services" button if they want to leave
       } else {
         const error = await response.json();
         showError('Error: ' + (error.error || 'Failed to save'));

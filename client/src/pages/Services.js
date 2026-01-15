@@ -113,7 +113,10 @@ const Services = () => {
                     )}
                     <div className="service-content">
                       <h3>{service.title}</h3>
-                      <p>{service.description}</p>
+                      <div 
+                        className="service-description"
+                        dangerouslySetInnerHTML={{ __html: service.description }}
+                      />
                       <Link to={`/services/${service.slug}`} className="service-link">
                         Learn More →
                       </Link>

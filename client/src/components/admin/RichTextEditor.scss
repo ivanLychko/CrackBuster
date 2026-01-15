@@ -89,26 +89,35 @@
   // Custom HTML button styling
   .ql-toolbar .ql-html {
     width: auto;
-    padding: 0 0.5rem;
+    min-width: 40px;
+    height: 24px;
+    padding: 0 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
     color: $text-primary;
     border: none;
     background: none;
-    cursor: pointer;
-    display: inline-flex;
+    cursor: pointer !important;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10;
+    user-select: none;
 
     &:hover,
-    &:focus {
+    &:focus,
+    &:active {
       color: $blue-primary;
       background: rgba(3, 17, 103, 0.1);
+      outline: none;
     }
 
     &::before {
       content: 'HTML';
+      pointer-events: none;
     }
   }
 }

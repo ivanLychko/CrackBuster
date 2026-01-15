@@ -161,7 +161,10 @@ const Blog = () => {
                             </time>
                           </div>
                           <h2>{post.title}</h2>
-                          <p className="post-excerpt">{post.excerpt}</p>
+                          <div 
+                            className="post-excerpt"
+                            dangerouslySetInnerHTML={{ __html: post.excerpt }}
+                          />
                           <div className="read-more">
                             <span>Read More</span>
                             <span className="arrow-icon">→</span>

@@ -185,6 +185,7 @@
 
             >h3,
             >p,
+            >.service-description,
             >.service-link {
                 padding: 0 2.5rem;
             }
@@ -194,8 +195,19 @@
                 margin-bottom: 1rem;
             }
 
-            >p {
+            >p,
+            >.service-description {
                 margin-bottom: 1.5rem;
+                color: $text-secondary;
+                line-height: 1.6;
+                
+                p {
+                    margin-bottom: 1rem;
+                    
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
             }
 
             >.service-link {

@@ -122,10 +122,19 @@
           font-weight: 700;
         }
 
-        p {
+        p,
+        .service-description {
           color: $text-secondary;
           line-height: 1.6;
           margin-bottom: 1.5rem;
+          
+          p {
+            margin-bottom: 1rem;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
         }
 
         .service-link {

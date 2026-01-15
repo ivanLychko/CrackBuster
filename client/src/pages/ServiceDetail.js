@@ -147,7 +147,10 @@ const ServiceDetail = () => {
                     <div className="container">
                         <div className="content-wrapper">
                             <div className="main-content">
-                                <p className="description">{service.description}</p>
+                                <div 
+                                    className="description"
+                                    dangerouslySetInnerHTML={{ __html: service.description }}
+                                />
                                 <div
                                     className="content-text"
                                     dangerouslySetInnerHTML={{ __html: service.content }}

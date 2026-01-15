@@ -201,7 +201,8 @@ const AdminBlogForm = () => {
 
       if (response.ok) {
         showSuccess(isEditing ? 'Post updated!' : 'Post created!');
-        navigate('/admin/content/blog');
+        // Don't navigate away - stay on the edit page
+        // User can use the "Back to Blog Posts" button if they want to leave
       } else {
         const error = await response.json();
         showError('Error: ' + (error.error || 'Failed to save'));

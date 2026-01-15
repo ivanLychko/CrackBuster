@@ -275,7 +275,10 @@ const BlogPost = () => {
               </div>
               <h1>{post.title}</h1>
               {post.excerpt && (
-                <p className="post-excerpt-header">{post.excerpt}</p>
+                <div 
+                  className="post-excerpt-header"
+                  dangerouslySetInnerHTML={{ __html: post.excerpt }}
+                />
               )}
             </header>
 
