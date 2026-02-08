@@ -233,6 +233,9 @@ app.use((req, res, next) => {
 // Serve static files from public folder (images, etc.) as fallback
 // This ensures images are available even if not copied to dist
 const publicImagesPath = path.join(PROJECT_ROOT, 'client/public/images');
+// If image was optimized to webp, serve webp when original (jpg/png) is requested
+const optimizedImageFallback = require('./middleware/optimizedImageFallback');
+app.use(optimizedImageFallback(publicImagesPath));
 app.use('/images', express.static(publicImagesPath, {
     maxAge: '1y',
     etag: true,
