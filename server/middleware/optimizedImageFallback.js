@@ -7,9 +7,10 @@ const fs = require('fs');
  * serve the webp instead. This way code can keep using original paths
  * and no changes are needed after running image optimization.
  *
- * @param {string} imagesRoot - Absolute path to client/public/images
+ * @param {string} publicImagesRoot - Absolute path to client/public/images (dev)
+ * @param {string} distImagesRoot - Absolute path to dist/client/images (production build)
  */
-function optimizedImageFallback(imagesRoot) {
+function optimizedImageFallback(publicImagesRoot, distImagesRoot) {
     return (req, res, next) => {
         // Only handle /images/* requests for raster formats
         if (!req.path.startsWith('/images/')) {
@@ -24,11 +25,20 @@ function optimizedImageFallback(imagesRoot) {
         // Requested path: /images/home/hero.jpg
         // Build path to .webp equivalent
         const webpPath = req.path.replace(/\.(jpg|jpeg|png|gif)$/i, '.webp');
-        const filePath = path.join(imagesRoot, webpPath.replace(/^\/images\//, ''));
+        const relativePath = webpPath.replace(/^\/images\//, '');
 
-        if (fs.existsSync(filePath)) {
+        // Check dist/client/images first (production: images copied there by webpack)
+        const distFilePath = distImagesRoot ? path.join(distImagesRoot, relativePath) : null;
+        if (distFilePath && fs.existsSync(distFilePath)) {
             res.setHeader('Content-Type', 'image/webp');
-            return res.sendFile(filePath);
+            return res.sendFile(distFilePath);
+        }
+
+        // Fallback to client/public/images (development)
+        const publicFilePath = path.join(publicImagesRoot, relativePath);
+        if (fs.existsSync(publicFilePath)) {
+            res.setHeader('Content-Type', 'image/webp');
+            return res.sendFile(publicFilePath);
         }
 
         next();
