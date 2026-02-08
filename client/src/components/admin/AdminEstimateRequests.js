@@ -333,7 +333,7 @@ const AdminEstimateRequests = () => {
                                     }
                                   }
                                   // Last resort: show placeholder
-                                  e.target.src = '/images/placeholder.jpg';
+                                  e.target.src = '/images/logo.webp';
                                   e.target.onerror = null; // Prevent infinite loop
                                 }
                               }}

@@ -34,17 +34,13 @@ const OurWorks = () => {
         if (data.works && data.works.length > 0) {
           setWorks(data.works);
         } else {
-          // Fallback to static data with images from data folder
+          // Fallback to static data with images from jobs folder (real paths)
           setWorks([
             {
               _id: 1,
               title: 'Foundation Crack Repair - Residential Project #1',
               description: 'Successfully repaired multiple foundation cracks using advanced injection techniques. Before and after photos show complete restoration.',
-              images: [
-                '/images/jobs/#1 Before.jpg',
-                '/images/jobs/#1 Mid.jpg',
-                '/images/jobs/#1 After.jpg'
-              ],
+              images: ['/images/jobs/Pictures 1/Before.webp', '/images/jobs/Pictures 1/After.webp'],
               location: 'Edmonton, AB',
               completedAt: '2024-01-10'
             },
@@ -52,12 +48,7 @@ const OurWorks = () => {
               _id: 2,
               title: 'Basement Waterproofing - Commercial Building',
               description: 'Comprehensive waterproofing solution for commercial property. All cracks sealed and basement remains dry.',
-              images: [
-                '/images/jobs/#2 Before.jpg',
-                '/images/jobs/#2 After.jpg',
-                '/images/jobs/#2-1 Before.jpg',
-                '/images/jobs/#2-1 After.jpg'
-              ],
+              images: ['/images/jobs/Pictures 2/Before Pic 1.webp', '/images/jobs/Pictures 2/After Pic 1.webp'],
               location: 'Edmonton, AB',
               completedAt: '2024-02-15'
             },
@@ -65,12 +56,7 @@ const OurWorks = () => {
               _id: 3,
               title: 'Crack Injection - Residential Home',
               description: 'Professional crack injection service completed with high-quality materials. Foundation integrity restored.',
-              images: [
-                '/images/jobs/#3 Before.jpg',
-                '/images/jobs/#3 After.jpg',
-                '/images/jobs/Pic 1 Before.jpg',
-                '/images/jobs/Pic 1 After.jpg'
-              ],
+              images: ['/images/jobs/Pictures 3/Before 1.webp', '/images/jobs/Pictures 3/After 1.webp'],
               location: 'Edmonton, AB',
               completedAt: '2024-03-20'
             },
@@ -78,14 +64,7 @@ const OurWorks = () => {
               _id: 4,
               title: 'Foundation Repair - Complete Restoration',
               description: 'Complete foundation repair including crack injection and reinforcement. Project completed on time and within budget.',
-              images: [
-                '/images/jobs/#10 Before.jpg',
-                '/images/jobs/#10 After.jpg',
-                '/images/jobs/#11 Before.jpg',
-                '/images/jobs/#11 After.jpg',
-                '/images/jobs/#12 Before.jpg',
-                '/images/jobs/#12 After.jpg'
-              ],
+              images: ['/images/jobs/Pictures 11/1 Before.webp', '/images/jobs/Pictures 11/1 Mid.webp', '/images/jobs/Pictures 11/1 After.webp'],
               location: 'Edmonton, AB',
               completedAt: '2024-04-05'
             },
@@ -93,12 +72,7 @@ const OurWorks = () => {
               _id: 5,
               title: 'Multiple Crack Repair Project',
               description: 'Addressed multiple foundation cracks in residential property. All cracks successfully sealed and waterproofed.',
-              images: [
-                '/images/jobs/#13 Before.jpg',
-                '/images/jobs/#13 After.jpg',
-                '/images/jobs/Crack #1 before.jpg',
-                '/images/jobs/Crack #1 after.jpg'
-              ],
+              images: ['/images/jobs/Pictures 16/Crack 1 before.webp', '/images/jobs/Pictures 16/Crack 1 after.webp'],
               location: 'Edmonton, AB',
               completedAt: '2024-05-12'
             },
@@ -106,12 +80,7 @@ const OurWorks = () => {
               _id: 6,
               title: 'Foundation Reinforcement Project',
               description: 'Added structural reinforcement to foundation walls. Enhanced stability and long-term durability.',
-              images: [
-                '/images/jobs/Reinforcment 1.jpg',
-                '/images/jobs/Reinforcment 2.jpeg',
-                '/images/jobs/Reinforcment 3.jpeg',
-                '/images/jobs/Reinforcment 4.jpg'
-              ],
+              images: ['/images/jobs/Pictures 16/Deck Securment Before.webp', '/images/jobs/Pictures 16/Deck Securment After 1.webp'],
               location: 'Edmonton, AB',
               completedAt: '2024-06-18'
             }
@@ -200,7 +169,7 @@ const OurWorks = () => {
       <div className="our-works">
         <section
           className="our-works-hero"
-          style={{ backgroundImage: 'url(/images/ourworks/ourworks-hero-gallery.jpg)' }}
+          style={{ backgroundImage: 'url(/images/ourworks/ourworks-hero-gallery.webp)' }}
           aria-label="Our work and gallery - real results"
         >
           <div className="our-works-hero-overlay" />
@@ -242,14 +211,6 @@ const OurWorks = () => {
                             alt={work.title}
                             loading="lazy"
                             onError={(e) => {
-                              // Try alternative formats
-                              const src = e.target.src;
-                              if (src && !src.endsWith('.webp')) {
-                                const webpSrc = src.replace(/\.(jpg|jpeg|png|gif)$/i, '.webp');
-                                e.target.src = webpSrc;
-                                return;
-                              }
-                              // If still fails, show placeholder
                               e.target.style.display = 'none';
                               e.target.onerror = null;
                             }}
@@ -273,14 +234,6 @@ const OurWorks = () => {
                                   alt={`${work.title} - Image ${idx + 2}`}
                                   loading="lazy"
                                   onError={(e) => {
-                                    // Try alternative formats
-                                    const src = e.target.src;
-                                    if (src && !src.endsWith('.webp')) {
-                                      const webpSrc = src.replace(/\.(jpg|jpeg|png|gif)$/i, '.webp');
-                                      e.target.src = webpSrc;
-                                      return;
-                                    }
-                                    // If still fails, hide image
                                     e.target.style.display = 'none';
                                     e.target.onerror = null;
                                   }}

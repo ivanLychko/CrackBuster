@@ -181,7 +181,7 @@ function findImageByKeywords(keywords, preferredImages = []) {
     }
     
     // Return first available image
-    return stockImages[0] || '/images/stock/logo.png';
+    return stockImages[0] || '/images/logo.webp';
 }
 
 // Helper function to find document by title keywords

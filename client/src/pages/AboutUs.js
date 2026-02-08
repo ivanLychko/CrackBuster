@@ -71,7 +71,7 @@ const AboutUs = () => {
       <div className="about-us">
         <section
           className="about-hero"
-          style={{ backgroundImage: 'url(/images/about/about-hero-foundation-repair.jpg)' }}
+          style={{ backgroundImage: 'url(/images/about/about-hero-foundation-repair.webp)' }}
           aria-label="Hero: professional foundation repair"
         >
           <div className="about-hero-overlay" />
@@ -106,7 +106,7 @@ const AboutUs = () => {
             <div className="content-section with-image">
               <div className="section-image section-image-right">
                 <img
-                  src="/images/about/about-team-local-edmonton.jpg"
+                  src="/images/about/about-team-local-edmonton.webp"
                   alt="CrackBuster team - local Edmonton foundation repair professionals"
                   loading="lazy"
                   width={560}
@@ -156,7 +156,7 @@ const AboutUs = () => {
             <div className="content-section with-image">
               <div className="section-image section-image-left">
                 <img
-                  src="/images/about/about-warranty-trust.jpg"
+                  src="/images/about/about-warranty-trust.webp"
                   alt="Lifetime warranty and peace of mind for your foundation repair"
                   loading="lazy"
                   width={560}

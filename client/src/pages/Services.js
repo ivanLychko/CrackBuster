@@ -25,21 +25,21 @@ const Services = () => {
               title: 'Foundation Crack Repair',
               slug: 'foundation-crack-repair',
               description: 'Professional crack injection and repair services to restore your foundation\'s integrity.',
-              image: '/data/Stock Images/foundation-crack.jpg'
+              image: '/images/services/foundation-crack-repair-vertical-diagonal/hero.webp'
             },
             {
               _id: 2,
               title: 'Basement Waterproofing',
               slug: 'basement-waterproofing',
               description: 'Comprehensive waterproofing solutions to keep your basement dry and protected.',
-              image: '/data/Stock Images/basement-waterproofing.jpg'
+              image: '/images/services/exterior-foundation-waterproofing-crack-repair/hero.webp'
             },
             {
               _id: 3,
               title: 'Crack Injection',
               slug: 'crack-injection',
               description: 'Advanced injection techniques for effective and long-lasting crack repairs.',
-              image: '/data/Stock Images/crack-injection.jpg'
+              image: '/images/services/pipe-penetrations-snap-tie-sealing/hero.webp'
             }
           ]);
         }
@@ -52,7 +52,7 @@ const Services = () => {
             title: 'Foundation Crack Repair',
             slug: 'foundation-crack-repair',
             description: 'Professional crack injection and repair services to restore your foundation\'s integrity.',
-            image: '/data/Stock Images/foundation-crack.jpg'
+            image: '/images/services/foundation-crack-repair-vertical-diagonal/hero.webp'
           }
         ]);
       } finally {

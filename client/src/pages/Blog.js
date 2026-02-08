@@ -110,7 +110,7 @@ const Blog = () => {
       <div className="blog">
         <section
           className="blog-hero"
-          style={{ backgroundImage: 'url(/images/blog/hero.jpg)' }}
+          style={{ backgroundImage: 'url(/images/blog/hero.webp)' }}
           aria-label="Our Blog"
         >
           <div className="blog-hero-overlay" />

@@ -46,7 +46,7 @@ const Home = () => {
     "name": "CrackBuster",
     "description": "Foundation crack repair, structural stabilization, and concrete leak solutions in Edmonton and surrounding areas. 17+ years, no-digging technology, lifetime transferable warranty.",
     "url": getCanonicalUrl('/'),
-    "logo": getCanonicalUrl('/images/logo.png'),
+    "logo": getCanonicalUrl('/images/logo.webp'),
     "image": getDefaultOgImage(),
     "telephone": settings?.phone || "",
     "email": settings?.email || "",
@@ -94,7 +94,7 @@ const Home = () => {
         {/* Hero with background image + parallax */}
         <section
           className="home-hero"
-          style={{ backgroundImage: 'url(/images/home/home-hero-edmonton-foundation.jpg)' }}
+          style={{ backgroundImage: 'url(/images/home/home-hero-edmonton-foundation.webp)' }}
           aria-label="Foundation crack repair - Edmonton and surrounding areas"
         >
           <div className="home-hero-overlay" />
@@ -155,7 +155,7 @@ const Home = () => {
               </div>
               <div className="intro-image">
                 <img
-                  src="/images/home/home-intro-basement-result.jpg"
+                  src="/images/home/home-intro-basement-result.webp"
                   alt="Dry finished basement after professional foundation repair - quality result"
                   loading="lazy"
                   width={560}
@@ -173,7 +173,7 @@ const Home = () => {
 
             <div className="why-crackbuster-row why-crackbuster-row-1">
               <div className="why-crackbuster-image">
-                <img src="/images/home/home-why-choose-estimate.jpg" alt="Free honest estimate - professional consultation" loading="lazy" width={520} height={360} />
+                <img src="/images/home/home-why-choose-estimate.webp" alt="Free honest estimate - professional consultation" loading="lazy" width={520} height={360} />
               </div>
               <div className="why-crackbuster-reasons">
                 <div className="why-reason">
@@ -223,7 +223,7 @@ const Home = () => {
                 </div>
               </div>
               <div className="why-crackbuster-image">
-                <img src="/images/home/home-why-choose-no-dig.jpg" alt="No-digging repair from inside - interior-to-exterior seal" loading="lazy" width={520} height={360} />
+                <img src="/images/home/home-why-choose-no-dig.webp" alt="No-digging repair from inside - interior-to-exterior seal" loading="lazy" width={520} height={360} />
               </div>
             </div>
 

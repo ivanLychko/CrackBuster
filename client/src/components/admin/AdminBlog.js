@@ -382,7 +382,7 @@ const AdminBlogForm = () => {
               type="text"
               value={formData.ogImage}
               onChange={(e) => setFormData({ ...formData, ogImage: e.target.value })}
-              placeholder="/images/og-image.jpg or full URL"
+              placeholder="/images/og-image.webp or full URL"
             />
             <p className="form-hint">Image URL for social media sharing (1200x630px recommended).</p>
           </div>

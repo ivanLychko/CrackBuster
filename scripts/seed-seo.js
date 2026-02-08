@@ -19,10 +19,10 @@ const seoData = [
         keywords: 'foundation crack repair, edmonton, canada, basement waterproofing, foundation repair, crack injection, concrete repair',
         ogTitle: 'Foundation Crack Repair in Edmonton | CrackBuster',
         ogDescription: 'Professional foundation crack repair services in Edmonton, Canada. Expert solutions for basement waterproofing, foundation repair, and crack injection.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Foundation Crack Repair in Edmonton | CrackBuster',
         twitterDescription: 'Professional foundation crack repair services in Edmonton, Canada.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'about-us',
@@ -31,10 +31,10 @@ const seoData = [
         keywords: 'about crackbuster, foundation repair experts, edmonton foundation repair, crack repair specialists',
         ogTitle: 'About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster',
         ogDescription: 'Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster',
         twitterDescription: 'Learn about CrackBuster - over 12 years of experience in foundation crack repair.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'contact-us',
@@ -43,10 +43,10 @@ const seoData = [
         keywords: 'contact crackbuster, foundation repair contact, edmonton foundation repair contact',
         ogTitle: 'Contact Us - Foundation Repair Experts | CrackBuster Edmonton',
         ogDescription: 'Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Contact Us - Foundation Repair Experts | CrackBuster Edmonton',
         twitterDescription: 'Contact CrackBuster for foundation repair services in Edmonton.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'get-estimate',
@@ -55,10 +55,10 @@ const seoData = [
         keywords: 'free estimate, foundation repair estimate, edmonton foundation repair quote',
         ogTitle: 'Get Free Estimate - Foundation Repair | CrackBuster Edmonton',
         ogDescription: 'Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we\'ll get back to you with a detailed quote.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Get Free Estimate - Foundation Repair | CrackBuster Edmonton',
         twitterDescription: 'Get a free estimate for your foundation repair project in Edmonton.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'our-works',
@@ -67,10 +67,10 @@ const seoData = [
         keywords: 'foundation repair projects, completed works, edmonton foundation repair examples, portfolio',
         ogTitle: 'Our Works - Foundation Repair Projects | CrackBuster Edmonton',
         ogDescription: 'View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Our Works - Foundation Repair Projects | CrackBuster Edmonton',
         twitterDescription: 'View our completed foundation repair projects in Edmonton.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'blog',
@@ -79,10 +79,10 @@ const seoData = [
         keywords: 'foundation repair blog, foundation repair articles, basement waterproofing tips, crack repair guides',
         ogTitle: 'Foundation Repair Blog | CrackBuster Edmonton',
         ogDescription: 'Expert articles about foundation repair, basement waterproofing, and crack repair. Tips and guides from Edmonton\'s foundation repair experts.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Foundation Repair Blog | CrackBuster Edmonton',
         twitterDescription: 'Expert articles about foundation repair, basement waterproofing, and crack repair.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'blog-post',
@@ -91,10 +91,10 @@ const seoData = [
         keywords: 'foundation repair, blog post, foundation repair article',
         ogTitle: 'Blog Post | CrackBuster Blog',
         ogDescription: 'Read expert articles about foundation repair, basement waterproofing, and crack repair from Edmonton\'s leading foundation repair specialists.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Blog Post | CrackBuster Blog',
         twitterDescription: 'Read expert articles about foundation repair from Edmonton\'s leading specialists.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'service-detail',
@@ -103,10 +103,10 @@ const seoData = [
         keywords: 'foundation repair service, edmonton foundation services',
         ogTitle: 'Service | CrackBuster',
         ogDescription: 'Professional foundation repair services in Edmonton. Expert solutions for your foundation needs.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Service | CrackBuster',
         twitterDescription: 'Professional foundation repair services in Edmonton.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: 'services',
@@ -115,10 +115,10 @@ const seoData = [
         keywords: 'foundation repair services, edmonton foundation services, crack injection services',
         ogTitle: 'Our Services - Foundation Repair | CrackBuster Edmonton',
         ogDescription: 'Comprehensive foundation repair services in Edmonton. From crack injection to complete structural repair.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: 'Our Services - Foundation Repair | CrackBuster Edmonton',
         twitterDescription: 'Comprehensive foundation repair services in Edmonton.',
-        twitterImage: '/images/og-image.jpg'
+        twitterImage: '/images/og-image.webp'
     },
     {
         page: '404',
@@ -127,10 +127,10 @@ const seoData = [
         keywords: '',
         ogTitle: '404 - Page Not Found | CrackBuster',
         ogDescription: 'Oops! The page you\'re looking for has a crack in it. Let us help you find what you need.',
-        ogImage: '/images/og-image.jpg',
+        ogImage: '/images/og-image.webp',
         twitterTitle: '404 - Page Not Found | CrackBuster',
         twitterDescription: 'Oops! The page you\'re looking for has a crack in it.',
-        twitterImage: '/images/og-image.jpg',
+        twitterImage: '/images/og-image.webp',
         robots: 'noindex, nofollow'
     }
 ];

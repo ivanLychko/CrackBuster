@@ -156,7 +156,7 @@ const BlogPost = () => {
       "name": "CrackBuster",
       "logo": {
         "@type": "ImageObject",
-        "url": getCanonicalUrl('/images/logo.png')
+        "url": getCanonicalUrl('/images/logo.webp')
       }
     }
   };

@@ -27,7 +27,7 @@ export const getCanonicalUrl = (path = '') => {
  * Default Open Graph image
  */
 export const getDefaultOgImage = () => {
-  return `${getBaseUrl()}/images/og-image.jpg`;
+  return `${getBaseUrl()}/images/og-image.webp`;
 };
 
 /**

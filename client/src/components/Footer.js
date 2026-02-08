@@ -33,7 +33,7 @@ const Footer = () => {
         <div className="footer-content">
           <div className="footer-section">
             <Link to="/" className="logo">
-              <img src="/images/logo.png" alt="CrackBuster Logo" />
+              <img src="/images/logo.webp" alt="CrackBuster Logo" />
             </Link>
             <p>Professional foundation crack repair services in Edmonton, Canada. Expert solutions for your foundation needs.</p>
             {(displaySettings.facebook || displaySettings.instagram || displaySettings.twitter || displaySettings.linkedin || displaySettings.youtube) && (

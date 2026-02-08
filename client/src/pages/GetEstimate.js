@@ -216,7 +216,7 @@ const GetEstimate = () => {
       <div className="get-estimate">
         <section
           className="get-estimate-hero"
-          style={{ backgroundImage: 'url(/images/get-estimate/hero.jpg)' }}
+          style={{ backgroundImage: 'url(/images/get-estimate/hero.webp)' }}
           aria-label="Get your free estimate"
         >
           <div className="get-estimate-hero-overlay" />

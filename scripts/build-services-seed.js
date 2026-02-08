@@ -93,11 +93,11 @@ const services = raw.map((item) => {
   const content = textToHtml(item.content);
   const faq = parseFaq(item.content);
   const description = getDescription(item.content);
-  const image = `/images/services/${slug}/hero.jpg`;
+  const image = `/images/services/${slug}/hero.webp`;
   const images = [
-    `/images/services/${slug}/hero.jpg`,
-    `/images/services/${slug}/detail.jpg`,
-    `/images/services/${slug}/content.jpg`
+    `/images/services/${slug}/hero.webp`,
+    `/images/services/${slug}/detail.webp`,
+    `/images/services/${slug}/content.webp`
   ];
   return {
     title,

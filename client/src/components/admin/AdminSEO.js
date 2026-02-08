@@ -364,7 +364,7 @@ const AdminSEO = () => {
               type="text"
               value={currentData.ogImage || ''}
               onChange={(e) => handleChange('ogImage', e.target.value)}
-              placeholder="/images/og-image.jpg or full URL"
+              placeholder="/images/og-image.webp or full URL"
             />
             <p className="form-hint">
               Image URL for social media sharing (1200x630px recommended). Can be relative path or full URL.

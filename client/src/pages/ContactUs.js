@@ -108,7 +108,7 @@ const ContactUs = () => {
       <div className="contact-us">
         <section
           className="contact-us-hero"
-          style={{ backgroundImage: 'url(/images/contact-us/hero.jpg)' }}
+          style={{ backgroundImage: 'url(/images/contact-us/hero.webp)' }}
           aria-label="Contact us"
         >
           <div className="contact-us-hero-overlay" />

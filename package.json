@@ -15,7 +15,8 @@
         "build:watch:server": "webpack --mode development --config webpack.server.config.js --watch",
         "start": "node dist/server/server.js",
         "seed": "node scripts/seed-database.js",
-        "seed:seo": "node scripts/seed-seo.js"
+        "seed:seo": "node scripts/seed-seo.js",
+        "optimize:images": "node scripts/optimize-images-to-webp.js"
     },
     "keywords": [
         "foundation",
