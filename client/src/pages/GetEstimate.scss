@@ -2,32 +2,107 @@
 @import '../styles/variables';
 
 .get-estimate {
-  .page-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%); position: relative; z-index: 1;
-    color: $text-primary;
-    padding: 6rem 0 4rem;
-    text-align: center;
+  .get-estimate-hero {
     position: relative;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: $bg-primary;
+
+    .get-estimate-hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(3, 17, 103, 0.75) 0%,
+        rgba(28, 37, 76, 0.6) 50%,
+        rgba(0, 0, 0, 0.5) 100%
+      );
+    }
+
+    .get-estimate-hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 90vw;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin: 0 0 1rem;
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .subtitle {
+      font-size: 1.35rem;
+      color: rgba(255, 255, 255, 0.95);
+      line-height: 1.6;
+      margin: 0;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .get-estimate-intro {
+    padding: 4rem 0;
+    background: rgba(248, 249, 250, 0.7);
+    position: relative;
+    z-index: 1;
 
     .container {
       max-width: 90vw;
       margin: 0 auto;
       padding: 0 2rem;
-      position: relative;
-      z-index: 1;
     }
 
-    h1 {
-      font-size: 3.5rem;
-      margin-bottom: 1rem;
-      color: $blue-primary;
-      font-weight: 700;
+    .intro-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+
+      @media (max-width: 968px) {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .subtitle {
-      font-size: 1.35rem;
-      color: $text-secondary;
-      line-height: 1.6;
+    .intro-text {
+      h2 {
+        color: $blue-primary;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 1rem;
+      }
+
+      p {
+        color: $text-primary;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin: 0;
+      }
+    }
+
+    .intro-image-wrap {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: $shadow-card;
+      border: 1px solid $border-light;
+
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+      }
     }
   }
 
@@ -247,15 +322,28 @@
   }
 
   @media (max-width: 768px) {
-    .page-header {
-      padding: 4rem 0 2rem;
+    .get-estimate-hero {
+      min-height: 40vh;
+      background-attachment: scroll;
+
+      .get-estimate-hero-content {
+        padding: 3rem 1rem;
+      }
 
       h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
       }
 
       .subtitle {
         font-size: 1rem;
+      }
+    }
+
+    .get-estimate-intro {
+      padding: 3rem 0;
+
+      .intro-text h2 {
+        font-size: 1.5rem;
       }
     }
 

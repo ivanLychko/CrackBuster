@@ -108,13 +108,16 @@ const Blog = () => {
       </Helmet>
 
       <div className="blog">
-        <section className="page-header">
-          <div className="container">
+        <section
+          className="blog-hero"
+          style={{ backgroundImage: 'url(/images/blog/hero.jpg)' }}
+          aria-label="Our Blog"
+        >
+          <div className="blog-hero-overlay" />
+          <div className="container blog-hero-content">
             <h1>Our Blog</h1>
             <p className="subtitle">Expert Tips and Guides on Foundation Repair</p>
-            <div className="header-description">
-              <p>Stay informed with our latest articles on foundation repair, basement waterproofing, and home maintenance. Learn from Edmonton's trusted foundation repair experts.</p>
-            </div>
+            <p className="hero-description">Stay informed with our latest articles on foundation repair, basement waterproofing, and home maintenance. Learn from Edmonton's trusted foundation repair experts.</p>
           </div>
         </section>
 

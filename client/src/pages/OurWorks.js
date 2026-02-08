@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Lightbox from '../components/Lightbox';
 import useSEO from '../hooks/useSEO';
@@ -148,8 +149,8 @@ const OurWorks = () => {
   };
 
   // Get SEO data with fallbacks
-  const title = seo?.title || 'Our Works - Foundation Repair Projects | CrackBuster Edmonton';
-  const description = seo?.description || 'View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions.';
+  const title = seo?.title || 'Our Work & Gallery - Real Results | CrackBuster Edmonton';
+  const description = seo?.description || 'Real results from real professionals. Our gallery shows foundation repair projects tailored to each homeowner — lasting solutions, quality workmanship, and customer satisfaction.';
   const keywords = seo?.keywords || '';
   const ogTitle = seo?.ogTitle || title;
   const ogDescription = seo?.ogDescription || description;
@@ -158,6 +159,15 @@ const OurWorks = () => {
   const twitterDescription = seo?.twitterDescription || ogDescription;
   const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
   const canonical = seo?.canonicalUrl || getCanonicalUrl('/our-works');
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Our Work & Gallery - CrackBuster',
+    description: description,
+    url: canonical,
+    publisher: { '@type': 'Organization', name: 'CrackBuster' }
+  };
 
   return (
     <>
@@ -173,6 +183,8 @@ const OurWorks = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonical} />
         <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
@@ -180,18 +192,35 @@ const OurWorks = () => {
         <meta name="twitter:title" content={twitterTitle} />
         <meta name="twitter:description" content={twitterDescription} />
         <meta name="twitter:image" content={twitterImage} />
+
+        {/* JSON-LD */}
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
       <div className="our-works">
-        <section className="page-header">
+        <section
+          className="our-works-hero"
+          style={{ backgroundImage: 'url(/images/ourworks/ourworks-hero-gallery.jpg)' }}
+          aria-label="Our work and gallery - real results"
+        >
+          <div className="our-works-hero-overlay" />
+          <div className="container our-works-hero-content">
+            <h1>Our Work & Gallery</h1>
+            <p className="our-works-hero-subtitle">Real Results from Real Professionals</p>
+          </div>
+        </section>
+
+        <section className="our-works-intro">
           <div className="container">
-            <h1>Our Works</h1>
-            <p className="subtitle">Recent Foundation Repair Projects in Edmonton</p>
+            <p className="our-works-intro-text">
+              Our gallery provides a glimpse of the work we do — each project is unique, tailored to the homeowner's needs and the foundation's condition. Every repair demonstrates our commitment to lasting solutions, quality workmanship, and customer satisfaction.
+            </p>
           </div>
         </section>
 
         <section className="works-content">
           <div className="container">
+            <h2 className="gallery-heading">Gallery</h2>
             {loading ? (
               <div className="loading">Loading projects...</div>
             ) : works.length === 0 ? (
@@ -291,6 +320,14 @@ const OurWorks = () => {
                 ))}
               </div>
             )}
+          </div>
+        </section>
+
+        <section className="our-works-cta">
+          <div className="container">
+            <h2>Protect Your Home Today</h2>
+            <p>Request a free, no-obligation estimate today and let our experts provide a professional assessment and honest recommendations.</p>
+            <Link to="/get-estimate" className="btn btn-primary btn-large">Get Free Estimate</Link>
           </div>
         </section>
       </div>

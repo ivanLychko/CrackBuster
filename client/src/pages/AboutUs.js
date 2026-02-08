@@ -15,12 +15,12 @@ const AboutUs = () => {
     "@context": "https://schema.org",
     "@type": "AboutPage",
     "name": "About CrackBuster",
-    "description": "Learn about CrackBuster - over 12 years of experience in foundation crack repair",
+    "description": "Locally owned, family-operated foundation crack repair serving Edmonton and surrounding communities for over 17 years",
     "url": getCanonicalUrl('/about-us'),
     "mainEntity": {
       "@type": "LocalBusiness",
       "name": "CrackBuster",
-      "foundingDate": "2012",
+      "foundingDate": "2008",
       "numberOfEmployees": {
         "@type": "QuantitativeValue",
         "value": "10+"
@@ -30,7 +30,7 @@ const AboutUs = () => {
 
   // Get SEO data with fallbacks
   const title = seo?.title || 'About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster';
-  const description = seo?.description || 'Learn about CrackBuster - over 12 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with NO DIGGING crack repair technology and lifetime guarantee.';
+  const description = seo?.description || 'Locally owned, family-operated foundation crack repair serving Edmonton and surrounding communities for over 17 years. Honest assessments, lifetime transferable warranty, no exterior excavation.';
   const keywords = seo?.keywords || '';
   const ogTitle = seo?.ogTitle || title;
   const ogDescription = seo?.ogDescription || description;
@@ -69,166 +69,114 @@ const AboutUs = () => {
       </Helmet>
 
       <div className="about-us">
-        <section className="page-header">
-          <div className="container">
+        <section
+          className="about-hero"
+          style={{ backgroundImage: 'url(/images/about/about-hero-foundation-repair.jpg)' }}
+          aria-label="Hero: professional foundation repair"
+        >
+          <div className="about-hero-overlay" />
+          <div className="container about-hero-content">
             <h1>About CrackBuster</h1>
-            <p className="subtitle">Foundation Crack Repair & Waterproofing System You Can Trust</p>
-            <p className="header-highlight">Over 12 Years of Excellence in Foundation Repair</p>
+            <p className="subtitle">Foundation Crack Repair & Waterproofing You Can Trust</p>
+            <p className="header-highlight">Over 17 Years Serving Edmonton & Surrounding Communities</p>
           </div>
         </section>
 
         <section className="about-content">
           <div className="container">
             <div className="content-section">
-              <h2>Who We Are</h2>
+              <h2>Who Are We</h2>
               <p>
-                For over <strong>12 years</strong>, CrackBuster has been the trusted leader in foundation crack repair,
-                serving Edmonton, Sherwood Park, and St. Albert areas with quality <strong>NO DIGGING</strong> crack repair solutions.
-                We specialize in providing permanent, reliable foundation repair that protects your property for years to come.
+                We are a <strong>locally owned and family-operated</strong> foundation crack repair company serving Edmonton
+                and surrounding communities for over <strong>17 years</strong>.
               </p>
               <p>
-                Our team of certified technicians is dedicated to helping homeowners and businesses protect their properties
-                from foundation damage without the mess and disruption of traditional digging methods. We understand that foundation
-                issues can be stressful and costly, which is why we're committed to providing transparent communication,
-                quality workmanship, and exceptional customer service.
+                From the beginning, our focus has been simple: provide long-term, professional repairs using proven methods.
+                Our <strong>interior-to-exterior repair approach</strong> allows us to permanently seal and stabilize foundation
+                cracks without the need for disruptive exterior excavation.
               </p>
               <p>
-                What sets us apart is our specialized <strong>Crack Injection System</strong> - a revolutionary approach that
-                repairs foundation cracks from the inside, eliminating the need for expensive and disruptive exterior excavation.
-                This method is not only more efficient but also provides a permanent solution that stands the test of time.
+                We treat every customer with the same care and respect we would expect for our own homes, because we believe
+                <strong> honesty is the foundation of good service</strong>. That means providing straightforward advice—whether
+                it involves recommending a simpler, more cost-effective solution or explaining when a repair may not be necessary.
+                If a situation falls outside the scope of our services, we will clearly communicate that.
               </p>
+            </div>
+
+            <div className="content-section with-image">
+              <div className="section-image section-image-right">
+                <img
+                  src="/images/about/about-team-local-edmonton.jpg"
+                  alt="CrackBuster team - local Edmonton foundation repair professionals"
+                  loading="lazy"
+                  width={560}
+                  height={380}
+                />
+              </div>
+              <div className="section-text">
+                <h2>Our Commitment to You</h2>
+                <p>
+                  We use commercial-grade repair systems engineered to perform in Alberta's demanding soil conditions and
+                  freeze-thaw cycles. Qualifying repairs are backed by a <strong>lifetime transferable warranty</strong>,
+                  providing long-term protection and peace of mind.
+                </p>
+                <p>
+                  As a local Edmonton company, we understand the foundation challenges unique to this region and take pride
+                  in delivering honest assessments, clear explanations, and solutions that truly serve our customers' best interests.
+                </p>
+              </div>
             </div>
 
             <div className="content-section highlight-section">
-              <h2>Our Commitment to Excellence</h2>
+              <h2>Why Choose CrackBuster</h2>
               <div className="commitment-grid">
                 <div className="commitment-item">
                   <div className="commitment-icon">🏆</div>
-                  <h3>Lifetime Guarantee</h3>
-                  <p>We offer a <strong>Life Time Guaranteed and Transferable</strong> warranty on all our repairs. This means your investment is protected, and the warranty even transfers to new homeowners, adding value to your property.</p>
+                  <h3>Lifetime Transferable Warranty</h3>
+                  <p>Qualifying repairs are backed by a lifetime transferable warranty. Your investment is protected, and the warranty transfers to new homeowners.</p>
                 </div>
                 <div className="commitment-item">
                   <div className="commitment-icon">🔧</div>
-                  <h3>NO DIGGING Technology</h3>
-                  <p>Our specialized injection system repairs cracks from the inside, eliminating the need for disruptive exterior digging. This means faster repairs, less mess, and lower costs for you.</p>
+                  <h3>No Exterior Excavation</h3>
+                  <p>Our interior-to-exterior approach permanently seals and stabilizes cracks from the inside—no disruptive digging, less mess, lower cost.</p>
                 </div>
                 <div className="commitment-item">
                   <div className="commitment-icon">✅</div>
-                  <h3>Complete Structural Repair</h3>
-                  <p>We don't just patch cracks - we provide complete structural repair using expanding polyurethane that fills the full width and length of the crack, ensuring a permanent solution.</p>
+                  <h3>Honest, Straightforward Advice</h3>
+                  <p>We recommend what's right for you—including simpler solutions or when a repair may not be necessary. No pressure, just clarity.</p>
                 </div>
                 <div className="commitment-item">
-                  <div className="commitment-icon">📞</div>
-                  <h3>Quick Response</h3>
-                  <p>With our local presence in the Edmonton area, we can respond quickly to your needs. We understand that foundation problems need immediate attention, and we're here to help.</p>
+                  <div className="commitment-icon">📍</div>
+                  <h3>Local Edmonton Expertise</h3>
+                  <p>17+ years serving this region. We know Alberta's soil, climate, and the foundation issues that matter here.</p>
                 </div>
               </div>
             </div>
 
-            <div className="content-section">
-              <h2>Our Mission</h2>
-              <p>
-                Our mission is to provide the highest quality foundation repair services while maintaining the highest standards
-                of professionalism and customer satisfaction. We believe in building lasting relationships with our clients through
-                trust, integrity, and superior workmanship.
-              </p>
-              <p>
-                We are committed to protecting your most valuable investment - your home or business. Every repair we perform
-                is backed by our lifetime guarantee, ensuring that you can have complete confidence in our work.
-              </p>
-            </div>
-
-            <div className="content-section">
-              <h2>Our Expertise & Technology</h2>
-              <div className="expertise-content">
-                <div className="expertise-item">
-                  <h3>Polyurethane Injection</h3>
-                  <p>
-                    Our polyurethane injection system is especially formulated for concrete repair. The material expands upon
-                    contact to fill the entire crack, creating a flexible seal that moves with your foundation. This permanent
-                    repair method prevents water leaks and structural damage, and because it's done from the inside, no exterior
-                    digging is required.
-                  </p>
-                </div>
-                <div className="expertise-item">
-                  <h3>Epoxy Injection</h3>
-                  <p>
-                    For structural repairs where the concrete is dry, we offer epoxy injection services. This method provides
-                    exceptional strength and is recommended for structural reinforcement purposes.
-                  </p>
-                </div>
-                <div className="expertise-item">
-                  <h3>Foundation Inspections</h3>
-                  <p>
-                    We also provide comprehensive foundation inspections to identify potential issues before they become major
-                    problems. Early detection can save you thousands of dollars in repair costs.
-                  </p>
-                </div>
+            <div className="content-section with-image">
+              <div className="section-image section-image-left">
+                <img
+                  src="/images/about/about-warranty-trust.jpg"
+                  alt="Lifetime warranty and peace of mind for your foundation repair"
+                  loading="lazy"
+                  width={560}
+                  height={380}
+                />
               </div>
-            </div>
-
-            <div className="content-section">
-              <h2>Why Choose CrackBuster</h2>
-              <div className="features-list">
-                <div className="feature-item">
-                  <h3>12+ Years Experience</h3>
-                  <p>Over a decade of proven expertise in foundation crack repair and waterproofing services throughout the Edmonton area.</p>
-                </div>
-                <div className="feature-item">
-                  <h3>Lifetime Guarantee</h3>
-                  <p>All our repairs come with a lifetime guarantee that's transferable to new homeowners, protecting your investment.</p>
-                </div>
-                <div className="feature-item">
-                  <h3>NO DIGGING Method</h3>
-                  <p>Our specialized injection system repairs cracks from inside, eliminating expensive and disruptive exterior excavation.</p>
-                </div>
-                <div className="feature-item">
-                  <h3>Quality Materials</h3>
-                  <p>We use only premium polyurethane and epoxy materials specifically formulated for permanent concrete repair.</p>
-                </div>
-                <div className="feature-item">
-                  <h3>Local Knowledge</h3>
-                  <p>Deep understanding of Edmonton's climate, soil conditions, and common foundation issues in the region.</p>
-                </div>
-                <div className="feature-item">
-                  <h3>Customer Focused</h3>
-                  <p>Your satisfaction is our top priority. We work closely with you every step of the way, from inspection to completion.</p>
-                </div>
+              <div className="section-text">
+                <h2>Don't Wait for Minor Damage to Escalate</h2>
+                <p>
+                  Small cracks can become costly problems. Let our certified experts evaluate and safeguard your home today.
+                  We provide clear assessments and solutions that fit your situation—with no obligation and no pressure.
+                </p>
               </div>
-            </div>
-
-            <div className="content-section">
-              <h2>Our Service Area</h2>
-              <p>
-                We proudly serve the following areas in Alberta:
-              </p>
-              <div className="service-areas">
-                <div className="area-item">
-                  <strong>Edmonton</strong> - Our primary service area, covering all neighborhoods and districts
-                </div>
-                <div className="area-item">
-                  <strong>Sherwood Park</strong> - Full service coverage for residential and commercial properties
-                </div>
-                <div className="area-item">
-                  <strong>St. Albert</strong> - Expert foundation repair services for the community
-                </div>
-                <div className="area-item">
-                  <strong>Surrounding Areas</strong> - We also service surrounding communities in the greater Edmonton region
-                </div>
-              </div>
-              <p>
-                Our local presence allows us to respond quickly to your needs and provide personalized service to our community.
-                We understand the unique challenges that Alberta's climate and soil conditions present, and we have the expertise
-                to address them effectively.
-              </p>
             </div>
 
             <div className="content-section cta-section">
               <h2>Ready to Protect Your Foundation?</h2>
               <p>
-                Don't wait until a small crack becomes a major problem. Contact us today for a <strong>FREE ESTIMATE</strong>
-                and let our experts assess your foundation. We'll provide you with a detailed evaluation and a transparent quote
-                for any necessary repairs.
+                Contact us today for a <strong>FREE ESTIMATE</strong>. Our team will assess your foundation, answer your
+                questions, and provide transparent options for any necessary repairs.
               </p>
               <div className="cta-buttons">
                 <Link to="/get-estimate" className="btn btn-primary btn-large">
@@ -280,4 +228,3 @@ const AboutUs = () => {
 };
 
 export default AboutUs;
-

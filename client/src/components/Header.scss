@@ -119,9 +119,14 @@
         border-radius: 8px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         list-style: none;
-        padding: 0.5rem 0;
+        padding: 0.6rem 0;
         margin: 0.5rem 0 0 0;
-        min-width: 220px;
+        min-width: 480px;
+        max-width: 720px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        column-gap: 0.25rem;
+        row-gap: 0;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
@@ -133,17 +138,19 @@
 
           a {
             display: block;
-            padding: 0.75rem 1.5rem;
+            padding: 0.6rem 1.25rem;
             color: $text-primary;
             text-decoration: none;
             transition: all 0.3s;
-            border-radius: 0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.35;
 
-        &:hover,
-        &.active {
-          background: rgba(3, 17, 103, 0.05);
-          color: $blue-primary;
-        }
+            &:hover,
+            &.active {
+              background: rgba(3, 17, 103, 0.08);
+              color: $blue-primary;
+            }
 
             &::before {
               display: none;
@@ -347,6 +354,10 @@
 
         .submenu {
           position: static;
+          display: block;
+          min-width: unset;
+          max-width: unset;
+          grid-template-columns: unset;
           opacity: 1;
           visibility: visible;
           transform: none;

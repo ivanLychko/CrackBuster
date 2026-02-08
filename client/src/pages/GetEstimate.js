@@ -172,6 +172,19 @@ const GetEstimate = () => {
   const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
   const canonical = seo?.canonicalUrl || getCanonicalUrl('/get-estimate');
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description: description,
+    url: canonical,
+    mainEntity: {
+      '@type': 'ContactPage',
+      name: 'Get Free Estimate - CrackBuster',
+      description: 'Request a free estimate for foundation repair in Edmonton.'
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -186,6 +199,8 @@ const GetEstimate = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonical} />
         <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
@@ -193,11 +208,19 @@ const GetEstimate = () => {
         <meta name="twitter:title" content={twitterTitle} />
         <meta name="twitter:description" content={twitterDescription} />
         <meta name="twitter:image" content={twitterImage} />
+
+        {/* JSON-LD */}
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
       <div className="get-estimate">
-        <section className="page-header">
-          <div className="container">
+        <section
+          className="get-estimate-hero"
+          style={{ backgroundImage: 'url(/images/get-estimate/hero.jpg)' }}
+          aria-label="Get your free estimate"
+        >
+          <div className="get-estimate-hero-overlay" />
+          <div className="container get-estimate-hero-content">
             <h1>Get Your Free Estimate</h1>
             <p className="subtitle">Fill out the form below and we'll get back to you soon</p>
           </div>

@@ -68,6 +68,10 @@ const ServiceDetail = () => {
         return <div className="error">Service not found</div>;
     }
 
+    // Content images: only those that are NOT the hero (no duplicate), max 2
+    const heroImage = service.image;
+    const contentImages = (service.images || []).filter(img => img !== heroImage).slice(0, 2);
+
     // Prepare structured data
     const serviceImage = service.image ? getCanonicalUrl(service.image) : getDefaultOgImage();
     const structuredData = {
@@ -137,8 +141,13 @@ const ServiceDetail = () => {
             </Helmet>
 
             <div className="service-detail">
-                <section className="page-header">
-                    <div className="container">
+                <section
+                    className="service-detail-hero"
+                    style={{ backgroundImage: service.image ? `url(${service.image})` : undefined }}
+                    aria-label={service.title}
+                >
+                    {service.image && <div className="service-detail-hero-overlay" />}
+                    <div className="container service-detail-hero-content">
                         <h1>{service.title}</h1>
                     </div>
                 </section>
@@ -147,14 +156,35 @@ const ServiceDetail = () => {
                     <div className="container">
                         <div className="content-wrapper">
                             <div className="main-content">
-                                <div 
-                                    className="description"
-                                    dangerouslySetInnerHTML={{ __html: service.description }}
-                                />
-                                <div
-                                    className="content-text"
-                                    dangerouslySetInnerHTML={{ __html: service.content }}
-                                />
+                                <div className="service-lead content-section">
+                                    <div 
+                                        className="service-description"
+                                        dangerouslySetInnerHTML={{ __html: service.description }}
+                                    />
+                                </div>
+
+                                {contentImages[0] && (
+                                    <div className="service-image-block content-section">
+                                        <div className="service-image-wrap">
+                                            <img src={contentImages[0]} alt={`${service.title} - project image`} loading="lazy" />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="service-prose content-section">
+                                    <div
+                                        className="content-text"
+                                        dangerouslySetInnerHTML={{ __html: service.content }}
+                                    />
+                                </div>
+
+                                {contentImages[1] && (
+                                    <div className="service-image-block content-section">
+                                        <div className="service-image-wrap">
+                                            <img src={contentImages[1]} alt={`${service.title} - project image`} loading="lazy" />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="sidebar">
                                 <div className="cta-box">

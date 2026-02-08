@@ -106,8 +106,13 @@ const ContactUs = () => {
       </Helmet>
 
       <div className="contact-us">
-        <section className="page-header">
-          <div className="container">
+        <section
+          className="contact-us-hero"
+          style={{ backgroundImage: 'url(/images/contact-us/hero.jpg)' }}
+          aria-label="Contact us"
+        >
+          <div className="contact-us-hero-overlay" />
+          <div className="container contact-us-hero-content">
             <h1>Contact Us</h1>
             <p className="subtitle">Get in touch with our team</p>
           </div>

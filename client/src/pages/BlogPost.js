@@ -250,35 +250,45 @@ const BlogPost = () => {
       </Helmet>
 
       <div className="blog-post">
-        <article className="post-content-wrapper">
-          <div className="container">
-            <Link to="/blog" className="back-link">
+        <section
+          className="blog-post-hero"
+          style={{ backgroundImage: (post.featuredImage || post.image) ? `url(${post.featuredImage || post.image})` : undefined }}
+          aria-label={post.title}
+        >
+          {(post.featuredImage || post.image) && <div className="blog-post-hero-overlay" />}
+          <div className="container blog-post-hero-content">
+            <Link to="/blog" className="back-link back-link-hero">
               <span className="back-icon">←</span>
               <span>Back to Blog</span>
             </Link>
-            <header className="post-header">
-              <div className="post-meta-info">
-                <time className="post-date">
-                  <span className="date-icon">📅</span>
-                  <span>{formatDate(post.publishedAt)}</span>
-                </time>
-                {post.keywords && post.keywords.length > 0 && (
-                  <div className="post-tags">
-                    {post.keywords.map((keyword, index) => (
-                      <span key={index} className="tag">
-                        <span className="tag-icon">🏷️</span>
-                        {keyword}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <header className="post-header-hero">
+              <time className="post-date-hero">
+                <span className="date-icon">📅</span>
+                <span>{formatDate(post.publishedAt)}</span>
+              </time>
               <h1>{post.title}</h1>
               {post.excerpt && (
                 <div 
-                  className="post-excerpt-header"
+                  className="post-excerpt-hero"
                   dangerouslySetInnerHTML={{ __html: post.excerpt }}
                 />
+              )}
+            </header>
+          </div>
+        </section>
+
+        <article className="post-content-wrapper">
+          <div className="container">
+            <header className="post-header post-header-meta">
+              {post.keywords && post.keywords.length > 0 && (
+                <div className="post-tags">
+                  {post.keywords.map((keyword, index) => (
+                    <span key={index} className="tag">
+                      <span className="tag-icon">🏷️</span>
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
               )}
             </header>
 

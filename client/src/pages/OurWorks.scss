@@ -1,43 +1,94 @@
 @import '../styles/variables';
 
 .our-works {
-  .page-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%); position: relative; z-index: 1;
-    color: $text-primary;
-    padding: 6rem 0 4rem;
-    text-align: center;
+  .our-works-hero {
     position: relative;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 
-    .container {
+    .our-works-hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(3, 17, 103, 0.75) 0%,
+        rgba(28, 37, 76, 0.6) 50%,
+        rgba(0, 0, 0, 0.5) 100%
+      );
+    }
+
+    .our-works-hero-content {
+      position: relative;
+      z-index: 2;
       max-width: 90vw;
       margin: 0 auto;
-      padding: 0 2rem;
-      position: relative;
-      z-index: 1;
+      padding: 4rem 2rem;
     }
 
     h1 {
       font-size: 3.5rem;
-      margin-bottom: 1rem;
-      color: $blue-primary;
-      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
     }
 
-    .subtitle {
-      font-size: 1.35rem;
-      color: $text-secondary;
-      line-height: 1.6;
+    .our-works-hero-subtitle {
+      font-size: 1.4rem;
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 600;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
     }
   }
 
-  .works-content {
-    padding: 5rem 0;
-    background: rgba(248, 249, 250, 0.7); position: relative; z-index: 1;
+  .our-works-intro {
+    padding: 3rem 0;
+    background: rgba(248, 249, 250, 0.7);
+    position: relative;
+    z-index: 1;
 
     .container {
       max-width: 90vw;
       margin: 0 auto;
       padding: 0 2rem;
+    }
+
+    .our-works-intro-text {
+      max-width: 800px;
+      margin: 0 auto;
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: $text-primary;
+      text-align: center;
+    }
+  }
+
+  .works-content {
+    padding: 3rem 0 5rem;
+    background: $bg-card;
+    position: relative;
+    z-index: 1;
+
+    .container {
+      max-width: 90vw;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .gallery-heading {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 2.5rem;
+      color: $blue-primary;
+      font-weight: 700;
     }
 
     .loading,
@@ -230,15 +281,60 @@
     }
   }
 
+  .our-works-cta {
+    background: linear-gradient(135deg, $blue-primary 0%, $blue-dark 100%);
+    color: $text-on-accent;
+    padding: 5rem 0;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+
+    .container {
+      max-width: 90vw;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: rgba(255, 255, 255, 0.95);
+    }
+  }
+
   @media (max-width: 768px) {
-    .page-header {
-      padding: 4rem 0 2rem;
+    .our-works-hero {
+      min-height: 60vh;
+      background-attachment: scroll;
+
+      .our-works-hero-content {
+        padding: 3rem 1rem;
+      }
 
       h1 {
         font-size: 2rem;
       }
 
-      .subtitle {
+      .our-works-hero-subtitle {
+        font-size: 1.1rem;
+      }
+    }
+
+    .our-works-intro {
+      padding: 2rem 0;
+
+      .container {
+        padding: 0 1rem;
+      }
+
+      .our-works-intro-text {
         font-size: 1rem;
       }
     }
@@ -282,6 +378,27 @@
             }
           }
         }
+      }
+    }
+
+    .our-works-cta {
+      padding: 3rem 0;
+
+      .container {
+        padding: 0 1rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .btn {
+        width: 100%;
       }
     }
   }

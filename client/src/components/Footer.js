@@ -1,29 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import useSiteSettings from '../hooks/useSiteSettings';
 import './Footer.scss';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const { settings, loading } = useSiteSettings();
-  const [services, setServices] = useState([]);
-  const isServer = typeof window === 'undefined';
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fetch('/api/services');
-        const data = await response.json();
-        if (data.services && data.services.length > 0) {
-          setServices(data.services);
-        }
-      } catch (error) {
-        console.error('Error fetching services:', error);
-      }
-    };
-
-    fetchServices();
-  }, []);
+  const { settings } = useSiteSettings();
 
   // Use default settings if not available (for SSR)
   const displaySettings = settings || {
@@ -104,19 +86,6 @@ const Footer = () => {
               <li><Link to="/our-works">Our Works</Link></li>
             </ul>
           </div>
-
-          {services.length > 0 && (
-            <div className="footer-section">
-              <h4>Services</h4>
-              <ul>
-                {services.map(service => (
-                  <li key={service._id || service.id}>
-                    <Link to={`/services/${service.slug}`}>{service.title}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
 
           <div className="footer-section">
             <h4>Contact</h4>

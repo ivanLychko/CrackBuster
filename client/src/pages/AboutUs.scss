@@ -1,41 +1,60 @@
 @import '../styles/variables';
 
 .about-us {
-    .page-header {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
-        color: $text-primary;
-        padding: 6rem 0 4rem;
-        text-align: center;
+    .about-hero {
         position: relative;
-        z-index: 1;
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed; /* parallax: background stays fixed on scroll */
 
-        .container {
+        .about-hero-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(
+                135deg,
+                rgba(3, 17, 103, 0.75) 0%,
+                rgba(28, 37, 76, 0.6) 50%,
+                rgba(0, 0, 0, 0.5) 100%
+            );
+        }
+
+        .about-hero-content {
+            position: relative;
+            z-index: 2;
             max-width: 90vw;
             margin: 0 auto;
-            padding: 0 2rem;
-            position: relative;
-            z-index: 1;
+            padding: 4rem 2rem;
         }
 
         h1 {
             font-size: 3.5rem;
             margin-bottom: 1rem;
-            color: $blue-primary;
+            color: #fff;
             font-weight: 700;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
         }
 
         .subtitle {
             font-size: 1.35rem;
-            color: $text-secondary;
+            color: rgba(255, 255, 255, 0.95);
             line-height: 1.6;
             margin-bottom: 1rem;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
         }
 
         .header-highlight {
             font-size: 1.1rem;
-            color: $accent-red;
+            color: #ff6b5a;
             font-weight: 600;
             margin-top: 1rem;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
         }
     }
 
@@ -53,6 +72,50 @@
 
         .content-section {
             margin-bottom: 4rem;
+
+            &.with-image {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+                align-items: center;
+                margin-bottom: 4rem;
+
+                .section-image {
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: $shadow-card;
+                    border: 1px solid $border-light;
+
+                    img {
+                        width: 100%;
+                        height: auto;
+                        display: block;
+                        object-fit: cover;
+                    }
+                }
+
+                .section-image-left {
+                    order: 1;
+                }
+
+                .section-image-right {
+                    order: 2;
+                }
+
+                .section-text {
+                    h2 {
+                        margin-top: 0;
+                    }
+                }
+
+                .section-image-right ~ .section-text {
+                    order: 1;
+                }
+
+                .section-image-left ~ .section-text {
+                    order: 2;
+                }
+            }
 
             h2 {
                 color: $blue-primary;
@@ -275,8 +338,13 @@
 
 @media (max-width: 768px) {
     .about-us {
-        .page-header {
-            padding: 3rem 0 2rem;
+        .about-hero {
+            min-height: 70vh;
+            background-attachment: scroll; /* avoid jank on mobile */
+
+            .about-hero-content {
+                padding: 3rem 1rem;
+            }
 
             h1 {
                 font-size: 2rem;
@@ -293,6 +361,21 @@
 
         .about-content {
             padding: 3rem 0;
+
+            .content-section.with-image {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+
+                .section-image-right,
+                .section-image-left,
+                .section-text {
+                    order: unset;
+                }
+
+                .section-image {
+                    max-width: 100%;
+                }
+            }
 
             .container {
                 padding: 0 1rem;

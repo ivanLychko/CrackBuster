@@ -1,46 +1,62 @@
 @import '../styles/variables';
 
 .blog {
-  .page-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+  .blog-hero {
     position: relative;
-    z-index: 1;
-    color: $text-primary;
-    padding: 4rem 0 3rem;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: $bg-primary;
 
-    .container {
+    .blog-hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(3, 17, 103, 0.75) 0%,
+        rgba(28, 37, 76, 0.6) 50%,
+        rgba(0, 0, 0, 0.5) 100%
+      );
+    }
+
+    .blog-hero-content {
+      position: relative;
+      z-index: 2;
       max-width: 90vw;
       margin: 0 auto;
-      padding: 0 2rem;
-      position: relative;
-      z-index: 1;
+      padding: 4rem 2rem;
     }
 
     h1 {
-      font-size: 3.5rem;
-      margin-bottom: 1rem;
-      color: $blue-primary;
-      font-weight: 700;
+      font-size: 3rem;
+      margin: 0 0 1rem;
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
     }
 
     .subtitle {
       font-size: 1.35rem;
-      color: $text-secondary;
+      color: rgba(255, 255, 255, 0.95);
       line-height: 1.6;
-      margin-bottom: 1.5rem;
+      margin: 0 0 0.75rem;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
     }
 
-    .header-description {
-      max-width: 700px;
+    .hero-description {
+      max-width: 640px;
       margin: 0 auto;
-
-      p {
-        font-size: 1.1rem;
-        color: $text-secondary;
-        line-height: 1.7;
-      }
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.7;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     }
   }
 
@@ -288,22 +304,23 @@
   }
 
   @media (max-width: 768px) {
-    .page-header {
-      padding: 2.5rem 0 2rem;
+    .blog-hero {
+      min-height: 40vh;
+      background-attachment: scroll;
 
-      .container {
-        padding: 0 1rem;
+      .blog-hero-content {
+        padding: 3rem 1rem;
       }
 
       h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
       }
 
       .subtitle {
         font-size: 1rem;
       }
 
-      .header-description p {
+      .hero-description {
         font-size: 0.95rem;
       }
     }

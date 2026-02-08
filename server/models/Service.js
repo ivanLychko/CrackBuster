@@ -21,6 +21,10 @@ const serviceSchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  images: {
+    type: [String],
+    default: [],
+  },
   metaTitle: {
     type: String,
   },

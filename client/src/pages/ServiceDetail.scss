@@ -1,27 +1,45 @@
 @import '../styles/variables';
 
 .service-detail {
-  .page-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+  .service-detail-hero {
     position: relative;
-    z-index: 1;
-    color: $text-primary;
-    padding: 6rem 0 4rem;
-    position: relative;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: $bg-primary;
 
-    .container {
+    .service-detail-hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(3, 17, 103, 0.75) 0%,
+        rgba(28, 37, 76, 0.6) 50%,
+        rgba(0, 0, 0, 0.5) 100%
+      );
+    }
+
+    .service-detail-hero-content {
+      position: relative;
+      z-index: 2;
       max-width: 90vw;
       margin: 0 auto;
-      padding: 0 2rem;
-      position: relative;
-      z-index: 1;
+      padding: 4rem 2rem;
     }
 
     h1 {
-      font-size: 3.5rem;
+      font-size: 3rem;
       margin: 0;
-      color: $blue-primary;
-      font-weight: 700;
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
     }
   }
 
@@ -41,6 +59,7 @@
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 3rem;
+      align-items: start;
 
       @media (max-width: 968px) {
         grid-template-columns: 1fr;
@@ -48,34 +67,99 @@
     }
 
     .main-content {
-      background: $bg-card;
-      padding: 3rem;
-      border-radius: 16px;
-      box-shadow: $shadow-card;
+      display: flex;
+      flex-direction: column;
+    }
 
-      .description {
-        font-size: 1.25rem;
+    .content-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .service-lead {
+      .service-description {
+        font-size: 1.1rem;
         color: $text-primary;
-        margin-bottom: 2rem;
         line-height: 1.8;
+        margin: 0;
+      }
+    }
+
+    .service-image-block {
+      margin-bottom: 2.5rem;
+    }
+
+    .service-image-wrap {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: $shadow-card;
+      border: 1px solid $border-light;
+
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+      }
+    }
+
+    .service-prose {
+      background: $bg-card;
+      padding: 2.5rem 3rem;
+      border-radius: 16px;
+      border: 1px solid $border-light;
+      box-shadow: $shadow-card;
+    }
+
+    .content-text {
+      color: $text-primary;
+      line-height: 1.8;
+      font-size: 1.1rem;
+
+      .service-details-h2 {
+        color: $blue-primary;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 2rem 0 1rem;
       }
 
-      .content-text {
-        color: $text-primary;
-        line-height: 1.8;
-        font-size: 1.1rem;
+      .service-details-ul {
+        margin: 1rem 0 1.5rem;
+        padding-left: 1.5rem;
+        list-style: none;
 
-        h2,
-        h3 {
-          color: $blue-primary;
-          margin-top: 2rem;
-          margin-bottom: 1rem;
-          font-weight: 700;
+        li {
+          position: relative;
+          padding-left: 1.25rem;
+          margin-bottom: 0.5rem;
+
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: $accent-red;
+          }
         }
+      }
+
+      p {
+        margin-bottom: 1rem;
+      }
+
+      h2, h3 {
+        color: $blue-primary;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
       }
     }
 
     .sidebar {
+      align-self: stretch;
+
       .cta-box {
         background: $bg-card;
         padding: 2rem;
@@ -109,15 +193,16 @@
   }
 
   @media (max-width: 768px) {
-    .page-header {
-      padding: 3rem 0 2rem;
+    .service-detail-hero {
+      min-height: 40vh;
+      background-attachment: scroll;
 
-      .container {
-        padding: 0 1rem;
+      .service-detail-hero-content {
+        padding: 3rem 1rem;
       }
 
       h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
       }
     }
 
@@ -128,46 +213,26 @@
         padding: 0 1rem;
       }
 
-      .main-content {
-        padding: 1.5rem;
+      .content-section {
+        margin-bottom: 2rem;
+      }
 
-        .description {
-          font-size: 1.1rem;
-          margin-bottom: 1.5rem;
-        }
+      .service-prose {
+        padding: 1.75rem 1.5rem 2rem;
+      }
 
-        .content-text {
-          font-size: 1rem;
-          line-height: 1.7;
+      .content-text {
+        font-size: 1rem;
 
-          h2 {
-            font-size: 1.5rem;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-          }
-
-          h3 {
-            font-size: 1.25rem;
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
-          }
+        .service-details-h2 {
+          font-size: 1.5rem;
+          margin-top: 1.5rem;
         }
       }
 
-      .sidebar {
-        .cta-box {
-          padding: 1.5rem;
-          position: static;
-          margin-top: 2rem;
-
-          h3 {
-            font-size: 1.2rem;
-          }
-
-          p {
-            font-size: 0.95rem;
-          }
-        }
+      .sidebar .cta-box {
+        position: static;
+        margin-top: 2rem;
       }
     }
   }

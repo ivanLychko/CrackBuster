@@ -5,6 +5,7 @@ const fs = require('fs');
 const Service = require('../server/models/Service');
 const BlogPost = require('../server/models/BlogPost');
 const Work = require('../server/models/Work');
+const SEO = require('../server/models/SEO');
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/crackbuster')
@@ -85,149 +86,11 @@ function getAllImagesFromDir(dirPath, basePath = '') {
     return images;
 }
 
-// Services data - Generated from real content
-const servicesData = [
-        {
-                "title": "Foundation Crack Repair",
-                "description": "Concrete Foundation Crack Repair  Over a period of time, due to exposure to extreme weather conditions, foundations tend to become worn out and start cracking. Cracks can also occur due to the natural...",
-                "content": "<div class=\"service-intro\">\n        <p>Concrete Foundation Crack Repair</p>\n    </div><section class=\"service-details\">\n            <h2>About Foundation Crack Repair in Edmonton</h2><p>Over a period of time, due to exposure to extreme weather conditions, foundations tend to become worn out and start cracking. Cracks can also occur due to the natural process of settling and shifting of ground every few years. They are a common problem, and can be found in basements, walls, or in the garage floors.</p><p>If left unattended, these cracks can be a big problem, leading you to spend a lot of money on repairing them. The water seeping through can damage your expensive belongings, but it also invites other troubles such as mold or mildew.</p><p>Fixing foundation cracks is a quite a difficult task. In the past, inefficient solutions such as application of patching compounds like silicone or caulking were commonly employed. For a complete and lasting repair however, a professional repair company should be contacted as they will be equipped with the tools and materials to get the job done right.</p><p>A few steps and procedures must be followed in order to execute the proper repair. The first step is to scrape and clean any loose particles such as debris from inside the crack. You may find very small pieces of broken concrete between the cracks which must be completely removed if you want the repair to be effective.</p><p>Before injecting the resin, you must first determine the exact size of the crack as this will help you prepare the crack for resin injection. You will find tar and other patches around hair cracks that must be removed by grinding with the diamond disc paint. The next step is to drill holes measuring two to three inches along the crack to install and seal the injection ports.</p></section><section class=\"service-benefits\">\n                <h2>Benefits of Foundation Crack Repair</h2>\n                <ul><li>The ports have to be flushed with high pressure water from the top after which you must inject the PU. Start injecting the viscous liquid from the bot</li><li>Polyurethane injection sealers are highly popular today due to the flexibility it offers. It expands filling the crack completely before hardening the</li></ul></section>",
-                "image": "/images/stock/1000_F_218645986_sbD58xe5jAXVjvKYRHwUMZzmKiyg1BZk - Copy.webp",
-                "faq": [
-                        {
-                                "question": "What is Foundation Crack Repair?",
-                                "answer": "Concrete Foundation Crack Repair  Over a period of time, due to exposure to extreme weather conditions, foundations tend to become worn out and start cracking. Cracks can also occur due to the natural process of settling and shifting of ground every..."
-                        },
-                        {
-                                "question": "How does Foundation Crack Repair work?",
-                                "answer": "Our certified technicians use advanced techniques and high-quality materials to ensure permanent repairs that last for decades."
-                        },
-                        {
-                                "question": "How long does Foundation Crack Repair take?",
-                                "answer": "Most repairs can be completed in a single day, depending on the extent of the damage. We provide free estimates and work around your schedule."
-                        }
-                ]
-        },
-        {
-                "title": "Epoxy Crack Injection",
-                "description": "Epoxy Crack Injection  A horizontal crack in the basement wall represents a structural problem with the foundation. Epoxy crack injection is one method by which one can stop water leakage and repair t...",
-                "content": "<div class=\"service-intro\">\n        <p>A horizontal crack in the basement wall represents a structural problem with the foundation. Epoxy crack injection is one method by which one can stop water leakage and repair the wall. Some of the advantages of repairing foundation cracks with epoxy crack injections include:</p>\n    </div><section class=\"service-details\">\n            <h2>About Epoxy Crack Injection in Edmonton</h2><p>Injecting epoxies from the inside of the building repairs cracks on the basement wall. Epoxies are in a liquid form and made of two components that are mixed even as it is injected into the crack. When the components mix, they cure and form a strong and durable material that reinforces the wall. As compared to concrete, epoxies are highly tensile and strong and have high compression.</p><p>The process of injecting epoxy into the cracks is quite simple. A special paste is used to attach plastic injection ports are every six to twelve inches. The special surface paste is then applied to the other parts of the crack after attaching the ports. This ensures that during the hardening process, epoxy is retained in the crack.</p><p>The third step is the actual injection of epoxy into the crack. Starting from the lowest port, epoxy is injected throughout the crack. The epoxy cartridge is inserted into the port after attaching a mixer to it. Upon injecting, the epoxy flows right up to the outer surface of the crack. All ports are injected and the epoxy is left to cure. It takes an average of seven days for epoxies to cure and completely harden.</p></section>",
-                "image": "/images/stock/229861-5d13b0a3b85b6_yo2 - Copy.webp",
-                "faq": [
-                        {
-                                "question": "What is Epoxy Crack Injection?",
-                                "answer": "Epoxy Crack Injection  A horizontal crack in the basement wall represents a structural problem with the foundation. Epoxy crack injection is one method by which one can stop water leakage and repair the wall. Some of the advantages of repairing found..."
-                        },
-                        {
-                                "question": "How does Epoxy Crack Injection work?",
-                                "answer": "Our certified technicians use advanced techniques and high-quality materials to ensure permanent repairs that last for decades."
-                        },
-                        {
-                                "question": "How long does Epoxy Crack Injection take?",
-                                "answer": "Most repairs can be completed in a single day, depending on the extent of the damage. We provide free estimates and work around your schedule."
-                        }
-                ]
-        },
-        {
-                "title": "Polyurethane Injection",
-                "description": "Polyurethane Injection of Vertical Foundation Cracks  A vertical crack in one’s foundation wall does not represent a structural concern. Any poured concrete foundation more than a year old will have v...",
-                "content": "<div class=\"service-intro\">\n        <p>Polyurethane Injection of Vertical Foundation Cracks</p>\n    </div><section class=\"service-details\">\n            <h2>About Polyurethane Injection in Edmonton</h2><p>A vertical crack in one’s foundation wall does not represent a structural concern. Any poured concrete foundation more than a year old will have vertical cracks, typically caused by the initial settling of the house. Polyurethane (PU) injections, done correctly, can permanently stop water from entering the crack. Advantages of using PU crack injections to repair foundation cracks are as follows:</p><p>Will effectively stop water from leaking into the basement</p><p>Holes are drilled directly on top of the crack, all the way through the wall to the soil outside. This will allow the PU, once injected, to seal on the outside of the wall, which is absolutely critical. Any injection that does not seal the crack at the outside will ultimately fail, and is often described as “a fancy bandage.”</p><p>Injection ports are then installed, high pressure backflush cleans a path for the PU to expand into at the back (outside) of the crack, and the PU injected with a simple dual cartridge caulking gun. The PU will expand 5 to 10 times, filling the crack and sealing it outside, resulting in a permanent repair.</p></section>",
-                "image": "/images/stock/Cement with Crack - Copy.webp",
-                "faq": [
-                        {
-                                "question": "What is Polyurethane Injection?",
-                                "answer": "Polyurethane Injection of Vertical Foundation Cracks  A vertical crack in one’s foundation wall does not represent a structural concern. Any poured concrete foundation more than a year old will have vertical cracks, typically caused by the initial se..."
-                        },
-                        {
-                                "question": "How does Polyurethane Injection work?",
-                                "answer": "Our certified technicians use advanced techniques and high-quality materials to ensure permanent repairs that last for decades."
-                        },
-                        {
-                                "question": "How long does Polyurethane Injection take?",
-                                "answer": "Most repairs can be completed in a single day, depending on the extent of the damage. We provide free estimates and work around your schedule."
-                        }
-                ]
-        },
-        {
-                "title": "Basement Waterproofing",
-                "description": "Waterproofing  Waterproofing the basement is essential to avoid dampness and this can be done using different methods. Read on to find out more about waterproofing benefits and procedure.  There are m...",
-                "content": "<div class=\"service-intro\">\n        <p>Waterproofing the basement is essential to avoid dampness and this can be done using different methods. Read on to find out more about waterproofing benefits and procedure.</p>\n    </div><section class=\"service-details\">\n            <h2>About Basement Waterproofing in Edmonton</h2><p>There are many benefits of basement waterproofing. Leakage of water in the basement generally happens due to rain and snowfall. This leads to wet basements and it becomes necessary to waterproof in order to avoid dampness and related problems. Water in the basement generally seeps through the joints where the floor and the wall meet. Water seepage also takes place through the floor. When the water collects on the surface of the floor, a hydrostatic pressure is built up. This in turn builds up pockets that encourage water logging. The water is then forced to flow towards places where the wall and the floor meet. Professionals with the help of new methods and techniques can fix damp and wet basements with ease. In order to prevent the floors from getting wet and flooding especially during rain and snowfall, basement waterproofing is extremely necessary.</p><p>Basement waterproofing is all about blocking the source of water in the basement. This can be achieved using PU resin injection that seals cracks, making it airtight. This helps in sorting out major problems of seepage and condensation. Waterproofing the basement also absorbs water to keep the floor dry and prevents the floor from being damaged.</p><p>Basement waterproofing is necessary in homes where the lawn slopes towards the home and the drainage is in the direction of the basement. In such places water enters through cracks or other openings in the wall causing wet spots. In order to prevent this, the slope must be extended to ten feet ahead and the lawn must have really good seeded grass. A shallow must be dug to navigate the water in a different route that is appropriately designed so that the water does not reach the wall and enter the basement.</p><p>Basement waterproofing has also proved to be beneficial in case of defective or nonexistent gutters that are clogged leading to the formation of puddles or wet soil near the basement walls. In this case, water enters through the crack damaging the whole surface. It is highly recommended to install downspouts in order to keep them free from the debris formation. Sometimes leaves and twigs collect near the gutter, thus blocking the downspouts and therefore it is necessary to clean the downspouts on a regular basis.</p></section>",
-                "image": "/images/stock/ChatGPT Image Oct 19, 2025, 03_42_23 PM - Copy.webp",
-                "faq": [
-                        {
-                                "question": "What is Basement Waterproofing?",
-                                "answer": "Waterproofing  Waterproofing the basement is essential to avoid dampness and this can be done using different methods. Read on to find out more about waterproofing benefits and procedure.  There are many benefits of basement waterproofing. Leakage of..."
-                        },
-                        {
-                                "question": "How does Basement Waterproofing work?",
-                                "answer": "Our certified technicians use advanced techniques and high-quality materials to ensure permanent repairs that last for decades."
-                        },
-                        {
-                                "question": "How long does Basement Waterproofing take?",
-                                "answer": "Most repairs can be completed in a single day, depending on the extent of the damage. We provide free estimates and work around your schedule."
-                        }
-                ]
-        },
-        {
-                "title": "Grading and Drainage",
-                "description": "Grading and Drainage    The best way to keep one’s basement dry is to not allow water to accumulate near the foundation in the first place. Shoveling snow away from the walls of one’s house is one eas...",
-                "content": "<div class=\"service-intro\">\n        <p>The best way to keep one’s basement dry is to not allow water to accumulate near the foundation in the first place. Shoveling snow away from the walls of one’s house is one easy way to avoid Spring flooding. Beyond that though, one needs to consider grading and drainage in the landscaping.</p>\n    </div><section class=\"service-details\">\n            <h2>About Grading and Drainage in Edmonton</h2><p>All eavestroughing should be directed well away from the home, and in such a way that water will not simply just roll back toward the foundation. Check periodically to make sure no deficiencies have arisen which may allow water to drain right beside the house. If enough water is allowed to accumulate beside the house, it will eventually find a way in, whether there are cracks in the foundation or not. Even tie-rods (snap ties) can rust and leak, and every house has many!</p><p>The ground outside the house should be sloped down 10% for every two metres away from foundation. This is called positive grade. If the ground is sloped down toward the house instead of away from it, it is called negative grade, and is a sure way to invite water into the basement.</p><p>The grade should end at a swale. One will often notice in new neighbourhoods a sort of sharp valley between homes. This low point is called the swale and it is designed to carry run-off from both homes away to the street’s gutter. If the adjacent property’s landscaping does not allow for a shared swale, an internal side-lot swale must be created, with the same aim of directing surface drainage away from home and toward a city right of way. The swale should have a minimum slope of 1.5%, minimum depth of 10 cm, and minimum width of 15 cm.</p></section>",
-                "image": "/images/stock/Google Review - Copy.webp",
-                "faq": [
-                        {
-                                "question": "What is Grading and Drainage?",
-                                "answer": "Grading and Drainage    The best way to keep one’s basement dry is to not allow water to accumulate near the foundation in the first place. Shoveling snow away from the walls of one’s house is one easy way to avoid Spring flooding. Beyond that though..."
-                        },
-                        {
-                                "question": "How does Grading and Drainage work?",
-                                "answer": "Our certified technicians use advanced techniques and high-quality materials to ensure permanent repairs that last for decades."
-                        },
-                        {
-                                "question": "How long does Grading and Drainage take?",
-                                "answer": "Most repairs can be completed in a single day, depending on the extent of the damage. We provide free estimates and work around your schedule."
-                        }
-                ]
-        },
-        {
-                "title": "Basement Insulation",
-                "description": "Basement Insulation  Insulating your basement in an effective manner helps maintain the right temperature under all weather conditions. It also helps in maintaining the right level of humidity in your...",
-                "content": "<div class=\"service-intro\">\n        <p>Insulating your basement in an effective manner helps maintain the right temperature under all weather conditions. It also helps in maintaining the right level of humidity in your home. It contributes a great deal towards conservation of electricity especially when you use air conditioners. In short, insulation helps in cutting down on your power bills. There are various types of materials used for basement insulation such as blanket bat and roll, concrete block, foam board, glass fiber, rock wool, perlite, silicate compounds and so on. The type of insulation you use for the basement depends upon the temperature required for your home to help withstand all weather conditions. There are three methods of heat transference. In the first method, the heat is directly transferred from mass to mass, which is known as conduction. In the second method, the heat is transferred from one space to another space, which is called convection. In the third method, the warm object transmits heat to a cooler object/area, which is known as radiation. Basement insulation done correctly will decrease the convection and radiation of heat transfer by minimizing the solid conduction, which in turn helps your home stay cool during the warm weather conditions and warm during winters.</p>\n    </div>",
-                "image": "/images/stock/Hydrostatic-Pressure-Diagram for horizontal crack - Copy.webp",
-                "faq": [
-                        {
-                                "question": "What is Basement Insulation?",
-                                "answer": "Basement Insulation  Insulating your basement in an effective manner helps maintain the right temperature under all weather conditions. It also helps in maintaining the right level of humidity in your home. It contributes a great deal towards conserv..."
-                        },
-                        {
-                                "question": "How does Basement Insulation work?",
-                                "answer": "Our certified technicians use advanced techniques and high-quality materials to ensure permanent repairs that last for decades."
-                        },
-                        {
-                                "question": "How long does Basement Insulation take?",
-                                "answer": "Most repairs can be completed in a single day, depending on the extent of the damage. We provide free estimates and work around your schedule."
-                        }
-                ]
-        },
-        {
-                "title": "Radon Mitigation",
-                "description": "The Facts About Radon Mitigation  Radon is a colorless, tasteless, odorless gas that forms in nature when uranium in the soil breaks down and it is known to be one of the leading causes of lung cancer...",
-                "content": "<div class=\"service-intro\">\n        <p>The Facts About Radon Mitigation</p>\n    </div><section class=\"service-details\">\n            <h2>About Radon Mitigation in Edmonton</h2><p>Radon is a colorless, tasteless, odorless gas that forms in nature when uranium in the soil breaks down and it is known to be one of the leading causes of lung cancer. The prevention of radon in your home, and the identification and removal of radon that is already present, is essential to the health of your family. Fortunately, it is easy to prevent, detect, and mitigate radon in the home.</p><p>The best way to protect your family from radon is prevention. Radon can be found anywhere in the house, but it often builds up in unhealthy levels in low lying enclosed spaces like basements. The most common way for radon to enter your home is through openings such as poorly sealed sump pumps or cracks in the foundation and through porous construction materials that aren’t properly sealed. To prevent radon from entering your home be sure that all vents, pumps and other intentional openings have proper seals to allow water or exhaust to escape without permitting outside radon contamination. All surfaces should have adequate waterproofing and foundation crack repair should be tended to immediately.</p><p>Even if you believe your home to be safe from radon contamination, it is recommended that you test your home every two years. Quality home tests can be purchased at your local home improvement store, or you can call a local radon testing and mitigation company to perform a professional inspection in your home. If radon is detected don’t worry, there are ways to remove radon and restore your homes air quality.</p><p>The best way to mitigate radon in your home depends on several factors such as the condition and layout of the building, and the type of soil beneath it. When the air pressure in your home is lower than that in the soil, radon seeps in through cracks and openings. To ensure effective removal of radon, consult a radon mitigation specialist. They will evaluate your situation and suggest the most appropriate action. Using correctly installed ventilation systems can ensure regulation of air pressure, as well as constant circulation between inside and outside air to optimize air quality. Covering exposed earth in crawl spaces or basements and the timely repair of foundation cracks will prevent new radon build up. You should always consult a professional to repair foundation cracks properly.</p></section>",
-                "image": "/images/stock/Identifying-Different-Types-of-Foundation-Cracks - Copy.webp",
-                "faq": [
-                        {
-                                "question": "What is Radon Mitigation?",
-                                "answer": "The Facts About Radon Mitigation  Radon is a colorless, tasteless, odorless gas that forms in nature when uranium in the soil breaks down and it is known to be one of the leading causes of lung cancer. The prevention of radon in your home, and the id..."
-                        },
-                        {
-                                "question": "How does Radon Mitigation work?",
-                                "answer": "Our certified technicians use advanced techniques and high-quality materials to ensure permanent repairs that last for decades."
-                        },
-                        {
-                                "question": "How long does Radon Mitigation take?",
-                                "answer": "Most repairs can be completed in a single day, depending on the extent of the damage. We provide free estimates and work around your schedule."
-                        }
-                ]
-        }
-];
+// Services data - loaded from docx-extracted JSON (data/services-seed-data.json)
+const servicesDataPath = path.join(__dirname, '../data/services-seed-data.json');
+const servicesData = fs.existsSync(servicesDataPath)
+    ? JSON.parse(fs.readFileSync(servicesDataPath, 'utf8'))
+    : [];
 
 // Blog posts data - Generated from real content  
 const blogPostsData = [
@@ -443,6 +306,40 @@ async function getWorksData() {
     return worksData;
 }
 
+// SEO data for all pages (stored in DB, editable in Admin)
+const seoData = [
+    { page: 'home', title: 'Foundation Crack Repair in Edmonton | CrackBuster', description: 'Professional foundation crack repair services in Edmonton, Canada. Expert solutions for basement waterproofing, foundation repair, and crack injection. Free estimates available.', keywords: 'foundation crack repair, edmonton, canada, basement waterproofing, foundation repair, crack injection, concrete repair', ogTitle: 'Foundation Crack Repair in Edmonton | CrackBuster', ogDescription: 'Professional foundation crack repair services in Edmonton, Canada. Expert solutions for basement waterproofing, foundation repair, and crack injection.', ogImage: '/images/og-image.jpg', twitterTitle: 'Foundation Crack Repair in Edmonton | CrackBuster', twitterDescription: 'Professional foundation crack repair services in Edmonton, Canada.', twitterImage: '/images/og-image.jpg' },
+    { page: 'about-us', title: 'About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster', description: 'Learn about CrackBuster - over 17 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert with no-digging crack repair technology and lifetime guarantee.', keywords: 'about crackbuster, foundation repair experts, edmonton foundation repair, crack repair specialists', ogTitle: 'About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster', ogDescription: 'Learn about CrackBuster - over 17 years of experience in foundation crack repair. Serving Edmonton, Sherwood Park, and St. Albert.', ogImage: '/images/og-image.jpg', twitterTitle: 'About Us - Foundation Crack Repair Experts in Edmonton | CrackBuster', twitterDescription: 'Learn about CrackBuster - over 17 years of experience in foundation crack repair.', twitterImage: '/images/og-image.jpg' },
+    { page: 'contact-us', title: 'Contact Us - Foundation Repair Experts | CrackBuster Edmonton', description: 'Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries.', keywords: 'contact crackbuster, foundation repair contact, edmonton foundation repair contact', ogTitle: 'Contact Us - Foundation Repair Experts | CrackBuster Edmonton', ogDescription: 'Contact CrackBuster for foundation repair services in Edmonton. Get in touch with our expert team for consultations and inquiries.', ogImage: '/images/og-image.jpg', twitterTitle: 'Contact Us - Foundation Repair Experts | CrackBuster Edmonton', twitterDescription: 'Contact CrackBuster for foundation repair services in Edmonton.', twitterImage: '/images/og-image.jpg' },
+    { page: 'get-estimate', title: 'Get Free Estimate - Foundation Repair | CrackBuster Edmonton', description: 'Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we\'ll get back to you with a detailed quote.', keywords: 'free estimate, foundation repair estimate, edmonton foundation repair quote', ogTitle: 'Get Free Estimate - Foundation Repair | CrackBuster Edmonton', ogDescription: 'Get a free estimate for your foundation repair project in Edmonton. Fill out our form and we\'ll get back to you with a detailed quote.', ogImage: '/images/og-image.jpg', twitterTitle: 'Get Free Estimate - Foundation Repair | CrackBuster Edmonton', twitterDescription: 'Get a free estimate for your foundation repair project in Edmonton.', twitterImage: '/images/og-image.jpg' },
+    { page: 'our-works', title: 'Our Work & Gallery - Real Results | CrackBuster Edmonton', description: 'View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions.', keywords: 'foundation repair projects, completed works, edmonton foundation repair examples, portfolio', ogTitle: 'Our Work & Gallery - Real Results | CrackBuster Edmonton', ogDescription: 'View our completed foundation repair projects in Edmonton. See examples of our quality workmanship and successful foundation repair solutions.', ogImage: '/images/og-image.jpg', twitterTitle: 'Our Work & Gallery - Real Results | CrackBuster Edmonton', twitterDescription: 'View our completed foundation repair projects in Edmonton.', twitterImage: '/images/og-image.jpg' },
+    { page: 'blog', title: 'Foundation Repair Blog | CrackBuster Edmonton', description: 'Expert articles about foundation repair, basement waterproofing, and crack repair. Tips and guides from Edmonton\'s foundation repair experts.', keywords: 'foundation repair blog, foundation repair articles, basement waterproofing tips, crack repair guides', ogTitle: 'Foundation Repair Blog | CrackBuster Edmonton', ogDescription: 'Expert articles about foundation repair, basement waterproofing, and crack repair. Tips and guides from Edmonton\'s foundation repair experts.', ogImage: '/images/og-image.jpg', twitterTitle: 'Foundation Repair Blog | CrackBuster Edmonton', twitterDescription: 'Expert articles about foundation repair, basement waterproofing, and crack repair.', twitterImage: '/images/og-image.jpg' },
+    { page: 'blog-post', title: 'Blog Post | CrackBuster Blog', description: 'Read expert articles about foundation repair, basement waterproofing, and crack repair from Edmonton\'s leading foundation repair specialists.', keywords: 'foundation repair, blog post, foundation repair article', ogTitle: 'Blog Post | CrackBuster Blog', ogDescription: 'Read expert articles about foundation repair, basement waterproofing, and crack repair from Edmonton\'s leading foundation repair specialists.', ogImage: '/images/og-image.jpg', twitterTitle: 'Blog Post | CrackBuster Blog', twitterDescription: 'Read expert articles about foundation repair from Edmonton\'s leading specialists.', twitterImage: '/images/og-image.jpg' },
+    { page: 'service-detail', title: 'Service | CrackBuster', description: 'Professional foundation repair services in Edmonton. Expert solutions for your foundation needs.', keywords: 'foundation repair service, edmonton foundation services', ogTitle: 'Service | CrackBuster', ogDescription: 'Professional foundation repair services in Edmonton. Expert solutions for your foundation needs.', ogImage: '/images/og-image.jpg', twitterTitle: 'Service | CrackBuster', twitterDescription: 'Professional foundation repair services in Edmonton.', twitterImage: '/images/og-image.jpg' },
+    { page: 'services', title: 'Our Services - Foundation Repair | CrackBuster Edmonton', description: 'Comprehensive foundation repair services in Edmonton. From crack injection to complete structural repair, we have the solution for your foundation needs.', keywords: 'foundation repair services, edmonton foundation services, crack injection services', ogTitle: 'Our Services - Foundation Repair | CrackBuster Edmonton', ogDescription: 'Comprehensive foundation repair services in Edmonton. From crack injection to complete structural repair.', ogImage: '/images/og-image.jpg', twitterTitle: 'Our Services - Foundation Repair | CrackBuster Edmonton', twitterDescription: 'Comprehensive foundation repair services in Edmonton.', twitterImage: '/images/og-image.jpg' },
+    { page: '404', title: '404 - Page Not Found | CrackBuster', description: 'Oops! The page you\'re looking for has a crack in it. Let us help you find what you need.', keywords: '', ogTitle: '404 - Page Not Found | CrackBuster', ogDescription: 'Oops! The page you\'re looking for has a crack in it. Let us help you find what you need.', ogImage: '/images/og-image.jpg', twitterTitle: '404 - Page Not Found | CrackBuster', twitterDescription: 'Oops! The page you\'re looking for has a crack in it.', twitterImage: '/images/og-image.jpg', robots: 'noindex, nofollow' }
+];
+
+async function seedSEO() {
+    const publicImagesPath = path.join(__dirname, '../client/public/images');
+    if (!fs.existsSync(publicImagesPath)) {
+        fs.mkdirSync(publicImagesPath, { recursive: true });
+        fs.writeFileSync(path.join(publicImagesPath, 'README.txt'), 'Add og-image.jpg (1200×630 px) here for social sharing (Open Graph / Twitter).\n');
+        console.log('  Created client/public/images (add og-image.jpg 1200×630 for social sharing)');
+    }
+    for (const item of seoData) {
+        const existing = await SEO.findOne({ page: item.page });
+        if (existing) {
+            Object.assign(existing, item);
+            await existing.save();
+            console.log(`  ✓ Updated SEO: ${item.page}`);
+        } else {
+            await SEO.create(item);
+            console.log(`  ✓ Created SEO: ${item.page}`);
+        }
+    }
+}
+
 // Main seeding function
 async function seedDatabase() {
     try {
@@ -457,12 +354,14 @@ async function seedDatabase() {
         for (const serviceData of servicesData) {
             const fixedContent = fixImagePathsInHTML(serviceData.content);
             const fixedImage = checkImageFileExists(serviceData.image);
+            const fixedImages = (serviceData.images || []).map(img => checkImageFileExists(img));
 
             const service = new Service({
                 ...serviceData,
                 content: fixedContent,
                 image: fixedImage,
-                slug: createSlug(serviceData.title)
+                images: fixedImages,
+                slug: serviceData.slug || createSlug(serviceData.title)
             });
             await service.save();
             console.log(`  ✓ Created service: ${service.title}`);
@@ -471,15 +370,14 @@ async function seedDatabase() {
         console.log('Seeding blog posts...');
         for (const postData of blogPostsData) {
             const fixedContent = fixImagePathsInHTML(postData.content);
-            const fixedFeaturedImage = postData.featuredImage ?
-                checkImageFileExists(postData.featuredImage) :
-                postData.featuredImage;
+            const slug = createSlug(postData.title);
+            const featuredImagePath = `/images/blog/${slug}/hero.jpg`;
 
             const post = new BlogPost({
                 ...postData,
                 content: fixedContent,
-                featuredImage: fixedFeaturedImage,
-                slug: createSlug(postData.title)
+                featuredImage: featuredImagePath,
+                slug
             });
             await post.save();
             console.log(`  ✓ Created blog post: ${post.title}`);
@@ -493,10 +391,14 @@ async function seedDatabase() {
             console.log(`  ✓ Created work: ${work.title} (${work.images.length} images)`);
         }
 
+        console.log('Seeding SEO (page meta, OG, Twitter)...');
+        await seedSEO();
+
         console.log('\n✅ Database seeding completed successfully!');
         console.log(`   Services: ${servicesData.length}`);
         console.log(`   Blog Posts: ${blogPostsData.length}`);
         console.log(`   Works: ${worksData.length}`);
+        console.log(`   SEO: ${seoData.length} pages`);
 
     } catch (error) {
         console.error('Error seeding database:', error);

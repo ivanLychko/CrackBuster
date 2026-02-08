@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import useSEO from '../hooks/useSEO';
 import { getCanonicalUrl, getDefaultOgImage } from '../utils/seo';
 import './Services.scss';
 
 const Services = () => {
+  const { seo } = useSEO();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,29 +63,61 @@ const Services = () => {
     fetchServices();
   }, []);
 
+  const title = seo?.title || 'Foundation Repair Services in Edmonton | CrackBuster';
+  const description = seo?.description || 'Comprehensive foundation repair services in Edmonton. Foundation crack repair, basement waterproofing, crack injection, and more. Expert solutions for your foundation needs.';
+  const keywords = seo?.keywords || '';
+  const ogTitle = seo?.ogTitle || title;
+  const ogDescription = seo?.ogDescription || description;
+  const ogImage = seo?.ogImage ? (seo.ogImage.startsWith('http') ? seo.ogImage : getCanonicalUrl(seo.ogImage)) : getDefaultOgImage();
+  const twitterTitle = seo?.twitterTitle || ogTitle;
+  const twitterDescription = seo?.twitterDescription || ogDescription;
+  const twitterImage = seo?.twitterImage ? (seo.twitterImage.startsWith('http') ? seo.twitterImage : getCanonicalUrl(seo.twitterImage)) : ogImage;
+  const canonical = seo?.canonicalUrl || getCanonicalUrl('/services');
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Foundation Repair Services - CrackBuster',
+    description: description,
+    url: canonical,
+    numberOfItems: services.length,
+    itemListElement: services.slice(0, 20).map((s, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Service',
+        name: s.title,
+        url: getCanonicalUrl(`/services/${s.slug || ''}`)
+      }
+    }))
+  };
+
   return (
     <>
       <Helmet>
-        <title>Foundation Repair Services in Edmonton | CrackBuster</title>
-        <meta
-          name="description"
-          content="Comprehensive foundation repair services in Edmonton. Foundation crack repair, basement waterproofing, crack injection, and more. Expert solutions for your foundation needs."
-        />
-        <link rel="canonical" href={getCanonicalUrl('/services')} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        {keywords && <meta name="keywords" content={keywords} />}
+        <link rel="canonical" href={canonical} />
 
         {/* Open Graph */}
-        <meta property="og:title" content="Foundation Repair Services in Edmonton | CrackBuster" />
-        <meta property="og:description" content="Comprehensive foundation repair services in Edmonton. Foundation crack repair, basement waterproofing, crack injection, and more." />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getCanonicalUrl('/services')} />
-        <meta property="og:image" content={getDefaultOgImage()} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:locale" content="en_CA" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Foundation Repair Services in Edmonton | CrackBuster" />
-        <meta name="twitter:description" content="Comprehensive foundation repair services in Edmonton." />
-        <meta name="twitter:image" content={getDefaultOgImage()} />
+        <meta name="twitter:title" content={twitterTitle} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={twitterImage} />
+
+        {/* JSON-LD */}
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
       <div className="services">
