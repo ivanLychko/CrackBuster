@@ -38,6 +38,12 @@ const googleReviewSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+
+  // Review images (from plugin JSON: array of URLs)
+  images: {
+    type: [String],
+    default: []
+  },
   
   // Original data from Google (for reference)
   originalData: {
@@ -74,6 +80,29 @@ googleReviewSchema.statics.getActiveReviews = async function(limit = 10) {
 // Get all reviews
 googleReviewSchema.statics.getAllReviews = async function() {
   return await this.find({}).sort({ reviewTime: -1 });
+};
+
+// Get active reviews with pagination
+googleReviewSchema.statics.getActiveReviewsPaginated = async function(page = 1, perPage = 9) {
+  const skip = (Math.max(1, page) - 1) * perPage;
+  const [reviews, totalCount] = await Promise.all([
+    this.find({ active: true }).sort({ reviewTime: -1 }).skip(skip).limit(perPage).lean(),
+    this.countDocuments({ active: true })
+  ]);
+  return { reviews, totalCount };
+};
+
+// Get average rating and total count for active reviews
+googleReviewSchema.statics.getActiveStats = async function() {
+  const agg = await this.aggregate([
+    { $match: { active: true } },
+    { $group: { _id: null, averageRating: { $avg: '$rating' }, totalCount: { $sum: 1 } } }
+  ]);
+  if (!agg.length) return { averageRating: 0, totalCount: 0 };
+  return {
+    averageRating: Math.round(agg[0].averageRating * 100) / 100,
+    totalCount: agg[0].totalCount
+  };
 };
 
 module.exports = mongoose.model('GoogleReview', googleReviewSchema);

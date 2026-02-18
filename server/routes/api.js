@@ -331,17 +331,23 @@ router.get('/seo', async (req, res) => {
 router.get('/google-reviews', async (req, res) => {
   try {
     const settings = await GoogleReviewSettings.getSettings();
-    
+
     if (!settings.enabled) {
-      return res.json({ reviews: [], enabled: false });
+      return res.json({ reviews: [], enabled: false, totalCount: 0, averageRating: 0 });
     }
 
-    const limit = settings.displayCount || 5;
-    const reviews = await GoogleReview.getActiveReviews(limit);
-    
-    res.json({ 
-      reviews, 
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const perPage = Math.min(24, Math.max(3, parseInt(req.query.perPage, 10) || (settings.displayCount || 9)));
+    const { reviews, totalCount } = await GoogleReview.getActiveReviewsPaginated(page, perPage);
+    const { averageRating } = await GoogleReview.getActiveStats();
+
+    res.json({
+      reviews,
       enabled: true,
+      totalCount,
+      averageRating,
+      page,
+      perPage,
       lastSynced: settings.lastSynced
     });
   } catch (error) {

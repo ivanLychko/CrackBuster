@@ -221,6 +221,220 @@
         font-size: 0.95rem;
       }
     }
+
+    // Google Reviews card UI
+    .gr-card {
+      background: $bg-section;
+      border-radius: 12px;
+      border: 1px solid $border-light;
+      box-shadow: $shadow-card;
+      overflow: hidden;
+    }
+
+    .gr-card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: $gradient-blue-light;
+      color: $text-on-accent;
+      border: none;
+      border-radius: 12px 12px 0 0;
+
+      .gr-header-icon {
+        font-size: 2rem;
+        line-height: 1;
+      }
+
+      .gr-header-text {
+        h2 {
+          margin: 0;
+          font-size: 1.35rem;
+          font-weight: 600;
+          color: $text-on-accent;
+        }
+
+        p {
+          margin: 0.35rem 0 0 0;
+          font-size: 0.9rem;
+          opacity: 0.95;
+        }
+      }
+    }
+
+    .gr-card-body {
+      padding: 1.5rem 1.75rem;
+      border-radius: 0 0 12px 12px;
+      border-top: none;
+    }
+
+    .gr-source-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      background: $bg-primary;
+      border-radius: 10px;
+      padding: 4px;
+      border: 1px solid $border-light;
+
+      .gr-tab {
+        flex: 1;
+        padding: 0.65rem 1rem;
+        border: none;
+        background: transparent;
+        color: $text-secondary;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: $blue-primary;
+          background: rgba(3, 17, 103, 0.06);
+        }
+
+        &.active {
+          background: white;
+          color: $blue-primary;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+      }
+    }
+
+    .gr-source-section {
+      margin-bottom: 1rem;
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+    }
+
+    .gr-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .gr-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid $border-light;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: $blue-primary;
+        box-shadow: 0 0 0 3px rgba(3, 17, 103, 0.12);
+      }
+
+      &.gr-input-url {
+        font-family: ui-monospace, monospace;
+        font-size: 0.9rem;
+      }
+
+      &.gr-input-narrow {
+        width: 80px;
+        text-align: center;
+      }
+    }
+
+    .gr-divider {
+      height: 1px;
+      background: $border-light;
+      margin: 1.25rem 0;
+    }
+
+    .gr-display-options {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1.5rem;
+
+      .gr-checkbox-wrap {
+        margin-bottom: 0;
+      }
+
+      .gr-display-count {
+        margin-bottom: 0;
+
+        label {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-weight: 600;
+          color: $text-primary;
+          font-size: 0.95rem;
+        }
+      }
+    }
+
+    .gr-sync-status {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      background: $bg-primary;
+      border: 1px solid $border-light;
+
+      .gr-status-ok {
+        color: #0d6b2e;
+        font-size: 0.9rem;
+      }
+
+      .gr-status-err {
+        color: #b91c1c;
+        font-size: 0.9rem;
+        white-space: pre-line;
+      }
+    }
+
+    .gr-validation {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+
+      &.valid {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        color: #166534;
+      }
+
+      &.invalid {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+      }
+
+      .gr-validation-place {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        opacity: 0.95;
+      }
+    }
+
+    .gr-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid $border-light;
+
+      .gr-sync-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-left: auto;
+      }
+
+      .btn-sync {
+        font-weight: 500;
+      }
+    }
   }
 }
 

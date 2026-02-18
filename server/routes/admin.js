@@ -525,20 +525,6 @@ router.post('/google-reviews/sync', async (req, res) => {
   }
 });
 
-// Validate Place ID
-router.post('/google-reviews/validate', async (req, res) => {
-  try {
-    const { placeId, apiKey } = req.body;
-    const result = await googleReviewsService.validatePlaceId(placeId, apiKey);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ 
-      valid: false,
-      message: error.message 
-    });
-  }
-});
-
 // Get all Google Reviews
 router.get('/google-reviews', async (req, res) => {
   try {

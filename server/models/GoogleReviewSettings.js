@@ -1,20 +1,13 @@
 const mongoose = require('mongoose');
 
 const googleReviewSettingsSchema = new mongoose.Schema({
-  // Google Place ID (required for fetching reviews)
-  placeId: {
+  // URL that returns JSON: { place, reviews[] } (e.g. external review service)
+  reviewsFeedUrl: {
     type: String,
     default: '',
     required: false
   },
-  
-  // Google API Key (optional, for official API)
-  apiKey: {
-    type: String,
-    default: '',
-    required: false
-  },
-  
+
   // Whether to show reviews on homepage
   enabled: {
     type: Boolean,
