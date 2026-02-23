@@ -25,7 +25,7 @@
         "edmonton",
         "canada"
     ],
-    "author": "",
+    "author": "Ivan Lychko <klonvl96@gmail.com>",
     "license": "ISC",
     "dependencies": {
         "dotenv": "^16.3.1",
