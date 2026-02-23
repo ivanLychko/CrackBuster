@@ -82,20 +82,55 @@ googleReviewSchema.statics.getAllReviews = async function() {
   return await this.find({}).sort({ reviewTime: -1 });
 };
 
-// Get active reviews with pagination
-googleReviewSchema.statics.getActiveReviewsPaginated = async function(page = 1, perPage = 9) {
+// Build filter and sort from display options
+// options: { minStars?, maxStars?, hideEmptyReviews?, sortBy? }
+function buildFilterAndSort(options = {}) {
+  const match = { active: true };
+  if (options.minStars != null && options.minStars >= 1) {
+    match.rating = match.rating || {};
+    match.rating.$gte = options.minStars;
+  }
+  if (options.maxStars != null && options.maxStars <= 5) {
+    match.rating = match.rating || {};
+    match.rating.$lte = options.maxStars;
+  }
+  if (options.hideEmptyReviews) {
+    match.text = { $regex: /\S/ };
+  }
+  const sortBy = options.sortBy || 'newest_first';
+  let sort = {};
+  switch (sortBy) {
+    case 'oldest_first':
+      sort = { reviewTime: 1 };
+      break;
+    case 'highest_rating':
+      sort = { rating: -1, reviewTime: -1 };
+      break;
+    case 'lowest_rating':
+      sort = { rating: 1, reviewTime: -1 };
+      break;
+    default:
+      sort = { reviewTime: -1 };
+  }
+  return { match, sort };
+}
+
+// Get active reviews with pagination (legacy — no filter options)
+googleReviewSchema.statics.getActiveReviewsPaginated = async function(page = 1, perPage = 9, options = {}) {
+  const { match, sort } = buildFilterAndSort(options);
   const skip = (Math.max(1, page) - 1) * perPage;
   const [reviews, totalCount] = await Promise.all([
-    this.find({ active: true }).sort({ reviewTime: -1 }).skip(skip).limit(perPage).lean(),
-    this.countDocuments({ active: true })
+    this.find(match).sort(sort).skip(skip).limit(perPage).lean(),
+    this.countDocuments(match)
   ]);
   return { reviews, totalCount };
 };
 
-// Get average rating and total count for active reviews
-googleReviewSchema.statics.getActiveStats = async function() {
+// Get average rating and total count for active reviews (with same filter options)
+googleReviewSchema.statics.getActiveStats = async function(options = {}) {
+  const { match } = buildFilterAndSort(options);
   const agg = await this.aggregate([
-    { $match: { active: true } },
+    { $match: match },
     { $group: { _id: null, averageRating: { $avg: '$rating' }, totalCount: { $sum: 1 } } }
   ]);
   if (!agg.length) return { averageRating: 0, totalCount: 0 };

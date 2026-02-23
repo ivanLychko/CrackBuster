@@ -13,7 +13,8 @@ const GoogleReviews = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [expandedId, setExpandedId] = useState(null);
-  const [writeReviewUrl] = useState('#'); // optional: from settings later
+  const [writeReviewUrl, setWriteReviewUrl] = useState('#');
+  const [imagesPopupReview, setImagesPopupReview] = useState(null);
 
   const fetchReviews = useCallback(async (pageNum = 1) => {
     try {
@@ -27,8 +28,10 @@ const GoogleReviews = () => {
         setAverageRating(data.averageRating ?? 0);
         setPage(data.page || 1);
         setTotalPages(Math.ceil((data.totalCount || 0) / REVIEWS_PER_PAGE) || 1);
+        setWriteReviewUrl(data.writeReviewUrl && data.writeReviewUrl.trim() ? data.writeReviewUrl : '#');
       } else {
         setEnabled(false);
+        setWriteReviewUrl(data.writeReviewUrl && data.writeReviewUrl.trim() ? data.writeReviewUrl : '#');
       }
     } catch (error) {
       console.error('Error fetching Google reviews:', error);
@@ -41,6 +44,21 @@ const GoogleReviews = () => {
   useEffect(() => {
     fetchReviews(1);
   }, [fetchReviews]);
+
+  useEffect(() => {
+    if (imagesPopupReview) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      const onKeyDown = (e) => {
+        if (e.key === 'Escape') setImagesPopupReview(null);
+      };
+      window.addEventListener('keydown', onKeyDown);
+      return () => {
+        document.body.style.overflow = prev;
+        window.removeEventListener('keydown', onKeyDown);
+      };
+    }
+  }, [imagesPopupReview]);
 
   const goToPage = (p) => {
     const next = Math.max(1, Math.min(p, totalPages));
@@ -80,6 +98,8 @@ const GoogleReviews = () => {
     return stars;
   };
 
+  const hasImages = (review) => Array.isArray(review.images) && review.images.length > 0;
+
   if (loading && reviews.length === 0) {
     return null;
   }
@@ -105,14 +125,16 @@ const GoogleReviews = () => {
               <div className="gr-stars">{renderStars(averageRating)}</div>
               <span className="gr-review-count">{totalCount} reviews</span>
             </div>
-            <a
-              href={writeReviewUrl}
-              className="gr-write-review-btn"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Write a review
-            </a>
+            {writeReviewUrl && writeReviewUrl !== '#' && (
+              <a
+                href={writeReviewUrl}
+                className="gr-write-review-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Write a review
+              </a>
+            )}
           </div>
         </header>
 
@@ -136,9 +158,25 @@ const GoogleReviews = () => {
                         <span className="gr-card-rating-num">{review.rating}</span>
                         <span className="gr-card-stars">{renderStars(review.rating)}</span>
                       </div>
-                      <time className="gr-card-date" dateTime={review.reviewTime}>
-                        {formatDate(review.reviewTime)}
-                      </time>
+                      <div className="gr-card-top-right">
+                        {hasImages(review) && (
+                          <button
+                            type="button"
+                            className="gr-card-attachment"
+                            onClick={() => setImagesPopupReview(review)}
+                            title="View images"
+                            aria-label="View review images"
+                          >
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                              <path fill="currentColor" d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"/>
+                            </svg>
+                            <span className="gr-attachment-count">{review.images.length}</span>
+                          </button>
+                        )}
+                        <time className="gr-card-date" dateTime={review.reviewTime}>
+                          {formatDate(review.reviewTime)}
+                        </time>
+                      </div>
                     </div>
                     {text && (
                       <div className="gr-card-text">
@@ -224,6 +262,34 @@ const GoogleReviews = () => {
 
         <p className="gr-attribution">Google Reviews</p>
       </div>
+
+      {imagesPopupReview && hasImages(imagesPopupReview) && (
+        <div
+          className="gr-images-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Review images"
+          onClick={(e) => e.target === e.currentTarget && setImagesPopupReview(null)}
+        >
+          <div className="gr-images-popup">
+            <button
+              type="button"
+              className="gr-images-close"
+              onClick={() => setImagesPopupReview(null)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <div className="gr-images-gallery">
+              {imagesPopupReview.images.map((url, i) => (
+                <div key={i} className="gr-images-item">
+                  <img src={url} alt={`Review image ${i + 1}`} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

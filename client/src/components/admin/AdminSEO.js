@@ -13,8 +13,14 @@ const AdminSEO = () => {
   const [seoData, setSeoData] = useState({});
   const [googleReviewSettings, setGoogleReviewSettings] = useState({
     reviewsFeedUrl: '',
+    googlePlaceId: '',
+    writeReviewUrlOverride: '',
     enabled: false,
-    displayCount: 5
+    displayCount: 5,
+    minStars: 1,
+    maxStars: 5,
+    hideEmptyReviews: false,
+    sortBy: 'newest_first'
   });
 
   const pages = [
@@ -414,7 +420,36 @@ const AdminSEO = () => {
             </div>
 
             <div className="gr-divider" />
+            <h3 className="gr-subsection-title">Write a review link</h3>
+            <div className="form-group">
+              <label className="gr-label">Google Place ID</label>
+              <input
+                type="text"
+                value={googleReviewSettings.googlePlaceId || ''}
+                onChange={(e) => handleGoogleReviewChange('googlePlaceId', e.target.value)}
+                placeholder="ChIJN1t_tDeuEmsRUsoyG83frY4"
+                className="gr-input gr-input-url"
+              />
+              <p className="form-hint">
+                Your business Place ID in Google (e.g. from <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener noreferrer">Place ID Finder</a>). The &quot;Write a review&quot; link will be: <code>https://search.google.com/local/writereview?placeid=...</code>
+              </p>
+            </div>
+            <div className="form-group">
+              <label className="gr-label">Custom review link (optional)</label>
+              <input
+                type="url"
+                value={googleReviewSettings.writeReviewUrlOverride || ''}
+                onChange={(e) => handleGoogleReviewChange('writeReviewUrlOverride', e.target.value)}
+                placeholder="Leave empty to use the link generated from Place ID"
+                className="gr-input gr-input-url"
+              />
+              <p className="form-hint">
+                If set, this URL will be used instead of the one generated from Place ID.
+              </p>
+            </div>
 
+            <div className="gr-divider" />
+            <h3 className="gr-subsection-title">Display on site</h3>
             <div className="gr-display-options">
               <div className="form-group gr-checkbox-wrap">
                 <label className="checkbox-label">
@@ -427,7 +462,7 @@ const AdminSEO = () => {
                 </label>
               </div>
               <div className="form-group gr-display-count">
-                <label>Number of reviews on homepage</label>
+                <label>Reviews per page</label>
                 <input
                   type="number"
                   min="1"
@@ -437,6 +472,60 @@ const AdminSEO = () => {
                   className="gr-input gr-input-narrow"
                 />
               </div>
+            </div>
+
+            <div className="gr-divider" />
+            <h3 className="gr-subsection-title">Review filters</h3>
+            <div className="gr-filter-row">
+              <div className="form-group">
+                <label>Minimum rating (stars)</label>
+                <select
+                  value={String(googleReviewSettings.minStars ?? 1)}
+                  onChange={(e) => handleGoogleReviewChange('minStars', parseInt(e.target.value, 10))}
+                  className="gr-input gr-input-narrow"
+                >
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <option key={n} value={n}>{n} and above</option>
+                  ))}
+                </select>
+                <p className="form-hint">Only show reviews with at least this rating</p>
+              </div>
+              <div className="form-group">
+                <label>Maximum rating (stars)</label>
+                <select
+                  value={String(googleReviewSettings.maxStars ?? 5)}
+                  onChange={(e) => handleGoogleReviewChange('maxStars', parseInt(e.target.value, 10))}
+                  className="gr-input gr-input-narrow"
+                >
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <option key={n} value={n}>{n} and below</option>
+                  ))}
+                </select>
+                <p className="form-hint">Only show reviews with at most this rating (5 = all)</p>
+              </div>
+            </div>
+            <div className="form-group gr-checkbox-wrap">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={!!googleReviewSettings.hideEmptyReviews}
+                  onChange={(e) => handleGoogleReviewChange('hideEmptyReviews', e.target.checked)}
+                />
+                <span>Hide reviews without text (rating only)</span>
+              </label>
+            </div>
+            <div className="form-group">
+              <label>Sort order</label>
+              <select
+                value={googleReviewSettings.sortBy || 'newest_first'}
+                onChange={(e) => handleGoogleReviewChange('sortBy', e.target.value)}
+                className="gr-input gr-input-narrow"
+              >
+                <option value="newest_first">Newest first</option>
+                <option value="oldest_first">Oldest first</option>
+                <option value="highest_rating">Highest rating first</option>
+                <option value="lowest_rating">Lowest rating first</option>
+              </select>
             </div>
 
             {(googleReviewSettings.lastSynced || googleReviewSettings.lastSyncError) && (

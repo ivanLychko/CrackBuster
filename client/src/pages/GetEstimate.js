@@ -285,7 +285,7 @@ const GetEstimate = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="description">Project Description *</label>
+                  <label htmlFor="description">Description *</label>
                   <textarea
                     id="description"
                     name="description"

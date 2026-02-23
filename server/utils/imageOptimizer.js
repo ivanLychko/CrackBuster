@@ -25,14 +25,14 @@ async function optimizeImage(imagePath, options = {}) {
   const isJpeg = ['.jpg', '.jpeg'].includes(ext);
   const isPng = ext === '.png';
   const isWebP = ext === '.webp';
-  
-  // Prevent re-optimization of already optimized WebP files
-  if (isWebP) {
-    throw new Error('WebP images are already optimized and cannot be optimized again');
+
+  if (!isJpeg && !isPng && !isWebP && !convertToWebP) {
+    throw new Error('Only JPG, PNG and WebP images can be optimized');
   }
-  
-  if (!isJpeg && !isPng && !convertToWebP) {
-    throw new Error('Only JPG and PNG images can be optimized');
+
+  // WebP can be re-optimized (resize + quality) to reduce file size
+  if (isWebP && !convertToWebP) {
+    // Output stays WebP, same path
   }
 
   let sharpInstance = sharp(imagePath);
@@ -50,13 +50,15 @@ async function optimizeImage(imagePath, options = {}) {
 
   // Determine output format and path
   let outputPath = imagePath;
-  let outputFormat = format || ext.replace('.', '');
+  let outputFormat = format || (isWebP ? 'webp' : ext.replace('.', ''));
 
   if (convertToWebP) {
     outputFormat = 'webp';
     outputPath = imagePath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
   } else if (format) {
     outputPath = imagePath.replace(ext, `.${format}`);
+  } else if (isWebP) {
+    outputPath = imagePath; // Re-optimize in place
   }
 
   // Apply format-specific optimizations
@@ -138,14 +140,12 @@ async function optimizeForWeb(imagePath, options = {}) {
     quality = 85
   } = options;
 
-  // Check if already WebP
+  // WebP can be re-optimized (resize + lower quality) to reduce file size
   const ext = path.extname(imagePath).toLowerCase();
-  if (ext === '.webp') {
-    throw new Error('Image is already optimized as WebP and cannot be optimized again');
-  }
+  const isWebP = ext === '.webp';
 
   return optimizeImage(imagePath, {
-    convertToWebP: true,
+    convertToWebP: !isWebP,
     maxWidth,
     maxHeight,
     quality

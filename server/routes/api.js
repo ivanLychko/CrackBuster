@@ -333,13 +333,26 @@ router.get('/google-reviews', async (req, res) => {
     const settings = await GoogleReviewSettings.getSettings();
 
     if (!settings.enabled) {
-      return res.json({ reviews: [], enabled: false, totalCount: 0, averageRating: 0 });
+      return res.json({
+        reviews: [],
+        enabled: false,
+        totalCount: 0,
+        averageRating: 0,
+        writeReviewUrl: GoogleReviewSettings.getWriteReviewUrl(settings)
+      });
     }
 
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const perPage = Math.min(24, Math.max(3, parseInt(req.query.perPage, 10) || (settings.displayCount || 9)));
-    const { reviews, totalCount } = await GoogleReview.getActiveReviewsPaginated(page, perPage);
-    const { averageRating } = await GoogleReview.getActiveStats();
+    const filterOptions = {
+      minStars: settings.minStars,
+      maxStars: settings.maxStars,
+      hideEmptyReviews: !!settings.hideEmptyReviews,
+      sortBy: settings.sortBy || 'newest_first'
+    };
+    const { reviews, totalCount } = await GoogleReview.getActiveReviewsPaginated(page, perPage, filterOptions);
+    const { averageRating } = await GoogleReview.getActiveStats(filterOptions);
+    const writeReviewUrl = GoogleReviewSettings.getWriteReviewUrl(settings);
 
     res.json({
       reviews,
@@ -348,7 +361,8 @@ router.get('/google-reviews', async (req, res) => {
       averageRating,
       page,
       perPage,
-      lastSynced: settings.lastSynced
+      lastSynced: settings.lastSynced,
+      writeReviewUrl: writeReviewUrl || undefined
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -348,6 +348,24 @@
       margin: 1.25rem 0;
     }
 
+    .gr-subsection-title {
+      font-size: 1.1rem;
+      color: $blue-primary;
+      margin: 0 0 1rem 0;
+      font-weight: 600;
+    }
+
+    .gr-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+
+      .form-group {
+        min-width: 180px;
+      }
+    }
+
     .gr-display-options {
       display: flex;
       flex-wrap: wrap;

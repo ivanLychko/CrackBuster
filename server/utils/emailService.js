@@ -244,7 +244,7 @@ async function sendEstimateEmail(contactData, imagePaths = []) {
                 ` : ''}
               </div>
               <div class="field-group">
-                <span class="field-label">📝 Project Description</span>
+                <span class="field-label">📝 Description</span>
                 <div class="description-box">${description.replace(/\n/g, '\n')}</div>
               </div>
               ${imagePaths.length > 0 ? `
