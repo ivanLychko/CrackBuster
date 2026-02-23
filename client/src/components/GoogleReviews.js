@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Lightbox from './Lightbox';
 import './GoogleReviews.scss';
 
 const REVIEWS_PER_PAGE = 9;
@@ -14,7 +15,9 @@ const GoogleReviews = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [expandedId, setExpandedId] = useState(null);
   const [writeReviewUrl, setWriteReviewUrl] = useState('#');
-  const [imagesPopupReview, setImagesPopupReview] = useState(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const fetchReviews = useCallback(async (pageNum = 1) => {
     try {
@@ -45,20 +48,18 @@ const GoogleReviews = () => {
     fetchReviews(1);
   }, [fetchReviews]);
 
-  useEffect(() => {
-    if (imagesPopupReview) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      const onKeyDown = (e) => {
-        if (e.key === 'Escape') setImagesPopupReview(null);
-      };
-      window.addEventListener('keydown', onKeyDown);
-      return () => {
-        document.body.style.overflow = prev;
-        window.removeEventListener('keydown', onKeyDown);
-      };
-    }
-  }, [imagesPopupReview]);
+  const openReviewImages = (review) => {
+    if (!hasImages(review)) return;
+    setLightboxImages(review.images);
+    setLightboxIndex(0);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    setLightboxImages([]);
+    setLightboxIndex(0);
+  };
 
   const goToPage = (p) => {
     const next = Math.max(1, Math.min(p, totalPages));
@@ -163,7 +164,7 @@ const GoogleReviews = () => {
                           <button
                             type="button"
                             className="gr-card-attachment"
-                            onClick={() => setImagesPopupReview(review)}
+                            onClick={() => openReviewImages(review)}
                             title="View images"
                             aria-label="View review images"
                           >
@@ -263,32 +264,14 @@ const GoogleReviews = () => {
         <p className="gr-attribution">Google Reviews</p>
       </div>
 
-      {imagesPopupReview && hasImages(imagesPopupReview) && (
-        <div
-          className="gr-images-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Review images"
-          onClick={(e) => e.target === e.currentTarget && setImagesPopupReview(null)}
-        >
-          <div className="gr-images-popup">
-            <button
-              type="button"
-              className="gr-images-close"
-              onClick={() => setImagesPopupReview(null)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-            <div className="gr-images-gallery">
-              {imagesPopupReview.images.map((url, i) => (
-                <div key={i} className="gr-images-item">
-                  <img src={url} alt={`Review image ${i + 1}`} loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      {lightboxOpen && (
+        <Lightbox
+          images={lightboxImages}
+          currentIndex={lightboxIndex}
+          onClose={closeLightbox}
+          onNext={() => setLightboxIndex((prev) => (prev + 1) % lightboxImages.length)}
+          onPrev={() => setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length)}
+        />
       )}
     </section>
   );
